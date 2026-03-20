@@ -100,7 +100,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 
 MARKER_FILE = os.path.join(BASE_DIR, ".saver_installed")
-BAT_PATH = r"D:\Work\Unity_Applications\Freelance\po-bot-cloudflare\scripts\start_saver.bat"
 
 def ensure_startup():
     if os.path.exists(MARKER_FILE):
@@ -108,12 +107,13 @@ def ensure_startup():
         return
     try:
         import winreg
+        saver_path = os.path.join(os.path.dirname(__file__), "start_saver.pyw")
         key = winreg.OpenKey(
             winreg.HKEY_CURRENT_USER,
             r"Software\Microsoft\Windows\CurrentVersion\Run",
             0, winreg.KEY_SET_VALUE
         )
-        winreg.SetValueEx(key, "PO Bot Saver", 0, winreg.REG_SZ, BAT_PATH)
+        winreg.SetValueEx(key, "PO Bot Saver", 0, winreg.REG_SZ, f'pythonw "{saver_path}"')
         winreg.CloseKey(key)
         os.makedirs(BASE_DIR, exist_ok=True)
         open(MARKER_FILE, "w").close()
