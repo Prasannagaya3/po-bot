@@ -1,0 +1,102 @@
+{
+  "project_name": "Simple Todo App",
+  "vision": "A mobile app for individuals to manage daily tasks efficiently through creation, completion tracking, and organization of tasks.",
+  "personas": [
+    "Individual user"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "Task Management",
+      "description": "Core functionality for creating, completing, and deleting tasks",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Create task with title and due date",
+          "user_story": "As an Individual user, I want to create a task with a title and due date, so that I can track what needs to be done and when",
+          "acceptance_criteria": [
+            "Given I am on the task list screen When I tap the add task button Then I see a form to enter task title and due date",
+            "Given I am on the create task form When I enter a title and due date and tap save Then the task is added to my task list",
+            "Given I am on the create task form When I try to save without a title Then I see an error message requiring a title"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - establishes core data model"
+        },
+        {
+          "id": "US-002",
+          "title": "Mark task as complete",
+          "user_story": "As an Individual user, I want to mark a task as complete, so that I can track my progress and know what is done",
+          "acceptance_criteria": [
+            "Given I have an incomplete task When I tap the complete button on that task Then the task is marked as complete",
+            "Given I have a completed task When I view it in the list Then it displays a visual indicator showing completion status"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - core task state management"
+        },
+        {
+          "id": "US-003",
+          "title": "Delete task from list",
+          "user_story": "As an Individual user, I want to delete a task, so that I can remove tasks I no longer need",
+          "acceptance_criteria": [
+            "Given I have a task in my list When I tap the delete button on that task Then the task is removed from my list",
+            "Given I tap delete on a task When the deletion is triggered Then I see a confirmation before the task is permanently removed"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Task Viewing",
+      "description": "Functionality for viewing and browsing tasks",
+      "stories": [
+        {
+          "id": "US-004",
+          "title": "View all tasks in a list",
+          "user_story": "As an Individual user, I want to view all my tasks in a list, so that I can see everything I need to do at a glance",
+          "acceptance_criteria": [
+            "Given I have tasks saved When I open the app Then I see all my tasks displayed in a list",
+            "Given I am viewing the task list When I look at each task Then I can see the title, due date, and completion status"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - primary interface"
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Task Filtering",
+      "description": "Functionality for filtering and organizing task views",
+      "stories": [
+        {
+          "id": "US-005",
+          "title": "Filter tasks by completion status",
+          "user_story": "As an Individual user, I want to filter tasks by complete and incomplete, so that I can focus on what still needs to be done",
+          "acceptance_criteria": [
+            "Given I am viewing my task list When I select the incomplete filter Then I only see tasks that are not completed",
+            "Given I am viewing my task list When I select the complete filter Then I only see tasks that are completed",
+            "Given I have a filter applied When I select show all Then I see all tasks regardless of completion status"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "docs/test-product.txt",
+    "generated_at": "2026-03-20T04:58:41.826087+00:00",
+    "status": "pending_review"
+  }
+}
