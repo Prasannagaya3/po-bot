@@ -57,7 +57,6 @@ jobs:
           fi
           FILENAME=$(basename "${{ github.event.inputs.doc_path || 'doc' }}" | sed 's/\.[^.]*$//')
           echo "filename=$FILENAME" >> $GITHUB_OUTPUT
-          echo "Detected: $FILE  mode: ${{ github.event.inputs.mode }}"
 
       - name: Run pipeline stage
         if: steps.detect.outputs.file != ''
