@@ -155,10 +155,22 @@ async function handleGenerate(request, env) {
   return jsonResponse({ doc_name: docName, status: 'triggered' });
 }
 
-// GET /api/teams — return teams config from Worker secret
+// GET /api/teams — return teams config from Worker secret (emails stripped)
 async function handleGetTeams(request, env) {
   try {
-    return jsonResponse(JSON.parse(env.TEAMS_CONFIG));
+    const config = JSON.parse(env.TEAMS_CONFIG);
+    const sanitized = {
+      ...config,
+      teams: (config.teams || []).map(t => ({
+        id: t.id,
+        name: t.name,
+        primary: t.primary,
+        also_covers: t.also_covers,
+        color: t.color,
+        member_count: (t.members || []).length,
+      })),
+    };
+    return jsonResponse(sanitized);
   } catch {
     return jsonResponse({ error: 'Teams config not available' }, 500);
   }
@@ -262,9 +274,11 @@ async function handleApprove(request, env) {
     }
   }
 
-  // Create stories
+  // Create stories — track issue keys by sprint number for sprint assignment
   let issuesCreated = 0;
   const errors = [];
+  const issueKeysBySprint = {};
+
   for (const epic of backlog.epics) {
     for (const story of epic.stories) {
       const acLines = (story.acceptance_criteria || []).map(ac => `• ${ac}`).join('\n');
@@ -293,6 +307,10 @@ async function handleApprove(request, env) {
       });
       if (sRes.ok) {
         issuesCreated++;
+        const created = await sRes.json();
+        const sn = story.sprint;
+        if (!issueKeysBySprint[sn]) issueKeysBySprint[sn] = [];
+        issueKeysBySprint[sn].push(created.key);
       } else {
         const e = await sRes.text();
         errors.push(`${story.id}: ${e.substring(0, 100)}`);
@@ -323,11 +341,78 @@ async function handleApprove(request, env) {
     } catch (_) {}
   }
 
+  // Create agile sprints and assign stories — best-effort, non-blocking
+  let sprintsCreated = 0;
+  try {
+    const boardRes = await fetch(
+      `https://${env.JIRA_DOMAIN}/rest/agile/1.0/board?projectKeyOrId=${finalKey}`,
+      { headers: jHeaders }
+    );
+    if (boardRes.ok) {
+      const boardData = await boardRes.json();
+      const board = (boardData.values || [])[0];
+      if (board) {
+        const boardId = board.id;
+
+        // Unique sprint numbers from the backlog, sorted ascending
+        const sprintNums = [...new Set(
+          backlog.epics.flatMap(e => e.stories.map(s => Number(s.sprint)))
+        )].filter(n => !isNaN(n) && n > 0).sort((a, b) => a - b);
+
+        // Base date: today at 09:00 UTC
+        const today = new Date();
+        today.setUTCHours(9, 0, 0, 0);
+
+        const sprintIdMap = {};
+
+        for (const n of sprintNums) {
+          const start = new Date(today);
+          start.setUTCDate(today.getUTCDate() + (n - 1) * 14);
+          const end = new Date(today);
+          end.setUTCDate(today.getUTCDate() + n * 14);
+
+          const spRes = await fetch(
+            `https://${env.JIRA_DOMAIN}/rest/agile/1.0/sprint`,
+            {
+              method: 'POST', headers: jHeaders,
+              body: JSON.stringify({
+                name: `Sprint ${n}`,
+                originBoardId: boardId,
+                startDate: start.toISOString().replace(/\.\d{3}Z$/, '.000Z'),
+                endDate: end.toISOString().replace(/\.\d{3}Z$/, '.000Z'),
+                goal: `Sprint ${n} stories`,
+              }),
+            }
+          );
+          if (spRes.ok) {
+            const sp = await spRes.json();
+            sprintIdMap[n] = sp.id;
+            sprintsCreated++;
+          }
+        }
+
+        // Move issues into their sprints
+        for (const [sprintNumStr, issueKeys] of Object.entries(issueKeysBySprint)) {
+          const sprintId = sprintIdMap[Number(sprintNumStr)];
+          if (!sprintId || issueKeys.length === 0) continue;
+          await fetch(
+            `https://${env.JIRA_DOMAIN}/rest/agile/1.0/sprint/${sprintId}/issue`,
+            {
+              method: 'POST', headers: jHeaders,
+              body: JSON.stringify({ issues: issueKeys }),
+            }
+          );
+        }
+      }
+    }
+  } catch (_) {}
+
   return jsonResponse({
     project_key: finalKey,
     issues_created: issuesCreated,
     jira_url: `https://${env.JIRA_DOMAIN}/jira/software/projects/${finalKey}/board`,
     team_invited: totalInvited,
+    sprints_created: sprintsCreated,
   });
 }
 
