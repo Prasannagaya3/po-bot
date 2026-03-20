@@ -155,6 +155,20 @@ input[type="file"]{display:none}
 .btn-ghost:hover{border-color:var(--accent);color:var(--accent-tx);background:var(--accent-lt)}
 .btn-danger{background:transparent;color:var(--bad);border:1.5px solid var(--bad-lt);font-size:13px;padding:9px 16px;width:auto}
 .btn-danger:hover{background:var(--bad-lt)}
+.btn-danger:disabled{opacity:.4;cursor:not-allowed}
+/* ── Clear History Modal ──────────────────────────────────────────── */
+.modal-bd{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:900}
+.modal-bd.on{display:block}
+.modal-card{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:28px 28px 24px;width:min(380px,90vw);z-index:901;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.modal-card.on{display:block}
+.modal-title{font-size:18px;font-weight:700;color:var(--fg);margin:0 0 12px}
+.modal-body{font-size:14px;color:var(--fg-muted);line-height:1.55;margin:0 0 24px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.btn-outline{background:transparent;color:var(--fg-muted);border:1.5px solid var(--border);
+  font-size:13px;padding:9px 18px;width:auto}
+.btn-outline:hover{background:var(--surface-2)}
 /* ── Processing ──────────────────────────────────────────────────── */
 .proc-wrap{max-width:480px;margin:0 auto;padding:80px 24px;text-align:center}
 .proc-anim{width:58px;height:58px;margin:0 auto 32px;position:relative}
@@ -313,7 +327,18 @@ input[type="file"]{display:none}
     <div class="hist-empty">No projects yet.<br>Completed projects appear here.</div>
   </div>
   <div class="hist-ft">
-    <button class="btn btn-danger" onclick="clearHistory()">Clear History</button>
+    <button class="btn btn-danger" id="clear-hist-btn" onclick="clearHistory()">Clear History</button>
+  </div>
+</div>
+
+<!-- ── CLEAR HISTORY MODAL ──────────────────────────────────────────────── -->
+<div class="modal-bd" id="clr-bd" onclick="closeClearModal()"></div>
+<div class="modal-card" id="clr-modal" role="dialog" aria-modal="true">
+  <h3 class="modal-title">Clear Project History</h3>
+  <p class="modal-body" id="clr-body"></p>
+  <div class="modal-actions">
+    <button class="btn btn-outline" onclick="closeClearModal()">Cancel</button>
+    <button class="btn btn-danger" onclick="confirmClearHistory()">Clear All</button>
   </div>
 </div>
 
@@ -940,10 +965,27 @@ function addHistory(entry){
   const h=getHistory(); h.unshift(entry); if(h.length>30) h.pop();
   localStorage.setItem('po_bot_history',JSON.stringify(h)); renderHistory();
 }
-function clearHistory(){ if(!confirm('Clear all history?')) return;
-  localStorage.removeItem('po_bot_history'); renderHistory(); }
+function clearHistory(){
+  const h=getHistory();
+  if(!h.length) return;
+  document.getElementById('clr-body').textContent=
+    `This will permanently remove all ${h.length} saved project${h.length===1?'':'s'} from your history.`;
+  document.getElementById('clr-bd').classList.add('on');
+  document.getElementById('clr-modal').classList.add('on');
+}
+function closeClearModal(){
+  document.getElementById('clr-bd').classList.remove('on');
+  document.getElementById('clr-modal').classList.remove('on');
+}
+function confirmClearHistory(){
+  localStorage.removeItem('po_bot_history');
+  closeClearModal();
+  renderHistory();
+}
 function renderHistory(){
   const h=getHistory(), el=document.getElementById('hist-body');
+  const btn=document.getElementById('clear-hist-btn');
+  if(btn){ btn.disabled=!h.length; }
   el.innerHTML=h.length?h.map(x=>`
     <div class="hist-item">
       <div class="hist-pname">${esc(x.project_name)}</div>
