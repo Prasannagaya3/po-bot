@@ -1,0 +1,311 @@
+{
+  "project_name": "Task Manager App",
+  "vision": "A simple web-based task manager enabling small teams of 2-10 people to create, assign, and track tasks efficiently.",
+  "personas": [
+    "Team Lead",
+    "Team Member"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "User Authentication",
+      "description": "Enable secure user access through email/password authentication and password recovery functionality.",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Login with email and password",
+          "user_story": "As a Team Member, I want to login with my email and password, so that I can securely access my tasks.",
+          "acceptance_criteria": [
+            "Given I am on the login page When I enter valid email and password Then I am redirected to the dashboard",
+            "Given I am on the login page When I enter invalid credentials Then I see an error message",
+            "Given I am logged in When I close the browser and return Then I remain logged in until session expires"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - basic auth required for all other features"
+        },
+        {
+          "id": "US-002",
+          "title": "Reset password via email",
+          "user_story": "As a Team Member, I want to reset my password via email, so that I can regain access if I forget my credentials.",
+          "acceptance_criteria": [
+            "Given I am on the login page When I click forgot password and enter my email Then I receive a password reset link",
+            "Given I have a valid reset link When I click it and enter a new password Then my password is updated",
+            "Given I have an expired reset link When I click it Then I see an error and am prompted to request a new link"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-003",
+          "title": "Logout from the application",
+          "user_story": "As a Team Member, I want to logout from the application, so that I can secure my account on shared devices.",
+          "acceptance_criteria": [
+            "Given I am logged in When I click the logout button Then I am redirected to the login page",
+            "Given I have logged out When I try to access protected pages Then I am redirected to login"
+          ],
+          "story_points": 1,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Task Creation and Management",
+      "description": "Core task management functionality including creating, editing, and organizing tasks with essential attributes.",
+      "stories": [
+        {
+          "id": "US-004",
+          "title": "Create a new task",
+          "user_story": "As a Team Lead, I want to create a task with title, description, and due date, so that I can define work for my team.",
+          "acceptance_criteria": [
+            "Given I am on the dashboard When I click create task and fill in title, description, due date Then a new task is created with status To Do",
+            "Given I am creating a task When I leave the title empty Then I see a validation error",
+            "Given I have created a task When I view the task list Then the new task appears"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - core feature"
+        },
+        {
+          "id": "US-005",
+          "title": "Set task priority level",
+          "user_story": "As a Team Lead, I want to set task priority as Low, Medium, or High, so that the team knows which tasks are most important.",
+          "acceptance_criteria": [
+            "Given I am creating or editing a task When I select a priority level Then the task displays that priority",
+            "Given a task has no priority set When it is saved Then it defaults to Medium priority"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-006",
+          "title": "Edit existing task details",
+          "user_story": "As a Team Lead, I want to edit task details, so that I can update requirements as they change.",
+          "acceptance_criteria": [
+            "Given I am viewing a task When I click edit and modify fields Then the changes are saved",
+            "Given I am editing a task When I click cancel Then changes are discarded"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-007",
+          "title": "Delete a task",
+          "user_story": "As a Team Lead, I want to delete a task, so that I can remove tasks that are no longer needed.",
+          "acceptance_criteria": [
+            "Given I am viewing a task When I click delete and confirm Then the task is removed",
+            "Given I click delete When I cancel the confirmation Then the task remains"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Task Assignment",
+      "description": "Enable assigning tasks to team members for clear ownership and accountability.",
+      "stories": [
+        {
+          "id": "US-008",
+          "title": "Assign task to team member",
+          "user_story": "As a Team Lead, I want to assign a task to a team member, so that there is clear ownership of work.",
+          "acceptance_criteria": [
+            "Given I am creating or editing a task When I select a team member from the assignee dropdown Then the task is assigned to them",
+            "Given a task is assigned When the assignee views their tasks Then this task appears in their list",
+            "Given I am assigning a task When I view the dropdown Then I see all team members"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-009",
+          "title": "Reassign task to different member",
+          "user_story": "As a Team Lead, I want to reassign a task to a different team member, so that I can balance workload.",
+          "acceptance_criteria": [
+            "Given a task is assigned to someone When I change the assignee Then the task moves to the new assignee's list",
+            "Given a task is reassigned When the original assignee views their tasks Then this task no longer appears"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-010",
+          "title": "Unassign task from member",
+          "user_story": "As a Team Lead, I want to unassign a task, so that it returns to an unassigned state for later allocation.",
+          "acceptance_criteria": [
+            "Given a task is assigned When I clear the assignee field Then the task shows as unassigned",
+            "Given a task is unassigned When viewing team tasks Then it appears with no assignee"
+          ],
+          "story_points": 1,
+          "priority": "Could Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "name": "Task Status Workflow",
+      "description": "Track task progress through defined status transitions from creation to completion.",
+      "stories": [
+        {
+          "id": "US-011",
+          "title": "Update task status",
+          "user_story": "As a Team Member, I want to update task status to To Do, In Progress, or Done, so that the team can track progress.",
+          "acceptance_criteria": [
+            "Given I am viewing my assigned task When I change the status Then the new status is saved and displayed",
+            "Given a task status is updated When others view the task Then they see the current status",
+            "Given I am updating status When I select Done Then the task is marked as complete"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - essential for progress tracking"
+        },
+        {
+          "id": "US-012",
+          "title": "View task status history",
+          "user_story": "As a Team Lead, I want to see when a task status was last changed, so that I can monitor team velocity.",
+          "acceptance_criteria": [
+            "Given I am viewing a task When I look at task details Then I see the last status update timestamp",
+            "Given a task status changes When I view the task Then the timestamp reflects the latest change"
+          ],
+          "story_points": 3,
+          "priority": "Could Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "name": "Personal Dashboard",
+      "description": "Provide team members with a personalized view of their assigned tasks and work.",
+      "stories": [
+        {
+          "id": "US-013",
+          "title": "View my assigned tasks",
+          "user_story": "As a Team Member, I want to view all tasks assigned to me, so that I know what I need to work on.",
+          "acceptance_criteria": [
+            "Given I am logged in When I navigate to My Tasks Then I see only tasks assigned to me",
+            "Given I have no assigned tasks When I view My Tasks Then I see an empty state message",
+            "Given tasks are assigned to me When I view the list Then tasks are sorted by due date"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - primary user interface"
+        },
+        {
+          "id": "US-014",
+          "title": "Filter my tasks by status",
+          "user_story": "As a Team Member, I want to filter my tasks by status, so that I can focus on specific work items.",
+          "acceptance_criteria": [
+            "Given I am on My Tasks When I select a status filter Then only tasks with that status appear",
+            "Given I have applied a filter When I clear it Then all my tasks are shown"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-015",
+          "title": "Filter my tasks by priority",
+          "user_story": "As a Team Member, I want to filter my tasks by priority, so that I can focus on high-priority work.",
+          "acceptance_criteria": [
+            "Given I am on My Tasks When I select a priority filter Then only tasks with that priority appear",
+            "Given I have multiple filters applied When I clear priority filter Then status filter remains active"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 2,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "name": "Team Dashboard",
+      "description": "Provide team leads with visibility across all team tasks for monitoring and coordination.",
+      "stories": [
+        {
+          "id": "US-016",
+          "title": "View all team tasks",
+          "user_story": "As a Team Lead, I want to view all tasks across the team, so that I can monitor overall progress.",
+          "acceptance_criteria": [
+            "Given I am logged in as Team Lead When I navigate to Team View Then I see all tasks for the team",
+            "Given there are tasks from multiple members When I view Team View Then all tasks are displayed with assignee names",
+            "Given I am viewing team tasks When I look at the list Then I see status and priority for each task"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-017",
+          "title": "Filter team tasks by status",
+          "user_story": "As a Team Lead, I want to filter team tasks by status, so that I can quickly identify bottlenecks.",
+          "acceptance_criteria": [
+            "Given I am on Team View When I select a status filter Then only tasks with that status appear",
+            "Given I filter by In Progress When viewing results Then I see all team tasks currently being worked on"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-018",
+          "title": "Filter team tasks by priority",
+          "user_story": "As a Team Lead, I want to filter team tasks by priority, so that I can ensure high-priority items are progressing.",
+          "acceptance_criteria": [
+            "Given I am on Team View When I select High priority filter Then only high-priority tasks appear",
+            "Given I combine status and priority filters When viewing results Then both filters are applied"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        },
+        {
+          "id": "US-019",
+          "title": "Filter team tasks by assignee",
+          "user_story": "As a Team Lead, I want to filter team tasks by assignee, so that I can review individual workloads.",
+          "acceptance_criteria": [
+            "Given I am on Team View When I select a team member filter Then only their tasks appear",
+            "Given I filter by unassigned When viewing results Then only unassigned tasks appear"
+          ],
+          "story_points": 2,
+          "priority": "Could Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "docs/sample-product.md",
+    "generated_at": "2026-03-20T03:44:05.988089+00:00",
+    "status": "pending_review"
+  }
+}
