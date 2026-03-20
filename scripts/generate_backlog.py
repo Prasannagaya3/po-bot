@@ -1,8 +1,8 @@
 """
 PO Bot — Two-Stage Pipeline
 ===========================
-Stage 1 (mode=standardise): Raw docs → clean product document
-Stage 2 (mode=generate):    Clean doc → structured backlog JSON
+Stage 1 (MODE=standardise): Raw docs → clean product document → standardised/
+Stage 2 (MODE=generate):    Clean doc → structured backlog JSON → backlog/
 """
 
 import os, sys, json
@@ -169,7 +169,7 @@ def main():
     mode     = os.environ.get("MODE", "standardise").strip()
     doc_file = os.environ.get("DOC_FILE", "").strip()
     doc_name = os.environ.get("DOC_NAME", "doc").strip()
-    extra    = os.environ.get("EXTRA_FILES", "").strip()   # comma-separated extra files
+    extra    = os.environ.get("EXTRA_FILES", "").strip()
 
     if not doc_file or not os.path.exists(doc_file):
         print(f"DOC_FILE not set or not found: {doc_file}")
@@ -178,11 +178,9 @@ def main():
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     print(f"\n{'='*50}\n  PO Bot — {mode.upper()}\n  File: {doc_file}\n{'='*50}")
 
-    # Extract primary document
     print("\n[1] Extracting text...")
     raw_text = extract_text(doc_file)
 
-    # If extra files provided, append them
     if extra:
         for extra_file in extra.split(","):
             extra_file = extra_file.strip()
@@ -193,7 +191,6 @@ def main():
     print(f"  {len(raw_text):,} characters total")
 
     if mode == "standardise":
-        # Stage 1: produce clean document
         print("\n[2] Standardising with Claude...")
         clean_doc = stage1_standardise(raw_text, doc_name)
 
@@ -205,7 +202,6 @@ def main():
         print(f"\n{'='*50}\n  Stage 1 complete: {out}\n{'='*50}\n")
 
     elif mode == "generate":
-        # Stage 2: produce backlog from (already standardised) document
         print("\n[2] Generating backlog with Claude...")
         backlog = stage2_generate(raw_text, doc_name)
 
