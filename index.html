@@ -2,406 +2,479 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PO Bot — Trio Games</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0a0f;--s:#13131a;--s2:#1c1c26;--bd:#2a2a3a;--ac:#6c63ff;--ok:#4ecdc4;--err:#ff6b6b;--warn:#ffd93d;--tx:#e8e8f0;--mu:#6b6b80}
+:root {
+  --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c26;--border:#2a2a3a;
+  --accent:#6c63ff;--success:#4ecdc4;--danger:#ff6b6b;--warning:#ffd93d;
+  --text:#e8e8f0;--muted:#6b6b80;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--bd) 1px,transparent 1px),linear-gradient(90deg,var(--bd) 1px,transparent 1px);background-size:40px 40px;opacity:.22;pointer-events:none;z-index:0}
-.w{position:relative;z-index:1;max-width:940px;margin:0 auto;padding:0 22px}
-header{border-bottom:1px solid var(--bd);padding:16px 0;position:sticky;top:0;background:rgba(10,10,15,.95);backdrop-filter:blur(12px);z-index:100}
-.hdr{display:flex;align-items:center;justify-content:space-between;max-width:940px;margin:0 auto;padding:0 22px}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:0.25;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 24px}
+
+header{border-bottom:1px solid var(--border);padding:18px 0;position:sticky;top:0;background:rgba(10,10,15,0.95);backdrop-filter:blur(12px);z-index:100}
+.hdr{display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:0 auto;padding:0 24px}
 .logo{display:flex;align-items:center;gap:10px}
-.li{width:32px;height:32px;background:var(--ac);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
-.lt{font-size:16px;font-weight:800;letter-spacing:-.5px}
-.ls{font-size:10px;color:var(--mu);font-family:'DM Mono',monospace}
-.steps{display:flex;gap:5px;align-items:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--mu)}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--bd);transition:all .3s}
-.dot.act{background:var(--ac);box-shadow:0 0 6px var(--ac)}
-.dot.dn{background:var(--ok)}
-.screen{display:none;padding:44px 0;animation:fi .3s ease}
+.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text{font-size:17px;font-weight:800;letter-spacing:-0.5px}
+.logo-sub{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace}
+.steps{display:flex;gap:5px;align-items:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:all .3s;flex-shrink:0}
+.dot.active{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.dot.done{background:var(--success)}
+#slabel{margin-left:6px}
+
+.screen{display:none;padding:48px 0;animation:fadeIn .35s ease}
 .screen.on{display:block}
-@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* PIN */
-.pin-w{max-width:360px;margin:70px auto;text-align:center}
-.pin-w h2{font-size:26px;font-weight:800;margin-bottom:8px;letter-spacing:-1px}
-.pin-w p{color:var(--mu);font-size:14px;margin-bottom:28px}
-.pin-in{width:100%;background:var(--s);border:1px solid var(--bd);border-radius:10px;padding:14px;color:var(--tx);font-family:'DM Mono',monospace;font-size:20px;text-align:center;letter-spacing:6px;outline:none;transition:border-color .2s}
-.pin-in:focus{border-color:var(--ac)}
-.pin-err{color:var(--err);font-size:12px;margin-top:8px;min-height:16px;font-family:'DM Mono',monospace}
+.pin-wrap{max-width:380px;margin:80px auto;text-align:center}
+.pin-wrap h2{font-size:28px;font-weight:800;margin-bottom:8px;letter-spacing:-1px}
+.pin-wrap p{color:var(--muted);font-size:14px;margin-bottom:32px}
+.pin-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;color:var(--text);font-family:'DM Mono',monospace;font-size:22px;text-align:center;letter-spacing:6px;outline:none;transition:border-color .2s}
+.pin-input:focus{border-color:var(--accent)}
+.pin-error{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px;font-family:'DM Mono',monospace}
 
 /* Upload */
-.hero{text-align:center;margin-bottom:36px}
-.tag{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;color:var(--ac);border:1px solid var(--ac);padding:3px 10px;border-radius:100px;margin-bottom:16px;letter-spacing:1px}
-.hero h1{font-size:clamp(30px,5vw,52px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:12px}
-.hero h1 span{color:var(--ac)}
-.hero p{font-size:14px;color:var(--mu);max-width:420px;margin:0 auto;line-height:1.6}
-.dz{border:2px dashed var(--bd);border-radius:14px;padding:48px 22px;text-align:center;cursor:pointer;transition:all .3s;background:var(--s);position:relative;overflow:hidden}
-.dz::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(108,99,255,.05) 0%,transparent 70%);opacity:0;transition:opacity .3s}
-.dz:hover,.dz.drag{border-color:var(--ac)}
-.dz:hover::before,.dz.drag::before{opacity:1}
-.dz h3{font-size:17px;font-weight:700;margin:10px 0 5px}
-.dz p{color:var(--mu);font-size:13px}
-.fmts{display:flex;gap:5px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-.fmt{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px;background:var(--s2);border:1px solid var(--bd);color:var(--mu)}
-#fi{display:none}
-.files-list{margin-top:12px;display:flex;flex-direction:column;gap:6px}
-.fpill{display:flex;align-items:center;gap:8px;background:rgba(108,99,255,.08);border:1px solid var(--ac);border-radius:7px;padding:9px 14px;font-family:'DM Mono',monospace;font-size:12px}
-.fpill .rm{color:var(--err);cursor:pointer;margin-left:auto;font-size:15px}
-.merge-row{display:flex;align-items:center;gap:10px;margin-top:16px;padding:14px;background:var(--s);border:1px solid var(--bd);border-radius:10px}
-.merge-row label{font-size:13px;color:var(--mu);cursor:pointer;display:flex;align-items:center;gap:8px;flex:1}
-.merge-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--ac)}
-.multi-hint{font-size:11px;color:var(--mu);font-family:'DM Mono',monospace}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:10px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;transition:all .2s;width:100%}
-.btn-p{background:var(--ac);color:#fff;margin-top:18px}
-.btn-p:hover:not(:disabled){background:#7c74ff;transform:translateY(-1px)}
-.btn-p:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.btn-ok{background:var(--ok);color:#0a0a0f;margin-top:12px}
+.hero{text-align:center;margin-bottom:40px}
+.tag{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);border:1px solid var(--accent);padding:3px 10px;border-radius:100px;margin-bottom:18px;letter-spacing:1px}
+.hero h1{font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:14px}
+.hero h1 span{color:var(--accent)}
+.hero p{font-size:15px;color:var(--muted);max-width:440px;margin:0 auto;line-height:1.6}
+
+.dropzone{border:2px dashed var(--border);border-radius:14px;padding:44px 24px;text-align:center;cursor:pointer;transition:all .3s;background:var(--surface);position:relative;overflow:hidden}
+.dropzone::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(108,99,255,.06) 0%,transparent 70%);opacity:0;transition:opacity .3s}
+.dropzone:hover,.dropzone.drag{border-color:var(--accent)}
+.dropzone:hover::before,.dropzone.drag::before{opacity:1}
+.dropzone h3{font-size:18px;font-weight:700;margin:12px 0 6px}
+.dropzone p{color:var(--muted);font-size:13px}
+.fmts{display:flex;gap:6px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.fmt{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+#file-input{display:none}
+
+.file-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.file-pill{display:flex;align-items:center;gap:10px;background:rgba(108,99,255,.08);border:1px solid var(--accent);border-radius:8px;padding:11px 15px;font-family:'DM Mono',monospace;font-size:12px}
+.file-pill.extra{background:rgba(78,205,196,.06);border-color:var(--success)}
+.file-badge{font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(108,99,255,.2);color:var(--accent);text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
+.file-badge.merge{background:rgba(78,205,196,.15);color:var(--success)}
+.file-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.file-size{color:var(--muted);font-size:10px;flex-shrink:0}
+.rm{color:var(--muted);cursor:pointer;margin-left:4px;font-size:16px;flex-shrink:0;transition:color .2s}
+.rm:hover{color:var(--danger)}
+
+.add-more{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 14px;border:1px dashed var(--border);border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);background:transparent;width:100%;transition:all .2s}
+.add-more:hover{border-color:var(--success);color:var(--success)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;border-radius:10px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;transition:all .2s;width:100%}
+.btn-main{background:var(--accent);color:#fff;margin-top:20px}
+.btn-main:hover:not(:disabled){background:#7c74ff;transform:translateY(-1px)}
+.btn-main:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-ok{background:var(--success);color:#0a0a0f;margin-top:14px}
 .btn-ok:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
-.btn-ok:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.btn-g{background:transparent;color:var(--tx);border:1px solid var(--bd);width:auto;padding:9px 18px;margin-top:0}
-.btn-g:hover{border-color:var(--ac);color:var(--ac)}
+.btn-ok:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);width:auto;padding:10px 20px;margin-top:0}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
 
 /* Processing */
-.proc{text-align:center;padding:70px 0}
-.spin{width:52px;height:52px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 24px}
+.proc{text-align:center;padding:80px 0}
+.spin{width:56px;height:56px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 28px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.proc h2{font-size:24px;font-weight:800;margin-bottom:8px}
-.proc p{color:var(--mu);font-size:14px}
-#log{font-family:'DM Mono',monospace;font-size:11px;color:var(--ac);margin-top:18px}
+.proc h2{font-size:26px;font-weight:800;margin-bottom:10px}
+.proc p{color:var(--muted);font-size:14px}
+.proc-hint{font-size:12px;margin-top:4px;color:var(--muted)}
+.log{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-top:20px;min-height:16px}
+.proc-stages{display:flex;gap:8px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+.proc-stage{font-family:'DM Mono',monospace;font-size:10px;padding:4px 12px;border-radius:20px;border:1px solid var(--border);color:var(--muted)}
+.proc-stage.active{border-color:var(--accent);color:var(--accent);background:rgba(108,99,255,.08)}
+.proc-stage.done{border-color:var(--success);color:var(--success);background:rgba(78,205,196,.08)}
 
-/* Standardised doc review */
-.doc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:14px}
-.doc-hdr h2{font-size:24px;font-weight:800;letter-spacing:-1px}
-.doc-hdr p{color:var(--mu);font-size:13px;margin-top:4px}
-.doc-box{background:var(--s);border:1px solid var(--bd);border-radius:12px;padding:24px;margin-bottom:16px}
-.doc-box textarea{width:100%;min-height:420px;background:transparent;border:none;outline:none;color:var(--tx);font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;resize:vertical}
-.doc-note{font-size:11px;color:var(--mu);font-family:'DM Mono',monospace;margin-bottom:12px}
+/* Standardised Review */
+.rev-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:20px;flex-wrap:wrap}
+.rev-hdr h2{font-size:28px;font-weight:800;letter-spacing:-1px}
+.rev-hdr p{color:var(--muted);font-size:13px;margin-top:5px;max-width:520px;line-height:1.5}
+.std-editor{width:100%;min-height:460px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;resize:vertical;outline:none;transition:border-color .2s}
+.std-editor:focus{border-color:var(--accent)}
+.std-note{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px}
 
-/* Backlog review */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
-.stat{background:var(--s);border:1px solid var(--bd);border-radius:10px;padding:13px 16px}
-.stat .n{font-size:24px;font-weight:800;font-family:'DM Mono',monospace;color:var(--ac)}
-.stat .l{font-size:11px;color:var(--mu);margin-top:3px}
-.epic{background:var(--s);border:1px solid var(--bd);border-radius:13px;margin-bottom:10px;overflow:hidden}
-.ehdr{display:flex;align-items:center;gap:9px;padding:16px 20px;cursor:pointer;transition:background .2s}
-.ehdr:hover{background:var(--s2)}
-.eid{font-family:'DM Mono',monospace;font-size:10px;color:var(--ac);background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.3);padding:2px 7px;border-radius:4px;flex-shrink:0}
-.en{font-size:14px;font-weight:700;flex:1}
-.ed{font-size:12px;color:var(--mu);margin-top:2px}
-.ec{font-family:'DM Mono',monospace;font-size:11px;color:var(--mu);flex-shrink:0}
-.chev{color:var(--mu);transition:transform .3s;flex-shrink:0}
-.epic.op .chev{transform:rotate(180deg)}
-.sl{border-top:1px solid var(--bd);display:none}
-.epic.op .sl{display:block}
-.sc{border-bottom:1px solid var(--bd);padding:16px 20px}
-.sc:last-child{border-bottom:none}
-.st{display:flex;align-items:flex-start;gap:9px;margin-bottom:8px}
-.sid{font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);flex-shrink:0;margin-top:3px;width:46px}
-.sti{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--tx);background:transparent;border:none;outline:none;width:100%;border-bottom:1px solid transparent;transition:border-color .2s;padding-bottom:2px}
-.sti:focus{border-bottom-color:var(--ac)}
-.sm{display:flex;gap:5px;flex-wrap:wrap;margin-left:55px;margin-bottom:7px}
-.ps{font-family:'DM Mono',monospace;font-size:10px;padding:2px 6px;border-radius:4px;background:var(--s2);border:1px solid var(--bd);cursor:pointer;outline:none;color:var(--mu)}
-.p-m{background:rgba(255,107,107,.12);color:#ff6b6b;border-color:rgba(255,107,107,.3)}
-.p-s{background:rgba(255,217,61,.12);color:#ffd93d;border-color:rgba(255,217,61,.3)}
-.p-c{background:rgba(78,205,196,.12);color:#4ecdc4;border-color:rgba(78,205,196,.3)}
-.p-w{background:rgba(107,107,128,.12);color:var(--mu);border-color:rgba(107,107,128,.3)}
-.sn{font-size:12px;color:var(--mu);font-style:italic;margin-left:55px;margin-bottom:7px;line-height:1.5}
-.acs{margin-left:55px}
-.ac{font-size:11px;color:var(--mu);padding:3px 0;font-family:'DM Mono',monospace;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
-.ac::before{content:'✓';color:var(--ok);flex-shrink:0}
+/* Backlog Review */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px}
+.stat .n{font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:var(--accent)}
+.stat .l{font-size:11px;color:var(--muted);margin-top:3px}
+
+.epic{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.epic-hdr{display:flex;align-items:center;gap:10px;padding:18px 22px;cursor:pointer;transition:background .2s}
+.epic-hdr:hover{background:var(--surface2)}
+.eid{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.3);padding:2px 7px;border-radius:4px;flex-shrink:0}
+.ename{font-size:15px;font-weight:700;flex:1}
+.edesc{font-size:12px;color:var(--muted);margin-top:2px}
+.ecount{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);flex-shrink:0}
+.chev{color:var(--muted);transition:transform .3s;flex-shrink:0}
+.epic.open .chev{transform:rotate(180deg)}
+.stories{border-top:1px solid var(--border);display:none}
+.epic.open .stories{display:block}
+
+.story{border-bottom:1px solid var(--border);padding:18px 22px}
+.story:last-child{border-bottom:none}
+.story-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.sid{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0;margin-top:3px;width:48px}
+.stitle{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--text);background:transparent;border:none;outline:none;width:100%;border-bottom:1px solid transparent;transition:border-color .2s;padding-bottom:2px}
+.stitle:focus{border-bottom-color:var(--accent)}
+.smeta{display:flex;gap:6px;flex-wrap:wrap;margin-left:58px;margin-bottom:8px}
+.psel{font-family:'DM Mono',monospace;font-size:10px;padding:3px 7px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;outline:none;color:var(--muted)}
+.p-must{background:rgba(255,107,107,.12);color:#ff6b6b;border-color:rgba(255,107,107,.3)}
+.p-should{background:rgba(255,217,61,.12);color:#ffd93d;border-color:rgba(255,217,61,.3)}
+.p-could{background:rgba(78,205,196,.12);color:#4ecdc4;border-color:rgba(78,205,196,.3)}
+.p-wont{background:rgba(107,107,128,.12);color:var(--muted);border-color:rgba(107,107,128,.3)}
+.snarr{font-size:12px;color:var(--muted);font-style:italic;margin-left:58px;margin-bottom:8px;line-height:1.5}
+.acs{margin-left:58px}
+.ac{font-size:11px;color:var(--muted);padding:3px 0;font-family:'DM Mono',monospace;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
+.ac::before{content:'✓';color:var(--success);flex-shrink:0}
 
 /* Success */
-.suc{text-align:center;padding:70px 0}
-.si{font-size:60px;margin-bottom:18px;animation:pop .4s ease}
+.suc{text-align:center;padding:80px 0}
+.suc-icon{font-size:64px;margin-bottom:20px;animation:pop .4s ease}
 @keyframes pop{0%{transform:scale(0)}80%{transform:scale(1.1)}100%{transform:scale(1)}}
-.suc h2{font-size:30px;font-weight:800;margin-bottom:8px;letter-spacing:-1px}
-.suc p{color:var(--mu);font-size:14px;margin-bottom:24px}
-.jb{display:inline-flex;align-items:center;gap:7px;background:var(--s);border:1px solid var(--bd);border-radius:10px;padding:11px 20px;color:var(--tx);text-decoration:none;font-weight:600;font-size:13px;transition:all .2s;margin-bottom:16px}
-.jb:hover{border-color:var(--ac);color:var(--ac)}
-.toast{position:fixed;bottom:18px;right:18px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:11px 16px;font-size:12px;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;max-width:300px}
+.suc h2{font-size:32px;font-weight:800;margin-bottom:10px;letter-spacing:-1px}
+.suc p{color:var(--muted);font-size:15px;margin-bottom:28px}
+.jira-btn{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 22px;color:var(--text);text-decoration:none;font-weight:600;font-size:14px;transition:all .2s;margin-bottom:20px}
+.jira-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;max-width:300px}
 .toast.on{transform:translateY(0);opacity:1}
-.toast.err{border-color:var(--err);color:var(--err)}
-.toast.ok{border-color:var(--ok);color:var(--ok)}
-@media(max-width:580px){.stats{grid-template-columns:1fr 1fr}.sm,.sn,.acs{margin-left:0}}
+.toast.err{border-color:var(--danger);color:var(--danger)}
+.toast.ok{border-color:var(--success);color:var(--success)}
+
+@media(max-width:600px){.stats{grid-template-columns:1fr 1fr}.rev-hdr{flex-direction:column}.smeta,.snarr,.acs{margin-left:0}.steps{display:none}}
 </style>
 </head>
 <body>
+
 <header>
   <div class="hdr">
     <div class="logo">
-      <div class="li">⚡</div>
-      <div><div class="lt">PO Bot</div><div class="ls">Trio Games · Product Owner Tool</div></div>
+      <div class="logo-icon">⚡</div>
+      <div>
+        <div class="logo-text">PO Bot</div>
+        <div class="logo-sub">Trio Games · Product Owner Tool</div>
+      </div>
     </div>
     <div class="steps">
-      <div class="dot act" id="d1"></div>
+      <div class="dot active" id="d1"></div>
       <div class="dot" id="d2"></div>
       <div class="dot" id="d3"></div>
       <div class="dot" id="d4"></div>
       <div class="dot" id="d5"></div>
       <div class="dot" id="d6"></div>
-      <span id="sl">Upload</span>
+      <span id="slabel">Upload</span>
     </div>
   </div>
 </header>
 
-<!-- PIN -->
+<!-- ── PIN ─────────────────────────────────────────────────────────────── -->
 <div class="screen on" id="s-pin">
-<div class="w"><div class="pin-w">
-  <h2>Welcome back</h2>
-  <p>Enter your PIN to access PO Bot</p>
-  <input class="pin-in" type="password" id="pin" maxlength="8" placeholder="••••" autocomplete="off" oninput="onPin()">
-  <div class="pin-err" id="pe"></div>
-</div></div>
+<div class="wrap">
+  <div class="pin-wrap">
+    <h2>Welcome back</h2>
+    <p>Enter your PIN to access the PO Bot</p>
+    <input class="pin-input" type="password" id="pin-input" maxlength="8"
+      placeholder="••••" autocomplete="off">
+    <div class="pin-error" id="pin-err"></div>
+  </div>
+</div>
 </div>
 
-<!-- UPLOAD -->
+<!-- ── UPLOAD ──────────────────────────────────────────────────────────── -->
 <div class="screen" id="s-upload">
-<div class="w">
+<div class="wrap">
   <div class="hero">
     <div class="tag">PRODUCT OWNER AUTOMATION</div>
-    <h1>Any doc in.<br><span>Perfect backlog</span> out.</h1>
-    <p>Upload rough notes, specs, or multiple documents. Claude standardises them first, then generates your sprint-ready backlog.</p>
+    <h1>Doc in.<br><span>Backlog</span> out.</h1>
+    <p>Drop your product document(s). Claude reads and structures them as a senior PO, then generates a full Scrum backlog.</p>
   </div>
 
-  <div class="dz" id="dz" onclick="document.getElementById('fi').click()">
-    <div style="font-size:38px">📄</div>
-    <h3>Drop your product document(s)</h3>
-    <p>or click to browse — any format, any quality</p>
+  <div class="dropzone" id="dropzone">
+    <div style="font-size:40px">📄</div>
+    <h3>Drop your primary document here</h3>
+    <p>or click to browse</p>
     <div class="fmts">
       <span class="fmt">PDF</span><span class="fmt">DOCX</span>
       <span class="fmt">MD</span><span class="fmt">TXT</span>
     </div>
   </div>
-  <input type="file" id="fi" accept=".pdf,.docx,.md,.txt" multiple>
+  <input type="file" id="file-input" accept=".pdf,.docx,.md,.txt">
+  <input type="file" id="file-input-extra" accept=".pdf,.docx,.md,.txt" multiple>
 
-  <div class="files-list" id="flist"></div>
+  <div class="file-list" id="file-list"></div>
 
-  <div class="merge-row" id="merge-row" style="display:none">
-    <label>
-      <input type="checkbox" id="merge-cb" checked>
-      Merge all documents into one product document
-    </label>
-    <span class="multi-hint" id="multi-hint"></span>
-  </div>
+  <button class="add-more" id="btn-add-more" style="display:none"
+    onclick="document.getElementById('file-input-extra').click()">
+    <span>＋</span> Add another document to merge
+  </button>
 
-  <button class="btn btn-p" id="btn-gen" onclick="startPipeline()" disabled>
-    ⚡ Standardise &amp; Generate Backlog
+  <button class="btn btn-main" id="btn-std" onclick="doStandardise()" disabled>
+    ⚡ Standardise &amp; Review
   </button>
 </div>
 </div>
 
-<!-- PROCESSING (stage 1) -->
+<!-- ── PROCESSING 1 ────────────────────────────────────────────────────── -->
 <div class="screen" id="s-proc1">
-<div class="w"><div class="proc">
-  <div class="spin"></div>
-  <h2>Stage 1 — Standardising...</h2>
-  <p>Claude is cleaning and structuring your document</p>
-  <p style="font-size:11px;margin-top:4px;color:var(--mu)">Takes about 30 seconds</p>
-  <div id="log1">Uploading documents...</div>
-</div></div>
+<div class="wrap">
+  <div class="proc">
+    <div class="spin"></div>
+    <h2>Standardising document...</h2>
+    <p>Claude is reading and structuring your input</p>
+    <p class="proc-hint">Takes about 30–45 seconds</p>
+    <div class="log" id="log1">Uploading document...</div>
+    <div class="proc-stages">
+      <div class="proc-stage active" id="ps1-upload">Upload</div>
+      <div class="proc-stage" id="ps1-claude">Claude</div>
+      <div class="proc-stage" id="ps1-save">Save</div>
+    </div>
+  </div>
+</div>
 </div>
 
-<!-- REVIEW STANDARDISED DOC -->
-<div class="screen" id="s-stdoc">
-<div class="w">
-  <div class="doc-hdr">
+<!-- ── REVIEW STANDARDISED DOC ─────────────────────────────────────────── -->
+<div class="screen" id="s-review-std">
+<div class="wrap">
+  <div class="rev-hdr">
     <div>
-      <h2>Review standardised document</h2>
-      <p>Claude has structured your raw input. Edit if needed, then approve to generate the backlog.</p>
+      <h2>Review: Standardised Document</h2>
+      <p>Claude converted your input into a clean structured product doc. Edit if needed — your changes will be saved before generating the backlog.</p>
     </div>
-    <button class="btn btn-g" onclick="reset()">← New Doc</button>
+    <button class="btn btn-ghost" onclick="reset()">← Re-upload</button>
   </div>
-  <div class="doc-note">You can edit this document before proceeding. Changes will be used for backlog generation.</div>
-  <div class="doc-box">
-    <textarea id="std-content" spellcheck="false"></textarea>
-  </div>
-  <button class="btn btn-ok" id="btn-approve-doc" onclick="approveDoc()">
-    ✓ Looks good — Generate Backlog
+  <textarea class="std-editor" id="std-editor" spellcheck="false"></textarea>
+  <div class="std-note">✎ Edit freely — changes are saved when you click Generate Backlog</div>
+  <button class="btn btn-ok" id="btn-gen" onclick="doGenerate()">
+    Generate Backlog →
   </button>
 </div>
 </div>
 
-<!-- PROCESSING (stage 2) -->
+<!-- ── PROCESSING 2 ────────────────────────────────────────────────────── -->
 <div class="screen" id="s-proc2">
-<div class="w"><div class="proc">
-  <div class="spin"></div>
-  <h2>Stage 2 — Generating backlog...</h2>
-  <p>Claude is acting as Senior Product Owner</p>
-  <p style="font-size:11px;margin-top:4px;color:var(--mu)">Takes about 60 seconds</p>
-  <div id="log2">Sending standardised document to PO brain...</div>
-</div></div>
+<div class="wrap">
+  <div class="proc">
+    <div class="spin"></div>
+    <h2>Generating backlog...</h2>
+    <p>Acting as a senior Product Owner</p>
+    <p class="proc-hint">Takes about 45–60 seconds</p>
+    <div class="log" id="log2">Triggering workflow...</div>
+    <div class="proc-stages">
+      <div class="proc-stage active" id="ps2-trigger">Trigger</div>
+      <div class="proc-stage" id="ps2-claude">Claude PO</div>
+      <div class="proc-stage" id="ps2-save">Backlog</div>
+    </div>
+  </div>
+</div>
 </div>
 
-<!-- REVIEW BACKLOG -->
+<!-- ── REVIEW BACKLOG ──────────────────────────────────────────────────── -->
 <div class="screen" id="s-review">
-<div class="w">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:14px">
+<div class="wrap">
+  <div class="rev-hdr">
     <div>
-      <h2 id="pn" style="font-size:26px;font-weight:800;letter-spacing:-1px">Project</h2>
-      <p id="pv" style="color:var(--mu);font-size:13px;margin-top:4px;max-width:500px"></p>
+      <h2 id="proj-name">Product Backlog</h2>
+      <p id="proj-vision"></p>
     </div>
-    <button class="btn btn-g" onclick="reset()">← New Doc</button>
+    <button class="btn btn-ghost" onclick="reset()">← New Doc</button>
   </div>
   <div class="stats" id="stats"></div>
   <div id="epics"></div>
-  <button class="btn btn-ok" id="btn-approve-bl" onclick="approveBacklog()">
+  <button class="btn btn-ok" id="btn-approve" onclick="approve()">
     ✓ Approve &amp; Push to Jira
   </button>
 </div>
 </div>
 
-<!-- SUCCESS -->
-<div class="screen" id="s-suc">
-<div class="w"><div class="suc">
-  <div class="si">🎉</div>
-  <h2>Pushed to Jira!</h2>
-  <p id="sm">Your sprint-ready backlog is live.</p>
-  <br>
-  <a class="jb" id="jl" href="#" target="_blank">Open in Jira →</a>
-  <br>
-  <button class="btn btn-g" onclick="reset()" style="margin-top:10px;width:auto">Start another project</button>
-</div></div>
+<!-- ── SUCCESS ─────────────────────────────────────────────────────────── -->
+<div class="screen" id="s-success">
+<div class="wrap">
+  <div class="suc">
+    <div class="suc-icon">🎉</div>
+    <h2>Pushed to Jira!</h2>
+    <p id="suc-msg">Your sprint-ready backlog is live.</p>
+    <br>
+    <a class="jira-btn" id="jira-link" href="#" target="_blank">Open in Jira →</a>
+    <br>
+    <button class="btn btn-ghost" onclick="reset()" style="margin-top:12px">Start another project</button>
+  </div>
+</div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const WORKER = 'https://po-bot-worker.prasanna-d75.workers.dev';
+// ── Config ────────────────────────────────────────────────────────────────────
+const WORKER_URL = 'https://po-bot-worker.prasanna-d75.workers.dev';
+// ─────────────────────────────────────────────────────────────────────────────
 
-let pin = '';
-let files = [];
-let stdFilename = '';
-let stdDocName = '';
-let backlogData = null;
-let pollT = null;
+let pin          = '';
+let selectedFiles = [];   // [File, ...] — index 0 = primary
+let docName      = '';    // from /api/standardise
+let stdPath      = '';    // from /api/poll-standard
+let stdName      = '';    // std filename without .md
+let backlogData  = null;
+let pollTimer    = null;
 
-// Navigation
-function show(id, n) {
+// ── Navigation ────────────────────────────────────────────────────────────────
+function show(id, stepN) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   document.getElementById('s-' + id).classList.add('on');
-  [1,2,3,4,5,6].forEach(i => {
-    const d = document.getElementById('d' + i);
-    d.className = 'dot' + (i === n ? ' act' : i < n ? ' dn' : '');
-  });
-  const labels = { pin:'', upload:'Upload', proc1:'Standardising', stdoc:'Review Doc', proc2:'Generating', review:'Review Backlog', suc:'Done' };
-  document.getElementById('sl').textContent = labels[id] || '';
+  for (let n = 1; n <= 6; n++) {
+    const d = document.getElementById('d' + n);
+    if (d) d.className = 'dot' + (n === stepN ? ' active' : n < stepN ? ' done' : '');
+  }
+  const labels = {
+    pin: '', upload: 'Upload', proc1: 'Standardising',
+    'review-std': 'Review Doc', proc2: 'Generating',
+    review: 'Review Backlog', success: 'Done'
+  };
+  document.getElementById('slabel').textContent = labels[id] || '';
 }
 
 function reset() {
-  if (pollT) clearInterval(pollT);
-  files = []; stdFilename = ''; stdDocName = ''; backlogData = null;
-  document.getElementById('flist').innerHTML = '';
-  document.getElementById('fi').value = '';
-  document.getElementById('merge-row').style.display = 'none';
-  document.getElementById('btn-gen').disabled = true;
+  if (pollTimer) clearInterval(pollTimer);
+  selectedFiles = [];
+  docName = stdPath = stdName = '';
+  backlogData = null;
+  document.getElementById('file-input').value = '';
+  document.getElementById('file-input-extra').value = '';
+  renderFileList();
+  document.getElementById('btn-std').disabled = true;
   show('upload', 1);
 }
 
-// PIN
-async function onPin() {
-  const val = document.getElementById('pin').value;
+// ── PIN ───────────────────────────────────────────────────────────────────────
+async function onPinInput() {
+  const val = document.getElementById('pin-input').value;
   if (val.length < 4) return;
   pin = val;
-  document.getElementById('pe').textContent = '';
+  document.getElementById('pin-err').textContent = '';
+
   try {
-    const r = await fetch(WORKER + '/api/verify-pin', {
+    const r = await fetch(`${WORKER_URL}/api/verify-pin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pin }),
     });
     const d = await r.json();
     if (d.ok) {
-      document.getElementById('pin').value = '';
+      document.getElementById('pin-input').value = '';
       show('upload', 1);
     } else {
-      document.getElementById('pe').textContent = 'Wrong PIN.';
-      document.getElementById('pin').value = '';
+      document.getElementById('pin-err').textContent = 'Wrong PIN. Try again.';
+      document.getElementById('pin-input').value = '';
     }
-  } catch {
-    document.getElementById('pe').textContent = 'Cannot reach server.';
+  } catch (e) {
+    document.getElementById('pin-err').textContent = 'Cannot reach server. Check Worker URL.';
   }
 }
-document.getElementById('pin').addEventListener('keydown', e => { if (e.key === 'Enter') onPin(); });
 
-// File selection
-document.getElementById('fi').addEventListener('change', e => {
-  for (const f of e.target.files) addFile(f);
-  e.target.value = '';
+document.getElementById('pin-input').addEventListener('input', () => {
+  const v = document.getElementById('pin-input').value;
+  if (v.length >= 4) onPinInput();
+});
+document.getElementById('pin-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') onPinInput();
 });
 
-const dz = document.getElementById('dz');
+// ── File selection ────────────────────────────────────────────────────────────
+function addFiles(fileList) {
+  for (const f of fileList) {
+    if (!selectedFiles.find(x => x.name === f.name)) {
+      selectedFiles.push(f);
+    }
+  }
+  renderFileList();
+  document.getElementById('btn-std').disabled = selectedFiles.length === 0;
+  document.getElementById('btn-add-more').style.display = selectedFiles.length > 0 ? 'flex' : 'none';
+}
+
+function removeFile(idx) {
+  selectedFiles.splice(idx, 1);
+  renderFileList();
+  document.getElementById('btn-std').disabled = selectedFiles.length === 0;
+  document.getElementById('btn-add-more').style.display = selectedFiles.length > 0 ? 'flex' : 'none';
+}
+
+function renderFileList() {
+  const list = document.getElementById('file-list');
+  if (selectedFiles.length === 0) { list.innerHTML = ''; return; }
+  list.innerHTML = selectedFiles.map((f, i) => `
+    <div class="file-pill${i > 0 ? ' extra' : ''}">
+      <span>${i === 0 ? '📄' : '📎'}</span>
+      <span class="file-badge${i > 0 ? ' merge' : ''}">${i === 0 ? 'primary' : 'merge'}</span>
+      <span class="file-name">${esc(f.name)}</span>
+      <span class="file-size">${(f.size / 1024).toFixed(1)} KB</span>
+      <span class="rm" onclick="removeFile(${i})">✕</span>
+    </div>
+  `).join('');
+}
+
+// Dropzone
+const dz = document.getElementById('dropzone');
+dz.addEventListener('click', () => document.getElementById('file-input').click());
 dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
 dz.addEventListener('drop', e => {
   e.preventDefault(); dz.classList.remove('drag');
-  for (const f of e.dataTransfer.files) addFile(f);
+  addFiles(e.dataTransfer.files);
 });
 
-function addFile(f) {
-  if (files.find(x => x.name === f.name)) return;
-  files.push(f);
-  renderFiles();
-}
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) addFiles(e.target.files);
+  e.target.value = '';
+});
 
-function removeFile(name) {
-  files = files.filter(f => f.name !== name);
-  renderFiles();
-}
+document.getElementById('file-input-extra').addEventListener('change', e => {
+  if (e.target.files.length) addFiles(e.target.files);
+  e.target.value = '';
+});
 
-function renderFiles() {
-  const list = document.getElementById('flist');
-  list.innerHTML = files.map(f =>
-    `<div class="fpill"><span>📄</span><span>${f.name} (${(f.size/1024).toFixed(1)} KB)</span><span class="rm" onclick="removeFile('${f.name}')">✕</span></div>`
-  ).join('');
-
-  const mr = document.getElementById('merge-row');
-  if (files.length > 1) {
-    mr.style.display = 'flex';
-    document.getElementById('multi-hint').textContent = files.length + ' files selected';
-  } else {
-    mr.style.display = 'none';
-  }
-  document.getElementById('btn-gen').disabled = files.length === 0;
-}
-
-// Convert file to base64
-function toB64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(btoa(r.result));
-    r.onerror = rej;
-    r.readAsBinaryString(file);
-  });
-}
-
-// Stage 1 — standardise
-async function startPipeline() {
-  if (!files.length) return;
-  const merge = files.length === 1 || document.getElementById('merge-cb').checked;
+// ── Stage 1: Standardise ──────────────────────────────────────────────────────
+async function doStandardise() {
+  if (selectedFiles.length === 0) return;
   show('proc1', 2);
-  setLog('log1', 'Reading and uploading documents...');
+  setLog('log1', 'Reading documents...');
 
   try {
-    const fileData = await Promise.all(files.map(async f => ({
-      filename: f.name,
-      content_base64: await toB64(f),
-    })));
+    const primaryFile = selectedFiles[0];
+    const primaryB64 = await toBase64(primaryFile);
 
-    setLog('log1', 'Triggering Stage 1 — standardising...');
-    const r = await fetch(WORKER + '/api/standardise', {
+    const extraFiles = [];
+    for (const f of selectedFiles.slice(1)) {
+      extraFiles.push({ filename: f.name, content_base64: await toBase64(f) });
+    }
+
+    setLog('log1', 'Uploading to GitHub...');
+    markStage('ps1-upload', 'done'); markStage('ps1-claude', 'active');
+
+    const r = await fetch(`${WORKER_URL}/api/standardise`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-PIN': pin },
-      body: JSON.stringify({ files: fileData, merge }),
+      body: JSON.stringify({
+        filename: primaryFile.name,
+        content_base64: primaryB64,
+        extra_files: extraFiles,
+      }),
     });
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'Standardise trigger failed');
+    if (!r.ok) throw new Error(d.error || 'Standardise failed');
 
-    stdDocName = d.doc_name;
-    pollStandard(d.doc_name);
+    docName = d.doc_name;
+    setLog('log1', 'Claude is standardising your document...');
+    pollStandard();
 
   } catch (e) {
     toast(e.message, 'err');
@@ -409,78 +482,90 @@ async function startPipeline() {
   }
 }
 
-function pollStandard(docName) {
+function pollStandard() {
   let secs = 0;
-  pollT = setInterval(async () => {
+  pollTimer = setInterval(async () => {
     secs += 6;
-    setLog('log1', 'Standardising... (' + secs + 's)');
-    if (secs > 180) {
-      clearInterval(pollT);
-      toast('Timeout. Check GitHub Actions.', 'err');
+    setLog('log1', `Waiting for Claude... (${secs}s)`);
+    if (secs > 360) {
+      clearInterval(pollTimer);
+      toast('Timed out. Check GitHub Actions for errors.', 'err');
       show('upload', 1);
       return;
     }
+    if (secs > 30) markStage('ps1-save', 'active');
+
     try {
-      const r = await fetch(WORKER + '/api/poll-standard?doc_name=' + encodeURIComponent(docName), {
-        headers: { 'X-PIN': pin },
-      });
+      const r = await fetch(
+        `${WORKER_URL}/api/poll-standard?doc_name=${encodeURIComponent(docName)}`,
+        { headers: { 'X-PIN': pin } }
+      );
       const d = await r.json();
       if (d.status === 'ready') {
-        clearInterval(pollT);
-        stdFilename = d.filename;
-        document.getElementById('std-content').value = d.content;
-        show('stdoc', 3);
+        clearInterval(pollTimer);
+        markStage('ps1-save', 'done');
+        stdPath = d.std_path;
+        stdName = d.std_name;
+        document.getElementById('std-editor').value = d.content;
+        show('review-std', 3);
       }
     } catch (_) {}
   }, 6000);
 }
 
-// Approve standardised doc — trigger Stage 2
-async function approveDoc() {
-  const btn = document.getElementById('btn-approve-doc');
+// ── Stage 2: Generate ─────────────────────────────────────────────────────────
+async function doGenerate() {
+  const btn = document.getElementById('btn-gen');
   btn.disabled = true;
-  btn.textContent = 'Saving and generating...';
-
   show('proc2', 4);
-  setLog('log2', 'Sending standardised document to PO brain...');
+  setLog('log2', 'Saving your edits...');
 
   try {
-    const r = await fetch(WORKER + '/api/generate', {
+    const editedContent = document.getElementById('std-editor').value;
+    const std_content_base64 = textToBase64(editedContent);
+
+    markStage('ps2-trigger', 'done'); markStage('ps2-claude', 'active');
+
+    const r = await fetch(`${WORKER_URL}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-PIN': pin },
-      body: JSON.stringify({ std_filename: stdFilename }),
+      body: JSON.stringify({ std_path: stdPath, std_content_base64 }),
     });
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'Generate trigger failed');
+    if (!r.ok) throw new Error(d.error || 'Generate failed');
 
+    setLog('log2', 'Claude is generating your backlog...');
     pollBacklog(d.doc_name);
 
   } catch (e) {
     toast(e.message, 'err');
     btn.disabled = false;
-    btn.textContent = '✓ Looks good — Generate Backlog';
-    show('stdoc', 3);
+    show('review-std', 3);
   }
 }
 
-function pollBacklog(docName) {
+function pollBacklog(backlogDocName) {
   let secs = 0;
-  pollT = setInterval(async () => {
+  pollTimer = setInterval(async () => {
     secs += 6;
-    setLog('log2', 'Generating backlog... (' + secs + 's)');
-    if (secs > 300) {
-      clearInterval(pollT);
-      toast('Timeout. Check GitHub Actions.', 'err');
-      show('upload', 1);
+    setLog('log2', `Waiting for Claude... (${secs}s)`);
+    if (secs > 360) {
+      clearInterval(pollTimer);
+      toast('Timed out. Check GitHub Actions for errors.', 'err');
+      show('review-std', 3);
       return;
     }
+    if (secs > 30) markStage('ps2-save', 'active');
+
     try {
-      const r = await fetch(WORKER + '/api/poll?doc_name=' + encodeURIComponent(docName), {
-        headers: { 'X-PIN': pin },
-      });
+      const r = await fetch(
+        `${WORKER_URL}/api/poll?doc_name=${encodeURIComponent(backlogDocName)}`,
+        { headers: { 'X-PIN': pin } }
+      );
       const d = await r.json();
       if (d.status === 'ready') {
-        clearInterval(pollT);
+        clearInterval(pollTimer);
+        markStage('ps2-save', 'done');
         backlogData = d.backlog;
         renderReview();
         show('review', 5);
@@ -489,78 +574,100 @@ function pollBacklog(docName) {
   }, 6000);
 }
 
-// Backlog review render
+function markStage(id, state) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'proc-stage' + (state ? ' ' + state : '');
+}
+
+// ── Review Backlog ────────────────────────────────────────────────────────────
 function renderReview() {
   const d = backlogData;
-  document.getElementById('pn').textContent = d.project_name || 'Product Backlog';
-  document.getElementById('pv').textContent = d.vision || '';
+  document.getElementById('proj-name').textContent = d.project_name || 'Product Backlog';
+  document.getElementById('proj-vision').textContent = d.vision || '';
 
   const all = d.epics.flatMap(e => e.stories);
   const pts = all.reduce((a, s) => a + s.story_points, 0);
-  const sp = Math.max(...all.map(s => s.sprint));
+  const sp  = Math.max(...all.map(s => s.sprint));
 
-  document.getElementById('stats').innerHTML =
-    `<div class="stat"><div class="n">${d.epics.length}</div><div class="l">Epics</div></div>
-     <div class="stat"><div class="n">${all.length}</div><div class="l">Stories</div></div>
-     <div class="stat"><div class="n">${pts}</div><div class="l">Story Points</div></div>
-     <div class="stat"><div class="n">${sp}</div><div class="l">Sprints</div></div>`;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="n">${d.epics.length}</div><div class="l">Epics</div></div>
+    <div class="stat"><div class="n">${all.length}</div><div class="l">Stories</div></div>
+    <div class="stat"><div class="n">${pts}</div><div class="l">Story Points</div></div>
+    <div class="stat"><div class="n">${sp}</div><div class="l">Sprints</div></div>
+  `;
 
-  document.getElementById('epics').innerHTML = d.epics.map((e, ei) => `
-    <div class="epic${ei===0?' op':''}" id="ep${ei}">
-      <div class="ehdr" onclick="toggleE(${ei})">
-        <span class="eid">${e.id}</span>
-        <div style="flex:1"><div class="en">${esc(e.name)}</div><div class="ed">${esc(e.description||'')}</div></div>
-        <span class="ec">${e.stories.length} stories</span>
+  document.getElementById('epics').innerHTML = d.epics.map((epic, ei) => `
+    <div class="epic${ei === 0 ? ' open' : ''}" id="epic-${ei}">
+      <div class="epic-hdr" onclick="toggleEpic(${ei})">
+        <span class="eid">${epic.id}</span>
+        <div style="flex:1">
+          <div class="ename">${esc(epic.name)}</div>
+          <div class="edesc">${esc(epic.description || '')}</div>
+        </div>
+        <span class="ecount">${epic.stories.length} stories</span>
         <span class="chev">▼</span>
       </div>
-      <div class="sl">${e.stories.map((s,si)=>storyHtml(s,ei,si)).join('')}</div>
-    </div>`).join('');
+      <div class="stories">
+        ${epic.stories.map((s, si) => storyHtml(s, ei, si)).join('')}
+      </div>
+    </div>
+  `).join('');
 }
 
 function storyHtml(s, ei, si) {
-  const pm = {'Must Have':'p-m','Should Have':'p-s','Could Have':'p-c','Wont Have':'p-w'};
-  const pc = pm[s.priority]||'p-w';
-  const pri = ['Must Have','Should Have','Could Have','Wont Have'];
-  return `<div class="sc">
-    <div class="st"><span class="sid">${s.id}</span>
-      <input class="sti" type="text" value="${esc(s.title)}" onchange="upd(${ei},${si},'title',this.value)">
+  const pmap = { 'Must Have': 'p-must', 'Should Have': 'p-should', 'Could Have': 'p-could', 'Wont Have': 'p-wont' };
+  const pc = pmap[s.priority] || 'p-wont';
+  const priorities = ['Must Have', 'Should Have', 'Could Have', 'Wont Have'];
+  return `
+    <div class="story">
+      <div class="story-top">
+        <span class="sid">${s.id}</span>
+        <input class="stitle" type="text" value="${esc(s.title)}"
+          onchange="upd(${ei},${si},'title',this.value)">
+      </div>
+      <div class="snarr">${esc(s.user_story)}</div>
+      <div class="smeta">
+        <select class="psel ${pc}" onchange="upd(${ei},${si},'priority',this.value);this.className='psel '+(({'Must Have':'p-must','Should Have':'p-should','Could Have':'p-could','Wont Have':'p-wont'})[this.value]||'p-wont')">
+          ${priorities.map(p => `<option${p === s.priority ? ' selected' : ''}>${p}</option>`).join('')}
+        </select>
+        <select class="psel" onchange="upd(${ei},${si},'story_points',+this.value)">
+          ${[1, 2, 3, 5, 8, 13].map(n => `<option${n === s.story_points ? ' selected' : ''}>${n} pts</option>`).join('')}
+        </select>
+        <select class="psel" onchange="upd(${ei},${si},'sprint',+this.value)">
+          ${[1, 2, 3, 4, 5].map(n => `<option${n === s.sprint ? ' selected' : ''}>Sprint ${n}</option>`).join('')}
+        </select>
+      </div>
+      <div class="acs">
+        ${(s.acceptance_criteria || []).map(ac => `<div class="ac">${esc(ac)}</div>`).join('')}
+      </div>
     </div>
-    <div class="sn">${esc(s.user_story)}</div>
-    <div class="sm">
-      <select class="ps ${pc}" onchange="upd(${ei},${si},'priority',this.value);this.className='ps '+({'Must Have':'p-m','Should Have':'p-s','Could Have':'p-c','Wont Have':'p-w'}[this.value]||'p-w')">
-        ${pri.map(p=>`<option${p===s.priority?' selected':''}>${p}</option>`).join('')}
-      </select>
-      <select class="ps" onchange="upd(${ei},${si},'story_points',+this.value)">
-        ${[1,2,3,5,8,13].map(n=>`<option${n===s.story_points?' selected':''}>${n} pts</option>`).join('')}
-      </select>
-      <select class="ps" onchange="upd(${ei},${si},'sprint',+this.value)">
-        ${[1,2,3,4,5].map(n=>`<option${n===s.sprint?' selected':''}>Sprint ${n}</option>`).join('')}
-      </select>
-    </div>
-    <div class="acs">${(s.acceptance_criteria||[]).map(ac=>`<div class="ac">${esc(ac)}</div>`).join('')}</div>
-  </div>`;
+  `;
 }
 
-function toggleE(ei) { document.getElementById('ep'+ei).classList.toggle('op'); }
+function toggleEpic(ei) { document.getElementById('epic-' + ei).classList.toggle('open'); }
 function upd(ei, si, field, val) { backlogData.epics[ei].stories[si][field] = val; }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// Approve backlog → Jira
-async function approveBacklog() {
-  const btn = document.getElementById('btn-approve-bl');
-  btn.disabled = true; btn.textContent = 'Pushing to Jira...';
+// ── Approve ───────────────────────────────────────────────────────────────────
+async function approve() {
+  const btn = document.getElementById('btn-approve');
+  btn.disabled = true;
+  btn.textContent = 'Pushing to Jira...';
+
   try {
-    const r = await fetch(WORKER + '/api/approve', {
+    const r = await fetch(`${WORKER_URL}/api/approve`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-PIN': pin },
       body: JSON.stringify({ backlog: backlogData }),
     });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Approve failed');
-    document.getElementById('sm').textContent =
-      d.issues_created + ' issues created across ' + backlogData.epics.length + ' epics — project ' + d.project_key;
-    document.getElementById('jl').href = d.jira_url;
-    show('suc', 6);
+
+    document.getElementById('suc-msg').textContent =
+      `${d.issues_created} issues created across ${backlogData.epics.length} epics — project ${d.project_key}`;
+    document.getElementById('jira-link').href = d.jira_url;
+    show('success', 6);
+
   } catch (e) {
     toast(e.message, 'err');
     btn.disabled = false;
@@ -568,10 +675,41 @@ async function approveBacklog() {
   }
 }
 
-function setLog(id, msg) { document.getElementById(id).textContent = msg; }
-function toast(msg, type='') {
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function setLog(id, msg) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = msg;
+}
+
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const bytes = new Uint8Array(reader.result);
+      let bin = '';
+      for (const b of bytes) bin += String.fromCharCode(b);
+      res(btoa(bin));
+    };
+    reader.onerror = rej;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function textToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function toast(msg, type = '') {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast on ' + type;
+  t.textContent = msg;
+  t.className = 'toast on ' + type;
   setTimeout(() => t.classList.remove('on'), 5000);
 }
 </script>
