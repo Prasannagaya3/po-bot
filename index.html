@@ -445,8 +445,9 @@ input[type="file"]{display:none}
 
 <div class="toast" id="toast"></div>
 
+<script src="config.js"></script>
 <script>
-const WORKER_URL = 'REPLACE_WITH_WORKER_URL';
+const WORKER_URL = window.PO_BOT_WORKER_URL || '';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let pin = '', selectedFiles = [], docName = '', stdPath = '', backlogData = null;
