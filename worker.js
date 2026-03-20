@@ -155,13 +155,13 @@ async function handleGenerate(request, env) {
   return jsonResponse({ doc_name: docName, status: 'triggered' });
 }
 
-// GET /api/teams — return teams config from GitHub (base64 decode)
+// GET /api/teams — return teams config from Worker secret
 async function handleGetTeams(request, env) {
-  const res = await ghFetch('contents/config/teams.json', env);
-  if (!res.ok) return jsonResponse({ error: 'Teams config not found' }, 404);
-  const data = await res.json();
-  const decoded = atob(data.content.replace(/\n/g, ''));
-  return jsonResponse(JSON.parse(decoded));
+  try {
+    return jsonResponse(JSON.parse(env.TEAMS_CONFIG));
+  } catch {
+    return jsonResponse({ error: 'Teams config not available' }, 500);
+  }
 }
 
 // Assign a team responsibility label based on story title + epic name
@@ -307,10 +307,8 @@ async function handleApprove(request, env) {
   // Invite selected teams — best-effort, never fails the whole request
   let totalInvited = 0;
   if (selected_teams.length > 0) {
-    const cfgRes = await ghFetch('contents/config/teams.json', env);
-    if (cfgRes.ok) {
-      const cfgData = await cfgRes.json();
-      const teamsConfig = JSON.parse(atob(cfgData.content.replace(/\n/g, '')));
+    try {
+      const teamsConfig = JSON.parse(env.TEAMS_CONFIG);
       for (const teamId of selected_teams) {
         const team = (teamsConfig.teams || []).find(t => t.id === teamId);
         if (!team || !team.members || team.members.length === 0) continue;
@@ -322,7 +320,7 @@ async function handleApprove(request, env) {
         });
         totalInvited += emails.length;
       }
-    }
+    } catch (_) {}
   }
 
   return jsonResponse({
