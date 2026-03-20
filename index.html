@@ -95,7 +95,7 @@ header{position:sticky;top:0;z-index:100;height:60px;background:var(--bg);border
 .hero h1{font-size:clamp(26px,5vw,46px);font-weight:800;line-height:1.15;letter-spacing:-1.5px;margin-bottom:14px}
 .hero h1 em{font-style:normal;color:var(--accent-tx)}
 .hero p{font-size:15px;color:var(--tx2);max-width:460px;line-height:1.65}
-.dz{border:2px dashed var(--border2);border-radius:var(--r-lg);padding:44px 32px;text-align:center;cursor:pointer;background:var(--surface);transition:all .2s;position:relative}
+.dz{border:2px dashed var(--border2);border-radius:var(--r-lg);padding:44px 32px;text-align:center;cursor:pointer;background:var(--surface);transition:all .2s}
 .dz:hover,.dz.drag{border-color:var(--accent);background:var(--accent-lt)}
 .dz-icon{font-size:40px;margin-bottom:12px}
 .dz-title{font-size:17px;font-weight:700;margin-bottom:6px}
@@ -116,6 +116,27 @@ input[type="file"]{display:none}
 .fp-rm:hover{color:var(--bad)}
 .add-more{width:100%;margin-top:8px;display:none;align-items:center;justify-content:center;gap:8px;padding:11px;border:1.5px dashed var(--border2);border-radius:var(--r);background:transparent;color:var(--tx2);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s}
 .add-more:hover{border-color:var(--ok);color:var(--ok)}
+/* ── Team Selection ──────────────────────────────────────────────── */
+.team-section{display:none;margin-top:16px;padding:16px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm)}
+.team-section.on{display:block}
+.team-sec-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:4px}
+.team-sec-title{font-size:13px;font-weight:700}
+.team-sec-opt{font-size:11px;color:var(--tx3);font-weight:400;margin-left:5px}
+.team-sec-sub{font-size:11px;color:var(--tx3)}
+.team-chips{display:flex;gap:8px;flex-wrap:wrap}
+.team-chip{display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:100px;border:1.5px solid var(--border);background:var(--bg2);cursor:pointer;transition:all .15s;font-family:inherit;font-size:12px;font-weight:600;color:var(--tx2)}
+.team-chip:hover{border-color:var(--border2);color:var(--tx);background:var(--surface2)}
+.team-chip.selected{border-color:var(--accent);background:var(--accent-lt);color:var(--accent-tx)}
+.team-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.team-loading{font-size:12px;color:var(--tx3)}
+.team-info{margin-top:12px;padding:10px 12px;background:var(--surface2);border-radius:var(--r-sm);display:none}
+.team-info.on{display:block}
+.team-info-name{font-size:13px;font-weight:700;margin-bottom:6px}
+.team-info-members{display:flex;flex-direction:column;gap:4px}
+.team-member-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx2)}
+.team-member-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.team-member-role{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;margin-left:auto;font-weight:600}
+.team-none{font-size:12px;color:var(--tx3);font-style:italic}
 /* ── Buttons ─────────────────────────────────────────────────────── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:var(--r);border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;transition:all .15s;width:100%}
 .btn-primary{background:var(--accent);color:#fff;margin-top:20px;box-shadow:0 2px 8px rgba(79,70,229,.25)}
@@ -195,6 +216,7 @@ input[type="file"]{display:none}
 .sr-lbl{color:var(--tx2);font-weight:500}
 .sr-val{font-weight:700}
 .sr-val.ac{color:var(--accent-tx)}
+.sr-val.ok{color:var(--ok)}
 .jira-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;text-decoration:none;padding:13px 24px;border-radius:var(--r);font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(79,70,229,.25);transition:all .15s;margin-bottom:12px}
 .jira-btn:hover{background:var(--accent-h);transform:translateY(-1px);box-shadow:0 4px 14px rgba(79,70,229,.35)}
 /* ── Toast ───────────────────────────────────────────────────────── */
@@ -223,7 +245,6 @@ input[type="file"]{display:none}
     <div class="logo-mark">P</div>
     <div><div class="logo-name">PO Bot</div><div class="logo-sub">Trio Games</div></div>
   </div>
-
   <div class="stepper" id="stepper">
     <div class="step" id="st1"><div class="step-num">1</div><span class="step-lbl">Upload</span></div>
     <div class="step-line" id="sl1"></div>
@@ -235,9 +256,7 @@ input[type="file"]{display:none}
     <div class="step-line" id="sl4"></div>
     <div class="step" id="st5"><div class="step-num">5</div><span class="step-lbl">Done</span></div>
   </div>
-
   <div class="step-mob" id="step-mob"></div>
-
   <div class="hdr-right">
     <button class="ibtn" onclick="toggleHistory()">📋 History</button>
     <button class="ibtn ibtn-sq" id="theme-btn" onclick="toggleTheme()" title="Toggle theme"></button>
@@ -279,7 +298,7 @@ input[type="file"]{display:none}
   <div class="hero">
     <div class="hero-tag">⚡ Product Owner Automation</div>
     <h1>Doc in.<br><em>Backlog</em> out.</h1>
-    <p>Drop your product document. Claude reads it as a senior PO — first standardising your input, then generating a full sprint-ready backlog.</p>
+    <p>Drop your product document. Claude reads it as a senior PO — standardising your input, then generating a full sprint-ready backlog.</p>
   </div>
 
   <div class="dz" id="dz">
@@ -295,9 +314,23 @@ input[type="file"]{display:none}
   <input type="file" id="fi-extra" accept=".pdf,.docx,.md,.txt" multiple>
 
   <div class="file-stack" id="file-stack"></div>
+
   <button class="add-more" id="btn-add" onclick="document.getElementById('fi-extra').click()">
     ＋ Add another document to merge
   </button>
+
+  <!-- Team selection — shown after first file is added -->
+  <div class="team-section" id="team-section">
+    <div class="team-sec-hd">
+      <span class="team-sec-title">Assign Team <span class="team-sec-opt">— optional</span></span>
+      <span class="team-sec-sub">Members will be invited to the Jira project</span>
+    </div>
+    <div class="team-chips" id="team-chips">
+      <span class="team-loading">Loading teams…</span>
+    </div>
+    <div class="team-info" id="team-info"></div>
+  </div>
+
   <button class="btn btn-primary" id="btn-std" onclick="doStandardise()" disabled>
     ⚡ Standardise &amp; Review
   </button>
@@ -330,7 +363,7 @@ input[type="file"]{display:none}
   <textarea class="std-ta" id="std-ta" spellcheck="false"></textarea>
   <div class="std-foot">
     <span class="std-note" id="std-wc"></span>
-    <span class="std-note">✎ Editable — your changes are saved automatically</span>
+    <span class="std-note">✎ Editable — changes saved on Generate</span>
   </div>
   <button class="btn btn-ok" id="btn-gen" onclick="doGenerate()">Generate Backlog →</button>
 </div>
@@ -377,6 +410,9 @@ input[type="file"]{display:none}
       <div class="suc-row"><span class="sr-lbl">Key</span><span class="sr-val ac" id="s-pkey">—</span></div>
       <div class="suc-row"><span class="sr-lbl">Issues Created</span><span class="sr-val" id="s-count">—</span></div>
       <div class="suc-row"><span class="sr-lbl">Epics</span><span class="sr-val" id="s-epics">—</span></div>
+      <div class="suc-row" id="s-team-row" style="display:none">
+        <span class="sr-lbl">Team Invited</span><span class="sr-val ok" id="s-team">—</span>
+      </div>
     </div>
     <a class="jira-btn" id="jira-link" href="#" target="_blank">Open in Jira →</a><br>
     <button class="btn btn-ghost" onclick="reset()" style="width:auto;margin-top:12px">Start another project</button>
@@ -391,6 +427,7 @@ const WORKER_URL = 'https://po-bot-worker.prasanna-d75.workers.dev';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let pin = '', selectedFiles = [], docName = '', stdPath = '', backlogData = null;
+let selectedTeamId = null, teamsData = null;
 let pollTimer = null, procMsgInt = null, procTimerInt = null;
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
@@ -400,9 +437,8 @@ let pollTimer = null, procMsgInt = null, procTimerInt = null;
   updateThemeBtn();
 })();
 function toggleTheme(){
-  const d = document.documentElement;
-  const next = d.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  d.setAttribute('data-theme', next);
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('po_theme', next);
   updateThemeBtn();
 }
@@ -412,17 +448,15 @@ function updateThemeBtn(){
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────────
-const STEP_FOR = { pin:0, upload:1, proc1:1, 'review-std':2, proc2:3, review:4, success:5 };
-const MOB_LBL  = { upload:'Upload', proc1:'Standardising…', 'review-std':'Review Doc',
-                   proc2:'Generating…', review:'Review Backlog', success:'Done' };
+const MOB_LBL = { upload:'Upload', proc1:'Standardising…', 'review-std':'Review Doc',
+                  proc2:'Generating…', review:'Review Backlog', success:'Done' };
 function show(id, stepN){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   document.getElementById('s-' + id).classList.add('on');
   for(let n=1;n<=5;n++){
-    const s = document.getElementById('st'+n);
-    const l = document.getElementById('sl'+n);
-    if(s) s.className = 'step' + (n===stepN?' active':n<stepN?' done':'');
-    if(l) l.className = 'step-line' + (n<stepN?' done':'');
+    const s = document.getElementById('st'+n), l = document.getElementById('sl'+n);
+    if(s) s.className = 'step'+(n===stepN?' active':n<stepN?' done':'');
+    if(l) l.className = 'step-line'+(n<stepN?' done':'');
   }
   const mob = document.getElementById('step-mob');
   mob.textContent = stepN ? `Step ${stepN} of 5 · ${MOB_LBL[id]||''}` : '';
@@ -430,11 +464,14 @@ function show(id, stepN){
 function reset(){
   stopProc();
   selectedFiles = []; docName = stdPath = ''; backlogData = null;
+  selectedTeamId = null;
   document.getElementById('fi-primary').value = '';
   document.getElementById('fi-extra').value = '';
   renderFiles();
   document.getElementById('btn-std').disabled = true;
   document.getElementById('btn-add').style.display = 'none';
+  document.getElementById('team-section').classList.remove('on');
+  document.getElementById('team-info').classList.remove('on');
   show('upload', 1);
 }
 
@@ -450,21 +487,94 @@ async function submitPin(){
     const r = await fetch(`${WORKER_URL}/api/verify-pin`,{method:'POST',
       headers:{'Content-Type':'application/json'},body:JSON.stringify({pin})});
     const d = await r.json();
-    if(d.ok){ pinEl.value=''; show('upload',1); }
-    else { document.getElementById('pin-err').textContent='Wrong PIN — try again.'; pinEl.value=''; pin=''; }
-  } catch { document.getElementById('pin-err').textContent='Cannot reach server.'; }
+    if(d.ok){
+      pinEl.value='';
+      show('upload', 1);
+      loadTeams(); // fetch teams in background after PIN success
+    } else {
+      document.getElementById('pin-err').textContent = 'Wrong PIN — try again.';
+      pinEl.value=''; pin='';
+    }
+  } catch { document.getElementById('pin-err').textContent = 'Cannot reach server.'; }
+}
+
+// ── Teams ─────────────────────────────────────────────────────────────────────
+async function loadTeams(){
+  try {
+    const r = await fetch(`${WORKER_URL}/api/teams`, { headers: { 'X-PIN': pin } });
+    if(!r.ok) return;
+    teamsData = await r.json();
+    renderTeamChips();
+  } catch(_) { /* teams are optional — silently ignore */ }
+}
+
+function renderTeamChips(){
+  const el = document.getElementById('team-chips');
+  if(!teamsData || !teamsData.teams || !teamsData.teams.length){
+    el.innerHTML = '<span class="team-none">No teams configured</span>';
+    return;
+  }
+  el.innerHTML = teamsData.teams.map(t => `
+    <button class="team-chip${selectedTeamId===t.id?' selected':''}"
+      onclick="selectTeam('${esc(t.id)}')" data-id="${esc(t.id)}">
+      <span class="team-dot" style="background:${esc(t.color)}"></span>
+      ${esc(t.name)}
+    </button>`).join('');
+}
+
+function selectTeam(id){
+  // Toggle off if already selected
+  selectedTeamId = (selectedTeamId === id) ? null : id;
+  renderTeamChips();
+  renderTeamInfo();
+}
+
+function renderTeamInfo(){
+  const el = document.getElementById('team-info');
+  if(!selectedTeamId || !teamsData){
+    el.classList.remove('on');
+    return;
+  }
+  const team = teamsData.teams.find(t => t.id === selectedTeamId);
+  if(!team){ el.classList.remove('on'); return; }
+
+  const members = team.members || [];
+  const memberRows = members.length
+    ? members.map(m => {
+        const initials = m.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        const bg = team.color;
+        return `<div class="team-member-row">
+          <div class="team-member-avatar" style="background:${esc(bg)}">${esc(initials)}</div>
+          <span>${esc(m.name)}</span>
+          <span style="color:var(--tx3);font-size:12px">${esc(m.email)}</span>
+          <span class="team-member-role">${esc(m.role)}</span>
+        </div>`;
+      }).join('')
+    : '<div class="team-none">No members yet — edit config/teams.json to add members</div>';
+
+  el.innerHTML = `
+    <div class="team-info-name" style="color:${esc(team.color)}">${esc(team.name)}</div>
+    <div style="font-size:12px;color:var(--tx3);margin-bottom:8px">${esc(team.description)} · ${members.length} member${members.length!==1?'s':''} will be invited</div>
+    <div class="team-info-members">${memberRows}</div>`;
+  el.classList.add('on');
 }
 
 // ── File handling ─────────────────────────────────────────────────────────────
 function addFiles(list){
   for(const f of list) if(!selectedFiles.find(x=>x.name===f.name)) selectedFiles.push(f);
   renderFiles();
-  document.getElementById('btn-std').disabled = selectedFiles.length===0;
-  document.getElementById('btn-add').style.display = selectedFiles.length ? 'flex':'none';
+  const hasFiles = selectedFiles.length > 0;
+  document.getElementById('btn-std').disabled = !hasFiles;
+  document.getElementById('btn-add').style.display = hasFiles ? 'flex' : 'none';
+  document.getElementById('team-section').classList.toggle('on', hasFiles);
 }
-function removeFile(i){ selectedFiles.splice(i,1); renderFiles();
-  document.getElementById('btn-std').disabled = selectedFiles.length===0;
-  document.getElementById('btn-add').style.display = selectedFiles.length ? 'flex':'none';
+function removeFile(i){
+  selectedFiles.splice(i,1);
+  renderFiles();
+  const hasFiles = selectedFiles.length > 0;
+  document.getElementById('btn-std').disabled = !hasFiles;
+  document.getElementById('btn-add').style.display = hasFiles ? 'flex' : 'none';
+  document.getElementById('team-section').classList.toggle('on', hasFiles);
 }
 function renderFiles(){
   document.getElementById('file-stack').innerHTML = selectedFiles.map((f,i)=>`
@@ -477,14 +587,14 @@ function renderFiles(){
   updateWc();
 }
 const dz = document.getElementById('dz');
-dz.addEventListener('click',()=>document.getElementById('fi-primary').click());
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
-dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
-dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');addFiles(e.dataTransfer.files)});
-document.getElementById('fi-primary').addEventListener('change',e=>{if(e.target.files[0])addFiles(e.target.files);e.target.value=''});
-document.getElementById('fi-extra').addEventListener('change',e=>{if(e.target.files.length)addFiles(e.target.files);e.target.value=''});
+dz.addEventListener('click', () => document.getElementById('fi-primary').click());
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); addFiles(e.dataTransfer.files); });
+document.getElementById('fi-primary').addEventListener('change', e => { if(e.target.files[0]) addFiles(e.target.files); e.target.value=''; });
+document.getElementById('fi-extra').addEventListener('change', e => { if(e.target.files.length) addFiles(e.target.files); e.target.value=''; });
 
-// ── Stage 1 ───────────────────────────────────────────────────────────────────
+// ── Stage 1: Standardise ──────────────────────────────────────────────────────
 async function doStandardise(){
   if(!selectedFiles.length) return;
   show('proc1', 1);
@@ -492,10 +602,11 @@ async function doStandardise(){
   try {
     const primaryB64 = await toB64(selectedFiles[0]);
     const extras = [];
-    for(const f of selectedFiles.slice(1)) extras.push({filename:f.name,content_base64:await toB64(f)});
+    for(const f of selectedFiles.slice(1)) extras.push({filename:f.name, content_base64: await toB64(f)});
     const r = await fetch(`${WORKER_URL}/api/standardise`,{method:'POST',
       headers:{'Content-Type':'application/json','X-PIN':pin},
-      body:JSON.stringify({filename:selectedFiles[0].name,content_base64:primaryB64,extra_files:extras})});
+      body:JSON.stringify({filename:selectedFiles[0].name, content_base64:primaryB64,
+        extra_files:extras, team_id:selectedTeamId})});
     const d = await r.json();
     if(!r.ok) throw new Error(d.error||'Standardise failed');
     docName = d.doc_name;
@@ -508,30 +619,27 @@ function pollStd(){
     s+=6; setTimer('p1-timer', s);
     if(s>360){ stopProc(); toast('Timed out — check GitHub Actions.','err'); show('upload',1); return; }
     try {
-      const r = await fetch(`${WORKER_URL}/api/poll-standard?doc_name=${encodeURIComponent(docName)}`,{headers:{'X-PIN':pin}});
+      const r = await fetch(`${WORKER_URL}/api/poll-standard?doc_name=${encodeURIComponent(docName)}`,
+        {headers:{'X-PIN':pin}});
       const d = await r.json();
       if(d.status==='ready'){
-        stopProc();
-        stdPath = d.std_path;
+        stopProc(); stdPath=d.std_path;
         document.getElementById('std-ta').value = d.content;
-        updateWc();
-        show('review-std', 2);
+        updateWc(); show('review-std', 2);
       }
     } catch(_){}
   }, 6000);
 }
 
-// ── Stage 2 ───────────────────────────────────────────────────────────────────
+// ── Stage 2: Generate ─────────────────────────────────────────────────────────
 async function doGenerate(){
-  const btn = document.getElementById('btn-gen');
-  btn.disabled = true;
+  const btn = document.getElementById('btn-gen'); btn.disabled=true;
   show('proc2', 3);
   startProc('p2', ['Thinking like a Product Owner...','Writing user stories...','Finalising sprints...'], 60);
   try {
-    const edited = document.getElementById('std-ta').value;
     const r = await fetch(`${WORKER_URL}/api/generate`,{method:'POST',
       headers:{'Content-Type':'application/json','X-PIN':pin},
-      body:JSON.stringify({std_path:stdPath,std_content_base64:txtToB64(edited)})});
+      body:JSON.stringify({std_path:stdPath, std_content_base64:txtToB64(document.getElementById('std-ta').value)})});
     const d = await r.json();
     if(!r.ok) throw new Error(d.error||'Generate failed');
     pollBacklog(d.doc_name);
@@ -543,7 +651,8 @@ function pollBacklog(bdName){
     s+=6; setTimer('p2-timer', s);
     if(s>360){ stopProc(); toast('Timed out — check GitHub Actions.','err'); show('review-std',2); return; }
     try {
-      const r = await fetch(`${WORKER_URL}/api/poll?doc_name=${encodeURIComponent(bdName)}`,{headers:{'X-PIN':pin}});
+      const r = await fetch(`${WORKER_URL}/api/poll?doc_name=${encodeURIComponent(bdName)}`,
+        {headers:{'X-PIN':pin}});
       const d = await r.json();
       if(d.status==='ready'){ stopProc(); backlogData=d.backlog; renderReview(); show('review',4); }
     } catch(_){}
@@ -553,38 +662,36 @@ function pollBacklog(bdName){
 // ── Proc helpers ──────────────────────────────────────────────────────────────
 function startProc(prefix, msgs, durSecs){
   let i=0;
-  const msgEl = document.getElementById(prefix+'-msg');
-  const barEl = document.getElementById(prefix+'-bar');
-  if(msgEl) msgEl.textContent = msgs[0];
+  const msgEl=document.getElementById(prefix+'-msg'), barEl=document.getElementById(prefix+'-bar');
+  if(msgEl) msgEl.textContent=msgs[0];
   if(barEl){ barEl.style.transition='none'; barEl.style.width='0%';
     setTimeout(()=>{ barEl.style.transition=`width ${durSecs}s linear`; barEl.style.width='85%'; },100); }
   clearInterval(procMsgInt);
   procMsgInt = setInterval(()=>{
-    i = Math.min(i+1, msgs.length-1);
+    i=Math.min(i+1,msgs.length-1);
     if(msgEl){ msgEl.style.opacity='0';
-      setTimeout(()=>{ msgEl.textContent=msgs[i]; msgEl.style.opacity='1'; }, 300); }
+      setTimeout(()=>{ msgEl.textContent=msgs[i]; msgEl.style.opacity='1'; },300); }
   }, 15000);
   let secs=0; clearInterval(procTimerInt);
-  const timerEl = document.getElementById(prefix+'-timer');
-  procTimerInt = setInterval(()=>{ secs++; if(timerEl) timerEl.textContent=`${secs}s elapsed`; }, 1000);
+  const timerEl=document.getElementById(prefix+'-timer');
+  procTimerInt=setInterval(()=>{ secs++; if(timerEl) timerEl.textContent=`${secs}s elapsed`; },1000);
 }
-function setTimer(id, s){ const el=document.getElementById(id); if(el) el.textContent=`${s}s elapsed`; }
+function setTimer(id,s){ const el=document.getElementById(id); if(el) el.textContent=`${s}s elapsed`; }
 function stopProc(){ clearInterval(pollTimer); clearInterval(procMsgInt); clearInterval(procTimerInt); }
 
 // ── Review ────────────────────────────────────────────────────────────────────
 function renderReview(){
-  const d = backlogData;
+  const d=backlogData;
   document.getElementById('proj-name').textContent = d.project_name||'Product Backlog';
   document.getElementById('proj-vision').textContent = d.vision||'';
-  const all = d.epics.flatMap(e=>e.stories);
-  const pts = all.reduce((a,s)=>a+s.story_points,0);
-  const sp  = Math.max(...all.map(s=>s.sprint));
+  const all=d.epics.flatMap(e=>e.stories);
+  const pts=all.reduce((a,s)=>a+s.story_points,0), sp=Math.max(...all.map(s=>s.sprint));
   document.getElementById('stats').innerHTML=`
     <div class="stat-card"><div class="stat-n">${d.epics.length}</div><div class="stat-l">Epics</div></div>
     <div class="stat-card"><div class="stat-n">${all.length}</div><div class="stat-l">Stories</div></div>
     <div class="stat-card"><div class="stat-n">${pts}</div><div class="stat-l">Story Points</div></div>
     <div class="stat-card"><div class="stat-n">${sp}</div><div class="stat-l">Sprints</div></div>`;
-  document.getElementById('epics').innerHTML = d.epics.map((ep,ei)=>`
+  document.getElementById('epics').innerHTML=d.epics.map((ep,ei)=>`
     <div class="epic-card${ei===0?' open':''}" id="ep${ei}">
       <div class="epic-hd" onclick="toggleEpic(${ei})">
         <span class="epic-id">${ep.id}</span>
@@ -600,7 +707,6 @@ function renderReview(){
 }
 function storyHtml(s,ei,si){
   const pm={'Must Have':'p-must','Should Have':'p-should','Could Have':'p-could','Wont Have':'p-wont'};
-  const pc=pm[s.priority]||'p-wont';
   return `<div class="story-card">
     <div class="story-hd">
       <span class="story-id">${s.id}</span>
@@ -608,14 +714,14 @@ function storyHtml(s,ei,si){
     </div>
     <div class="story-narr">${esc(s.user_story)}</div>
     <div class="story-meta">
-      <select class="meta-sel ${pc}" onchange="upd(${ei},${si},'priority',this.value);this.className='meta-sel '+({'Must Have':'p-must','Should Have':'p-should','Could Have':'p-could','Wont Have':'p-wont'}[this.value]||'p-wont')">
+      <select class="meta-sel ${pm[s.priority]||'p-wont'}" onchange="upd(${ei},${si},'priority',this.value);this.className='meta-sel '+({'Must Have':'p-must','Should Have':'p-should','Could Have':'p-could','Wont Have':'p-wont'}[this.value]||'p-wont')">
         ${['Must Have','Should Have','Could Have','Wont Have'].map(p=>`<option${p===s.priority?' selected':''}>${p}</option>`).join('')}
       </select>
       <select class="meta-sel" onchange="upd(${ei},${si},'story_points',+this.value)">
         ${[1,2,3,5,8,13].map(n=>`<option value="${n}"${n===s.story_points?' selected':''}>${n} pts</option>`).join('')}
       </select>
       <select class="meta-sel" onchange="upd(${ei},${si},'sprint',+this.value)">
-        ${[1,2,3,4,5].map(n=>`<option value="${n}"${n===s.sprint?' selected':''}>${n===1?'Sprint 1':'Sprint '+n}</option>`).join('')}
+        ${[1,2,3,4,5].map(n=>`<option value="${n}"${n===s.sprint?' selected':''}>Sprint ${n}</option>`).join('')}
       </select>
     </div>
     <div class="story-acs">${(s.acceptance_criteria||[]).map(ac=>`<div class="ac"><span class="ac-chk">✓</span><span>${esc(ac)}</span></div>`).join('')}</div>
@@ -626,21 +732,33 @@ function upd(ei,si,f,v){ backlogData.epics[ei].stories[si][f]=v; }
 
 // ── Approve ───────────────────────────────────────────────────────────────────
 async function approve(){
-  const btn = document.getElementById('btn-approve');
+  const btn=document.getElementById('btn-approve');
   btn.disabled=true; btn.textContent='Pushing to Jira…';
   try {
-    const r = await fetch(`${WORKER_URL}/api/approve`,{method:'POST',
+    const r=await fetch(`${WORKER_URL}/api/approve`,{method:'POST',
       headers:{'Content-Type':'application/json','X-PIN':pin},
-      body:JSON.stringify({backlog:backlogData})});
-    const d = await r.json();
+      body:JSON.stringify({backlog:backlogData, team_id:selectedTeamId})});
+    const d=await r.json();
     if(!r.ok) throw new Error(d.error||'Approve failed');
+
     document.getElementById('s-pname').textContent = backlogData.project_name||'—';
     document.getElementById('s-pkey').textContent  = d.project_key;
     document.getElementById('s-count').textContent = `${d.issues_created} issues`;
     document.getElementById('s-epics').textContent = `${backlogData.epics.length} epics`;
-    document.getElementById('jira-link').href = d.jira_url;
-    addHistory({project_name:backlogData.project_name||'Project',jira_key:d.project_key,
-      jira_url:d.jira_url,date:new Date().toISOString(),stories_count:d.issues_created});
+
+    if(d.team_invited > 0 || (selectedTeamId && d.team_invited === 0)){
+      const row=document.getElementById('s-team-row'), val=document.getElementById('s-team');
+      row.style.display='flex';
+      val.textContent = d.team_invited > 0
+        ? `${d.team_invited} member${d.team_invited!==1?'s':''} invited`
+        : d.team_skipped > 0 ? `0 invited (${d.team_skipped} not found in Jira)`
+        : 'No members in this team';
+    }
+
+    document.getElementById('jira-link').href=d.jira_url;
+
+    addHistory({project_name:backlogData.project_name||'Project', jira_key:d.project_key,
+      jira_url:d.jira_url, date:new Date().toISOString(), stories_count:d.issues_created});
     show('success',5);
   } catch(e){
     toast(e.message,'err'); btn.disabled=false; btn.textContent='✓ Approve & Push to Jira';
@@ -648,7 +766,7 @@ async function approve(){
 }
 
 // ── History ───────────────────────────────────────────────────────────────────
-function getHistory(){ try{ return JSON.parse(localStorage.getItem('po_bot_history')||'[]'); } catch{ return []; } }
+function getHistory(){ try{ return JSON.parse(localStorage.getItem('po_bot_history')||'[]'); }catch{ return []; } }
 function addHistory(entry){
   const h=getHistory(); h.unshift(entry); if(h.length>30) h.pop();
   localStorage.setItem('po_bot_history',JSON.stringify(h)); renderHistory();
@@ -657,15 +775,15 @@ function clearHistory(){ if(!confirm('Clear all history?')) return;
   localStorage.removeItem('po_bot_history'); renderHistory(); }
 function renderHistory(){
   const h=getHistory(), el=document.getElementById('hist-body');
-  el.innerHTML = h.length ? h.map(x=>`
+  el.innerHTML=h.length?h.map(x=>`
     <div class="hist-item">
       <div class="hist-pname">${esc(x.project_name)}</div>
       <div class="hist-meta">${esc(x.jira_key)} · ${x.stories_count} stories · ${fmtDate(x.date)}</div>
       <a class="hist-link" href="${esc(x.jira_url)}" target="_blank">Open in Jira →</a>
-    </div>`).join('') :
+    </div>`).join(''):
     '<div class="hist-empty">No projects yet.<br>Completed projects appear here.</div>';
 }
-function fmtDate(iso){ try{ return new Date(iso).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}); } catch{ return iso; } }
+function fmtDate(iso){ try{ return new Date(iso).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}); }catch{ return iso; } }
 function toggleHistory(){ document.getElementById('hist-panel').classList.toggle('on'); document.getElementById('hist-bd').classList.toggle('on'); }
 function closeHistory(){ document.getElementById('hist-panel').classList.remove('on'); document.getElementById('hist-bd').classList.remove('on'); }
 
@@ -675,22 +793,19 @@ function updateWc(){
   const w=ta.value.trim().split(/\s+/).filter(Boolean).length;
   const el=document.getElementById('std-wc'); if(el) el.textContent=`${w.toLocaleString()} words`;
 }
-document.getElementById('std-ta').addEventListener('input',updateWc);
+document.getElementById('std-ta').addEventListener('input', updateWc);
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 function toB64(file){
   return new Promise((res,rej)=>{
     const r=new FileReader();
-    r.onload=()=>{ const b=new Uint8Array(r.result); let s=''; for(const x of b)s+=String.fromCharCode(x); res(btoa(s)); };
+    r.onload=()=>{ const b=new Uint8Array(r.result); let s=''; for(const x of b) s+=String.fromCharCode(x); res(btoa(s)); };
     r.onerror=rej; r.readAsArrayBuffer(file);
   });
 }
-function txtToB64(str){ const b=new TextEncoder().encode(str); let s=''; for(const x of b)s+=String.fromCharCode(x); return btoa(s); }
+function txtToB64(str){ const b=new TextEncoder().encode(str); let s=''; for(const x of b) s+=String.fromCharCode(x); return btoa(s); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function toast(msg,type=''){
-  const t=document.getElementById('toast'); t.textContent=msg; t.className='toast on '+type;
-  setTimeout(()=>t.classList.remove('on'),5000);
-}
+function toast(msg,type=''){ const t=document.getElementById('toast'); t.textContent=msg; t.className='toast on '+type; setTimeout(()=>t.classList.remove('on'),5000); }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderHistory();
