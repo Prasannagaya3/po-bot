@@ -1,0 +1,146 @@
+{
+  "project_name": "Simple Todo App",
+  "vision": "A mobile app for individuals to manage daily tasks efficiently through creation, completion tracking, and filtering capabilities.",
+  "personas": [
+    "Individual User"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "Task Management",
+      "description": "Core functionality for creating, completing, and deleting tasks",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Create task with title and due date",
+          "user_story": "As an Individual User, I want to create a task with a title and due date, so that I can track what needs to be done and when",
+          "acceptance_criteria": [
+            "Given I am on the task list screen, When I tap the add task button and enter a title and due date and save, Then the task appears in my task list",
+            "Given I am creating a new task, When I leave the title empty and try to save, Then I see an error message requiring a title",
+            "Given I am creating a new task, When I select a due date, Then the date is saved and displayed with the task"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - core create functionality"
+        },
+        {
+          "id": "US-002",
+          "title": "Mark task as complete",
+          "user_story": "As an Individual User, I want to mark a task as complete, so that I can track my progress on daily tasks",
+          "acceptance_criteria": [
+            "Given I have an incomplete task in my list, When I tap the complete button on the task, Then the task is marked as complete with visual indication",
+            "Given I have a completed task, When I tap the complete button again, Then the task is marked as incomplete"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - core complete functionality"
+        },
+        {
+          "id": "US-003",
+          "title": "Delete task from list",
+          "user_story": "As an Individual User, I want to delete a task, so that I can remove tasks I no longer need",
+          "acceptance_criteria": [
+            "Given I have a task in my list, When I tap the delete button on the task, Then the task is removed from my list",
+            "Given I tap delete on a task, When I confirm the deletion, Then the task is permanently removed"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Task Viewing",
+      "description": "Functionality for viewing and browsing tasks",
+      "stories": [
+        {
+          "id": "US-004",
+          "title": "View all tasks in a list",
+          "user_story": "As an Individual User, I want to view all my tasks in a list, so that I can see everything I need to do",
+          "acceptance_criteria": [
+            "Given I have tasks saved, When I open the app, Then I see all my tasks displayed in a list",
+            "Given I have tasks with due dates, When I view the task list, Then each task shows its title and due date",
+            "Given I have no tasks, When I view the task list, Then I see an empty state message"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - core view functionality"
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Task Filtering",
+      "description": "Functionality for filtering tasks by completion status",
+      "stories": [
+        {
+          "id": "US-005",
+          "title": "Filter tasks by incomplete status",
+          "user_story": "As an Individual User, I want to filter tasks to show only incomplete tasks, so that I can focus on what still needs to be done",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks, When I select the incomplete filter, Then I see only incomplete tasks",
+            "Given I am viewing filtered incomplete tasks, When I clear the filter, Then I see all tasks again"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        },
+        {
+          "id": "US-006",
+          "title": "Filter tasks by complete status",
+          "user_story": "As an Individual User, I want to filter tasks to show only complete tasks, so that I can review what I have accomplished",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks, When I select the complete filter, Then I see only completed tasks",
+            "Given I am viewing filtered complete tasks, When I clear the filter, Then I see all tasks again"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "name": "Out of Scope",
+      "description": "Features explicitly excluded from current product scope",
+      "stories": [
+        {
+          "id": "US-007",
+          "title": "Team sharing functionality",
+          "user_story": "As an Individual User, I want to share tasks with team members, so that I can collaborate on shared responsibilities",
+          "acceptance_criteria": [
+            "Given this feature is out of scope, When planning development, Then this story is not included in any sprint"
+          ],
+          "story_points": 8,
+          "priority": "Wont Have",
+          "sprint": 0,
+          "notes": "Explicitly out of scope per product document"
+        },
+        {
+          "id": "US-008",
+          "title": "Task reminders and notifications",
+          "user_story": "As an Individual User, I want to receive reminders for upcoming tasks, so that I don't forget important deadlines",
+          "acceptance_criteria": [
+            "Given this feature is out of scope, When planning development, Then this story is not included in any sprint"
+          ],
+          "story_points": 5,
+          "priority": "Wont Have",
+          "sprint": 0,
+          "notes": "Explicitly out of scope per product document"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "docs/test-product.txt",
+    "generated_at": "2026-03-20T05:30:08.694556+00:00",
+    "status": "pending_review"
+  }
+}
