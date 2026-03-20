@@ -1,0 +1,284 @@
+{
+  "project_name": "Simple Todo App",
+  "vision": "A mobile app that helps individuals manage their daily tasks through simple task creation, completion tracking, and organisation without the complexity of full project management tools.",
+  "personas": [
+    "Individual User"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "Task Creation & Management",
+      "description": "Core functionality allowing users to create, edit, and delete tasks to manage their daily to-do items",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Create a new task with title",
+          "user_story": "As an Individual User, I want to create a new task with a title, so that I can capture items I need to do",
+          "acceptance_criteria": [
+            "Given I am on the task list screen When I tap the add task button and enter a title and confirm Then a new task appears in my task list",
+            "Given I am creating a new task When I leave the title empty and try to save Then the app prevents saving and shows a validation message"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Foundation for all task management functionality"
+        },
+        {
+          "id": "US-002",
+          "title": "Add optional due date to task",
+          "user_story": "As an Individual User, I want to add an optional due date when creating a task, so that I can track when tasks need to be completed",
+          "acceptance_criteria": [
+            "Given I am creating a new task When I tap the due date field Then a date picker is displayed for selection",
+            "Given I am creating a task When I skip the due date field and save Then the task is created without a due date"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-003",
+          "title": "Edit an existing task",
+          "user_story": "As an Individual User, I want to edit an existing task, so that I can correct mistakes or update task details",
+          "acceptance_criteria": [
+            "Given I have an existing task When I tap on the task to edit and modify the title and save Then the task displays the updated title",
+            "Given I am editing a task with a due date When I change the due date and save Then the task displays the new due date"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Assumed feature based on need to correct mistakes"
+        },
+        {
+          "id": "US-004",
+          "title": "Delete a task from list",
+          "user_story": "As an Individual User, I want to delete a task from my list, so that I can remove items that are no longer relevant",
+          "acceptance_criteria": [
+            "Given I have a task in my list When I initiate the delete action and confirm Then the task is permanently removed from my list",
+            "Given I initiate a delete action When I am asked to confirm Then I can cancel and keep the task"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Task Completion",
+      "description": "Functionality to mark tasks as complete and track completion status",
+      "stories": [
+        {
+          "id": "US-005",
+          "title": "Mark a task as complete",
+          "user_story": "As an Individual User, I want to mark a task as complete, so that I can track my progress through my to-do list",
+          "acceptance_criteria": [
+            "Given I have an incomplete task When I tap the completion checkbox or button Then the task is visually marked as complete",
+            "Given I have a completed task When I view my task list Then completed tasks are visually distinguished from incomplete tasks"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Core feature for task tracking"
+        },
+        {
+          "id": "US-006",
+          "title": "Unmark a completed task",
+          "user_story": "As an Individual User, I want to unmark a completed task, so that I can restore it to incomplete if I made a mistake",
+          "acceptance_criteria": [
+            "Given I have a completed task When I tap the completion indicator again Then the task returns to incomplete status",
+            "Given I unmark a completed task When I view the task list Then the task appears as a normal incomplete task"
+          ],
+          "story_points": 1,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Natural extension of mark complete functionality"
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Task List Display",
+      "description": "Viewing and displaying tasks in a clear, organised list format",
+      "stories": [
+        {
+          "id": "US-007",
+          "title": "View all tasks in list",
+          "user_story": "As an Individual User, I want to view all my tasks in a list format, so that I can see everything I need to do at a glance",
+          "acceptance_criteria": [
+            "Given I have tasks saved When I open the app Then I see all my tasks displayed in a list",
+            "Given I have no tasks When I open the app Then I see an empty state message encouraging me to add tasks"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton feature - basic list view"
+        },
+        {
+          "id": "US-008",
+          "title": "Display task due dates in list",
+          "user_story": "As an Individual User, I want to see due dates displayed on tasks in the list, so that I can quickly identify upcoming deadlines",
+          "acceptance_criteria": [
+            "Given a task has a due date When I view the task list Then the due date is visible on the task item",
+            "Given a task has no due date When I view the task list Then no due date is shown for that task"
+          ],
+          "story_points": 1,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "name": "Task Filtering",
+      "description": "Filter tasks by completion status to focus on relevant items",
+      "stories": [
+        {
+          "id": "US-009",
+          "title": "Filter to show incomplete tasks only",
+          "user_story": "As an Individual User, I want to filter my task list to show only incomplete items, so that I can focus on what still needs to be done",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the incomplete filter Then only incomplete tasks are displayed",
+            "Given I have applied the incomplete filter When I complete a task Then it is removed from the current view"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-010",
+          "title": "Filter to show completed tasks only",
+          "user_story": "As an Individual User, I want to filter my task list to show only completed items, so that I can review what I have accomplished",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the completed filter Then only completed tasks are displayed",
+            "Given I am viewing completed tasks When I unmark a task Then it is removed from the current view"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        },
+        {
+          "id": "US-011",
+          "title": "Clear filters to show all tasks",
+          "user_story": "As an Individual User, I want to clear any active filters, so that I can return to viewing all my tasks",
+          "acceptance_criteria": [
+            "Given I have a filter applied When I clear the filter Then all tasks are displayed regardless of completion status",
+            "Given I clear filters When I view the list Then both completed and incomplete tasks are visible"
+          ],
+          "story_points": 1,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "name": "Task Sorting",
+      "description": "Sort tasks by due date to prioritise work based on deadlines",
+      "stories": [
+        {
+          "id": "US-012",
+          "title": "Sort tasks by due date ascending",
+          "user_story": "As an Individual User, I want to sort my tasks by due date with earliest first, so that I can see my most urgent deadlines at the top",
+          "acceptance_criteria": [
+            "Given I have tasks with various due dates When I sort by due date ascending Then tasks are ordered with earliest due dates first",
+            "Given I sort by due date When tasks have no due date Then those tasks appear at the end of the list"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Assumed feature for deadline visibility"
+        },
+        {
+          "id": "US-013",
+          "title": "Sort tasks by due date descending",
+          "user_story": "As an Individual User, I want to sort my tasks by due date with latest first, so that I can see tasks with distant deadlines",
+          "acceptance_criteria": [
+            "Given I have tasks with various due dates When I sort by due date descending Then tasks are ordered with latest due dates first",
+            "Given I sort by due date descending When tasks have no due date Then those tasks appear at the end of the list"
+          ],
+          "story_points": 1,
+          "priority": "Could Have",
+          "sprint": 3,
+          "notes": "Minor extension of ascending sort"
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "name": "Data Persistence",
+      "description": "Store task data locally on device to ensure tasks persist between app sessions",
+      "stories": [
+        {
+          "id": "US-014",
+          "title": "Persist tasks locally on device",
+          "user_story": "As an Individual User, I want my tasks to be saved on my device, so that they are still there when I close and reopen the app",
+          "acceptance_criteria": [
+            "Given I have created tasks When I close the app and reopen it Then all my tasks are still present",
+            "Given I mark a task complete and close the app When I reopen the app Then the task completion status is preserved"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Critical for basic app functionality - part of walking skeleton"
+        },
+        {
+          "id": "US-015",
+          "title": "Load tasks quickly on app launch",
+          "user_story": "As an Individual User, I want my task list to load within 1 second, so that I can quickly check and add tasks without waiting",
+          "acceptance_criteria": [
+            "Given I have up to 100 tasks saved When I launch the app Then the task list is fully displayed within 1 second",
+            "Given I open the app When tasks are loading Then I see a brief loading indicator if needed"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Non-functional requirement for performance"
+        }
+      ]
+    },
+    {
+      "id": "E7",
+      "name": "Cross-Platform Support",
+      "description": "Ensure the app works on both iOS and Android mobile platforms",
+      "stories": [
+        {
+          "id": "US-016",
+          "title": "Run app on iOS devices",
+          "user_story": "As an Individual User, I want to use the app on my iOS device, so that I can manage tasks on my iPhone or iPad",
+          "acceptance_criteria": [
+            "Given I have an iOS device When I install and open the app Then all features function correctly",
+            "Given I am using iOS When I interact with the app Then the UI follows iOS design conventions"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Platform setup as part of walking skeleton"
+        },
+        {
+          "id": "US-017",
+          "title": "Run app on Android devices",
+          "user_story": "As an Individual User, I want to use the app on my Android device, so that I can manage tasks on my Android phone or tablet",
+          "acceptance_criteria": [
+            "Given I have an Android device When I install and open the app Then all features function correctly",
+            "Given I am using Android When I interact with the app Then the UI follows Android design conventions"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Platform setup as part of walking skeleton"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/test-product_20260320_073541.md",
+    "generated_at": "2026-03-20T07:37:24.497470+00:00",
+    "status": "pending_review"
+  }
+}
