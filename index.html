@@ -421,6 +421,9 @@ input[type="file"]{display:none}
       <div class="suc-row" id="s-team-row" style="display:none">
         <span class="sr-lbl">Team Invited</span><span class="sr-val ok" id="s-team">—</span>
       </div>
+      <div class="suc-row" id="s-sprints-row" style="display:none">
+        <span class="sr-lbl">Sprints Created</span><span class="sr-val ok" id="s-sprints">—</span>
+      </div>
     </div>
     <a class="jira-btn" id="jira-link" href="#" target="_blank">Open in Jira →</a><br>
     <button class="save-btn" onclick="toggleSavePanel()">💾 Save to local folder</button>
@@ -433,9 +436,12 @@ input[type="file"]{display:none}
       <div class="save-note">
         Saves backlog.json + standardised_doc.md to<br>
         <code style="font-size:11px">D:\Work\Unity_Applications\Product Development\{project_name}\</code><br><br>
-        Requires: <code style="font-size:11px">GITHUB_TOKEN</code> env var — <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--accent-tx)">create a token</a> with <em>repo</em> scope,
-        then run <code style="font-size:11px">set GITHUB_TOKEN=ghp_...</code> first.
+        Replace the last argument with the actual path to your original document, or omit it.<br><br>
+        The GitHub token is read from env or saved automatically on first run — you won't be asked again.
       </div>
+    </div>
+    <div class="team-note" style="margin-top:10px;text-align:center">
+      Tip: Run the save command before starting another project to include your original document.
     </div>
     <br>
     <button class="btn btn-ghost" onclick="reset()" style="width:auto;margin-top:12px">Start another project</button>
@@ -495,6 +501,8 @@ function reset(){
   document.getElementById('btn-std').disabled = true;
   document.getElementById('btn-add').style.display = 'none';
   document.getElementById('team-section').classList.remove('on');
+  document.getElementById('s-team-row').style.display = 'none';
+  document.getElementById('s-sprints-row').style.display = 'none';
   show('upload', 1);
 }
 
@@ -540,7 +548,7 @@ function renderTeamCards(){
   }
   el.innerHTML = teamsData.teams.map(t => {
     const checked = selectedTeams.includes(t.id);
-    const mc = (t.members || []).length;
+    const mc = t.member_count != null ? t.member_count : (t.members || []).length;
     return `<button class="team-card${checked?' checked':''}" onclick="toggleTeam('${esc(t.id)}')" type="button">
       <div class="tc-check">${checked?'✓':''}</div>
       <span class="tc-dot" style="background:${esc(t.color)}"></span>
@@ -754,6 +762,11 @@ async function approve(){
         : 'No members configured yet';
     }
 
+    if(d.sprints_created > 0){
+      document.getElementById('s-sprints-row').style.display='flex';
+      document.getElementById('s-sprints').textContent =
+        `${d.sprints_created} sprint${d.sprints_created!==1?'s':''} created`;
+    }
     document.getElementById('jira-link').href=d.jira_url;
     document.getElementById('save-cmd').textContent = buildSaveCmd(backlogData.project_name||'Project', d.project_key);
     document.getElementById('save-panel').classList.remove('on');
@@ -770,6 +783,7 @@ async function approve(){
 function buildSaveCmd(projectName, jiraKey){
   const parts = [`python scripts/save_project.py`, `"${projectName}"`, `"${jiraKey}"`];
   if(backlogFilename) parts.push(`"backlog/${backlogFilename}"`);
+  parts.push(`"path/to/your/original/doc"`);
   return parts.join(' ');
 }
 function toggleSavePanel(){
