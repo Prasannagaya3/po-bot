@@ -1,313 +1,385 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PO Bot — Trio Games</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* ── Tokens ───────────────────────────────────────────────────────── */
 :root {
-  --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c26;--border:#2a2a3a;
-  --accent:#6c63ff;--success:#4ecdc4;--danger:#ff6b6b;--warning:#ffd93d;
-  --text:#e8e8f0;--muted:#6b6b80;
+  --bg:#ffffff; --bg2:#f6f6fb; --surface:#ffffff; --surface2:#f0f0f8;
+  --border:#e4e4f0; --border2:#d0d0e4;
+  --accent:#4F46E5; --accent-h:#4338CA; --accent-lt:rgba(79,70,229,.08); --accent-tx:#4F46E5;
+  --ok:#059669; --ok-lt:rgba(5,150,105,.1);
+  --bad:#DC2626; --bad-lt:rgba(220,38,38,.08);
+  --warn:#D97706; --warn-lt:rgba(217,119,6,.1);
+  --tx:#111118; --tx2:#52526a; --tx3:#9090a8;
+  --sh-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+  --sh-lg:0 20px 40px rgba(0,0,0,.1),0 8px 16px rgba(0,0,0,.06);
+  --r:12px; --r-sm:8px; --r-lg:16px;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:0.25;pointer-events:none;z-index:0}
-.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 24px}
-
-header{border-bottom:1px solid var(--border);padding:18px 0;position:sticky;top:0;background:rgba(10,10,15,0.95);backdrop-filter:blur(12px);z-index:100}
-.hdr{display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:0 auto;padding:0 24px}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.logo-text{font-size:17px;font-weight:800;letter-spacing:-0.5px}
-.logo-sub{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace}
-.steps{display:flex;gap:5px;align-items:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:all .3s;flex-shrink:0}
-.dot.active{background:var(--accent);box-shadow:0 0 6px var(--accent)}
-.dot.done{background:var(--success)}
-#slabel{margin-left:6px}
-
-.screen{display:none;padding:48px 0;animation:fadeIn .35s ease}
+[data-theme="dark"] {
+  --bg:#0f0f14; --bg2:#131318; --surface:#1a1a24; --surface2:#222230;
+  --border:#2a2a3e; --border2:#363650;
+  --accent:#6366F1; --accent-h:#818CF8; --accent-lt:rgba(99,102,241,.12); --accent-tx:#818CF8;
+  --ok:#10B981; --ok-lt:rgba(16,185,129,.1);
+  --bad:#F87171; --bad-lt:rgba(248,113,113,.1);
+  --warn:#FBBF24; --warn-lt:rgba(251,191,36,.1);
+  --tx:#f0f0f8; --tx2:#9898b8; --tx3:#5a5a78;
+  --sh-sm:0 1px 3px rgba(0,0,0,.25); --sh:0 4px 12px rgba(0,0,0,.35); --sh-lg:0 20px 40px rgba(0,0,0,.5);
+}
+/* ── Reset ────────────────────────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg2);color:var(--tx);min-height:100vh;font-size:15px;line-height:1.6;transition:background .2s,color .2s}
+/* ── Header ──────────────────────────────────────────────────────── */
+header{position:sticky;top:0;z-index:100;height:60px;background:var(--bg);border-bottom:1px solid var(--border);box-shadow:var(--sh-sm)}
+.hdr{max-width:960px;margin:0 auto;height:100%;display:flex;align-items:center;gap:12px;padding:0 24px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-mark{width:34px;height:34px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;font-weight:800;flex-shrink:0}
+.logo-name{font-size:15px;font-weight:800;letter-spacing:-.3px}
+.logo-sub{font-size:10px;color:var(--tx3);line-height:1}
+/* Stepper */
+.stepper{flex:1;display:flex;align-items:center;justify-content:center;gap:0;overflow:hidden}
+.step{display:flex;align-items:center;font-size:12px;font-weight:600;color:var(--tx3);white-space:nowrap}
+.step.active{color:var(--accent-tx)}
+.step.done{color:var(--ok)}
+.step-num{width:22px;height:22px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;transition:all .2s}
+.step.active .step-num{background:var(--accent);border-color:var(--accent);color:#fff}
+.step.done .step-num{background:var(--ok);border-color:var(--ok);color:#fff}
+.step-lbl{margin-left:6px}
+.step-line{width:20px;height:2px;background:var(--border2);flex-shrink:0;margin:0 3px;transition:background .2s}
+.step-line.done{background:var(--ok)}
+.step-mob{display:none;font-size:12px;font-weight:600;color:var(--tx2);flex:1;text-align:center}
+/* Header actions */
+.hdr-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.ibtn{height:34px;padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--tx2);cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px;transition:all .15s}
+.ibtn:hover{background:var(--surface2);border-color:var(--border2);color:var(--tx)}
+.ibtn-sq{width:34px;padding:0;justify-content:center;font-size:16px}
+/* ── History Panel ───────────────────────────────────────────────── */
+.hist-bd{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;backdrop-filter:blur(2px)}
+.hist-bd.on{display:block}
+.hist-panel{position:fixed;top:0;right:0;width:360px;max-width:100vw;height:100vh;background:var(--bg);border-left:1px solid var(--border);z-index:201;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:var(--sh-lg)}
+.hist-panel.on{transform:translateX(0)}
+.hist-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.hist-hd h3{font-size:15px;font-weight:700}
+.hist-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.hist-empty{text-align:center;padding:48px 16px;color:var(--tx3);font-size:13px;line-height:1.6}
+.hist-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.hist-pname{font-size:13px;font-weight:700;margin-bottom:4px}
+.hist-meta{font-size:11px;color:var(--tx3);margin-bottom:10px}
+.hist-link{font-size:12px;font-weight:600;color:var(--accent-tx);text-decoration:none}
+.hist-link:hover{text-decoration:underline}
+.hist-ft{padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0}
+/* ── Screens ─────────────────────────────────────────────────────── */
+.screen{display:none;animation:fadeUp .3s ease}
 .screen.on{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-/* PIN */
-.pin-wrap{max-width:380px;margin:80px auto;text-align:center}
-.pin-wrap h2{font-size:28px;font-weight:800;margin-bottom:8px;letter-spacing:-1px}
-.pin-wrap p{color:var(--muted);font-size:14px;margin-bottom:32px}
-.pin-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;color:var(--text);font-family:'DM Mono',monospace;font-size:22px;text-align:center;letter-spacing:6px;outline:none;transition:border-color .2s}
-.pin-input:focus{border-color:var(--accent)}
-.pin-error{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px;font-family:'DM Mono',monospace}
-
-/* Upload */
-.hero{text-align:center;margin-bottom:40px}
-.tag{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);border:1px solid var(--accent);padding:3px 10px;border-radius:100px;margin-bottom:18px;letter-spacing:1px}
-.hero h1{font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:14px}
-.hero h1 span{color:var(--accent)}
-.hero p{font-size:15px;color:var(--muted);max-width:440px;margin:0 auto;line-height:1.6}
-
-.dropzone{border:2px dashed var(--border);border-radius:14px;padding:44px 24px;text-align:center;cursor:pointer;transition:all .3s;background:var(--surface);position:relative;overflow:hidden}
-.dropzone::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(108,99,255,.06) 0%,transparent 70%);opacity:0;transition:opacity .3s}
-.dropzone:hover,.dropzone.drag{border-color:var(--accent)}
-.dropzone:hover::before,.dropzone.drag::before{opacity:1}
-.dropzone h3{font-size:18px;font-weight:700;margin:12px 0 6px}
-.dropzone p{color:var(--muted);font-size:13px}
-.fmts{display:flex;gap:6px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.fmt{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
-#file-input{display:none}
-
-.file-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
-.file-pill{display:flex;align-items:center;gap:10px;background:rgba(108,99,255,.08);border:1px solid var(--accent);border-radius:8px;padding:11px 15px;font-family:'DM Mono',monospace;font-size:12px}
-.file-pill.extra{background:rgba(78,205,196,.06);border-color:var(--success)}
-.file-badge{font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(108,99,255,.2);color:var(--accent);text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
-.file-badge.merge{background:rgba(78,205,196,.15);color:var(--success)}
-.file-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
-.file-size{color:var(--muted);font-size:10px;flex-shrink:0}
-.rm{color:var(--muted);cursor:pointer;margin-left:4px;font-size:16px;flex-shrink:0;transition:color .2s}
-.rm:hover{color:var(--danger)}
-
-.add-more{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 14px;border:1px dashed var(--border);border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);background:transparent;width:100%;transition:all .2s}
-.add-more:hover{border-color:var(--success);color:var(--success)}
-
-/* Buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;border-radius:10px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;transition:all .2s;width:100%}
-.btn-main{background:var(--accent);color:#fff;margin-top:20px}
-.btn-main:hover:not(:disabled){background:#7c74ff;transform:translateY(-1px)}
-.btn-main:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.btn-ok{background:var(--success);color:#0a0a0f;margin-top:14px}
-.btn-ok:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
-.btn-ok:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);width:auto;padding:10px 20px;margin-top:0}
-.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
-
-/* Processing */
-.proc{text-align:center;padding:80px 0}
-.spin{width:56px;height:56px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 28px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.wrap{max-width:820px;margin:0 auto;padding:40px 24px 64px}
+/* ── PIN ─────────────────────────────────────────────────────────── */
+.pin-card{max-width:380px;margin:64px auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--sh);padding:40px 36px;text-align:center}
+.pin-icon{font-size:40px;margin-bottom:16px}
+.pin-card h2{font-size:22px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
+.pin-card p{font-size:14px;color:var(--tx2);margin-bottom:28px}
+.pin-in{width:100%;background:var(--bg2);border:2px solid var(--border);border-radius:var(--r);padding:14px;color:var(--tx);font-family:inherit;font-size:24px;text-align:center;letter-spacing:8px;outline:none;transition:border-color .2s}
+.pin-in:focus{border-color:var(--accent)}
+.pin-in::placeholder{letter-spacing:4px;color:var(--tx3)}
+.pin-err{color:var(--bad);font-size:13px;font-weight:500;margin-top:10px;min-height:20px}
+/* ── Upload ──────────────────────────────────────────────────────── */
+.hero{margin-bottom:36px}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:var(--accent-lt);color:var(--accent-tx);font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:20px}
+.hero h1{font-size:clamp(26px,5vw,46px);font-weight:800;line-height:1.15;letter-spacing:-1.5px;margin-bottom:14px}
+.hero h1 em{font-style:normal;color:var(--accent-tx)}
+.hero p{font-size:15px;color:var(--tx2);max-width:460px;line-height:1.65}
+.dz{border:2px dashed var(--border2);border-radius:var(--r-lg);padding:44px 32px;text-align:center;cursor:pointer;background:var(--surface);transition:all .2s;position:relative}
+.dz:hover,.dz.drag{border-color:var(--accent);background:var(--accent-lt)}
+.dz-icon{font-size:40px;margin-bottom:12px}
+.dz-title{font-size:17px;font-weight:700;margin-bottom:6px}
+.dz-sub{font-size:13px;color:var(--tx2);margin-bottom:16px}
+.dz-fmts{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.dz-fmt{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:3px 9px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);color:var(--tx3)}
+input[type="file"]{display:none}
+.file-stack{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.file-pill{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm)}
+.file-pill.primary{border-color:var(--accent);background:var(--accent-lt)}
+.file-pill.merge{border-color:var(--ok);background:var(--ok-lt)}
+.fp-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:4px;flex-shrink:0}
+.fp-badge.primary{background:var(--accent);color:#fff}
+.fp-badge.merge{background:var(--ok);color:#fff}
+.fp-name{flex:1;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.fp-size{font-size:11px;color:var(--tx3);flex-shrink:0}
+.fp-rm{color:var(--tx3);cursor:pointer;font-size:18px;flex-shrink:0;line-height:1;transition:color .15s;padding:0 2px}
+.fp-rm:hover{color:var(--bad)}
+.add-more{width:100%;margin-top:8px;display:none;align-items:center;justify-content:center;gap:8px;padding:11px;border:1.5px dashed var(--border2);border-radius:var(--r);background:transparent;color:var(--tx2);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s}
+.add-more:hover{border-color:var(--ok);color:var(--ok)}
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:var(--r);border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;transition:all .15s;width:100%}
+.btn-primary{background:var(--accent);color:#fff;margin-top:20px;box-shadow:0 2px 8px rgba(79,70,229,.25)}
+.btn-primary:hover:not(:disabled){background:var(--accent-h);transform:translateY(-1px);box-shadow:0 4px 16px rgba(79,70,229,.35)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ok{background:var(--ok);color:#fff;margin-top:16px;box-shadow:0 2px 8px rgba(5,150,105,.2)}
+.btn-ok:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 4px 14px rgba(5,150,105,.3)}
+.btn-ok:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:transparent;color:var(--tx2);border:1.5px solid var(--border);width:auto;margin-top:0;padding:10px 18px}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent-tx);background:var(--accent-lt)}
+.btn-danger{background:transparent;color:var(--bad);border:1.5px solid var(--bad-lt);font-size:13px;padding:9px 16px;width:auto}
+.btn-danger:hover{background:var(--bad-lt)}
+/* ── Processing ──────────────────────────────────────────────────── */
+.proc-wrap{max-width:460px;margin:0 auto;padding:72px 24px;text-align:center}
+.proc-anim{width:68px;height:68px;margin:0 auto 28px;position:relative}
+.proc-ring{position:absolute;inset:0;width:68px;height:68px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .9s linear infinite}
+.proc-ring2{position:absolute;top:10px;left:10px;width:48px;height:48px;border:2px solid var(--border);border-bottom-color:var(--ok);border-radius:50%;animation:spin 1.4s linear infinite reverse}
 @keyframes spin{to{transform:rotate(360deg)}}
-.proc h2{font-size:26px;font-weight:800;margin-bottom:10px}
-.proc p{color:var(--muted);font-size:14px}
-.proc-hint{font-size:12px;margin-top:4px;color:var(--muted)}
-.log{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-top:20px;min-height:16px}
-.proc-stages{display:flex;gap:8px;justify-content:center;margin-top:28px;flex-wrap:wrap}
-.proc-stage{font-family:'DM Mono',monospace;font-size:10px;padding:4px 12px;border-radius:20px;border:1px solid var(--border);color:var(--muted)}
-.proc-stage.active{border-color:var(--accent);color:var(--accent);background:rgba(108,99,255,.08)}
-.proc-stage.done{border-color:var(--success);color:var(--success);background:rgba(78,205,196,.08)}
-
-/* Standardised Review */
-.rev-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:20px;flex-wrap:wrap}
-.rev-hdr h2{font-size:28px;font-weight:800;letter-spacing:-1px}
-.rev-hdr p{color:var(--muted);font-size:13px;margin-top:5px;max-width:520px;line-height:1.5}
-.std-editor{width:100%;min-height:460px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;resize:vertical;outline:none;transition:border-color .2s}
-.std-editor:focus{border-color:var(--accent)}
-.std-note{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px}
-
-/* Backlog Review */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px}
-.stat .n{font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:var(--accent)}
-.stat .l{font-size:11px;color:var(--muted);margin-top:3px}
-
-.epic{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden}
-.epic-hdr{display:flex;align-items:center;gap:10px;padding:18px 22px;cursor:pointer;transition:background .2s}
-.epic-hdr:hover{background:var(--surface2)}
-.eid{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.3);padding:2px 7px;border-radius:4px;flex-shrink:0}
-.ename{font-size:15px;font-weight:700;flex:1}
-.edesc{font-size:12px;color:var(--muted);margin-top:2px}
-.ecount{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);flex-shrink:0}
-.chev{color:var(--muted);transition:transform .3s;flex-shrink:0}
-.epic.open .chev{transform:rotate(180deg)}
-.stories{border-top:1px solid var(--border);display:none}
-.epic.open .stories{display:block}
-
-.story{border-bottom:1px solid var(--border);padding:18px 22px}
-.story:last-child{border-bottom:none}
-.story-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
-.sid{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0;margin-top:3px;width:48px}
-.stitle{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--text);background:transparent;border:none;outline:none;width:100%;border-bottom:1px solid transparent;transition:border-color .2s;padding-bottom:2px}
-.stitle:focus{border-bottom-color:var(--accent)}
-.smeta{display:flex;gap:6px;flex-wrap:wrap;margin-left:58px;margin-bottom:8px}
-.psel{font-family:'DM Mono',monospace;font-size:10px;padding:3px 7px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;outline:none;color:var(--muted)}
-.p-must{background:rgba(255,107,107,.12);color:#ff6b6b;border-color:rgba(255,107,107,.3)}
-.p-should{background:rgba(255,217,61,.12);color:#ffd93d;border-color:rgba(255,217,61,.3)}
-.p-could{background:rgba(78,205,196,.12);color:#4ecdc4;border-color:rgba(78,205,196,.3)}
-.p-wont{background:rgba(107,107,128,.12);color:var(--muted);border-color:rgba(107,107,128,.3)}
-.snarr{font-size:12px;color:var(--muted);font-style:italic;margin-left:58px;margin-bottom:8px;line-height:1.5}
-.acs{margin-left:58px}
-.ac{font-size:11px;color:var(--muted);padding:3px 0;font-family:'DM Mono',monospace;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
-.ac::before{content:'✓';color:var(--success);flex-shrink:0}
-
-/* Success */
-.suc{text-align:center;padding:80px 0}
-.suc-icon{font-size:64px;margin-bottom:20px;animation:pop .4s ease}
-@keyframes pop{0%{transform:scale(0)}80%{transform:scale(1.1)}100%{transform:scale(1)}}
-.suc h2{font-size:32px;font-weight:800;margin-bottom:10px;letter-spacing:-1px}
-.suc p{color:var(--muted);font-size:15px;margin-bottom:28px}
-.jira-btn{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 22px;color:var(--text);text-decoration:none;font-weight:600;font-size:14px;transition:all .2s;margin-bottom:20px}
-.jira-btn:hover{border-color:var(--accent);color:var(--accent)}
-
-/* Toast */
-.toast{position:fixed;bottom:20px;right:20px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;max-width:300px}
+.proc-msg{font-size:19px;font-weight:700;margin-bottom:10px;min-height:27px;transition:opacity .3s}
+.proc-stage-lbl{display:inline-block;font-size:12px;font-weight:600;color:var(--tx3);background:var(--surface2);border:1px solid var(--border);padding:3px 12px;border-radius:100px;margin-bottom:20px}
+.proc-bar-track{width:100%;max-width:300px;height:4px;background:var(--surface2);border-radius:100px;overflow:hidden;margin:0 auto 12px}
+.proc-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--ok));border-radius:100px;width:0;transition:width 1s linear}
+.proc-timer{font-size:12px;color:var(--tx3);font-weight:500}
+/* ── Review Std ──────────────────────────────────────────────────── */
+.sec-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.sec-title{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+.sec-sub{font-size:13px;color:var(--tx2);max-width:500px;line-height:1.55}
+.std-ta{width:100%;min-height:440px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;color:var(--tx);font-family:'JetBrains Mono','Fira Code','Cascadia Code',ui-monospace,monospace;font-size:12.5px;line-height:1.75;resize:vertical;outline:none;transition:border-color .2s}
+.std-ta:focus{border-color:var(--accent)}
+[data-theme="dark"] .std-ta{background:#0d0d14}
+.std-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:6px}
+.std-note{font-size:12px;color:var(--tx3)}
+/* ── Backlog Review ───────────────────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 20px;box-shadow:var(--sh-sm)}
+.stat-n{font-size:28px;font-weight:800;color:var(--accent-tx);line-height:1;font-variant-numeric:tabular-nums}
+.stat-l{font-size:12px;color:var(--tx3);margin-top:5px;font-weight:500}
+.epic-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:12px;overflow:hidden;box-shadow:var(--sh-sm);transition:box-shadow .2s}
+.epic-card:hover{box-shadow:var(--sh)}
+.epic-hd{display:flex;align-items:center;gap:12px;padding:18px 22px;cursor:pointer;transition:background .15s}
+.epic-hd:hover{background:var(--surface2)}
+.epic-id{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent-tx);background:var(--accent-lt);border:1px solid rgba(79,70,229,.25);padding:3px 8px;border-radius:5px;flex-shrink:0}
+.epic-info{flex:1;min-width:0}
+.epic-name{font-size:15px;font-weight:700}
+.epic-desc{font-size:12px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.epic-ct{font-size:12px;color:var(--tx3);font-weight:500;flex-shrink:0}
+.epic-chev{color:var(--tx3);transition:transform .25s;flex-shrink:0;font-size:11px}
+.epic-card.open .epic-chev{transform:rotate(180deg)}
+.epic-stories{display:none;border-top:1px solid var(--border)}
+.epic-card.open .epic-stories{display:block}
+.story-card{padding:20px 22px;border-bottom:1px solid var(--border)}
+.story-card:last-child{border-bottom:none}
+.story-hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.story-id{font-size:10px;font-weight:700;color:var(--tx3);background:var(--surface2);border:1px solid var(--border);padding:3px 7px;border-radius:4px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.story-ti{flex:1;font-size:14px;font-weight:600;color:var(--tx);background:transparent;border:none;outline:none;border-bottom:1.5px solid transparent;padding-bottom:2px;font-family:inherit;min-width:0;transition:border-color .2s}
+.story-ti:focus{border-bottom-color:var(--accent)}
+.story-narr{font-size:13px;color:var(--tx2);font-style:italic;margin-bottom:12px;line-height:1.55;padding-left:2px}
+.story-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.meta-sel{font-family:inherit;font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface2);color:var(--tx2);cursor:pointer;outline:none;transition:all .15s}
+.p-must{background:var(--bad-lt);color:var(--bad);border-color:rgba(220,38,38,.3)}
+.p-should{background:var(--warn-lt);color:var(--warn);border-color:rgba(217,119,6,.3)}
+.p-could{background:var(--ok-lt);color:var(--ok);border-color:rgba(5,150,105,.3)}
+.p-wont{background:var(--surface2);color:var(--tx3);border-color:var(--border)}
+.story-acs{display:flex;flex-direction:column;gap:5px}
+.ac{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--tx3);line-height:1.55}
+.ac-chk{color:var(--ok);flex-shrink:0;margin-top:1px}
+/* ── Success ─────────────────────────────────────────────────────── */
+.suc-wrap{max-width:480px;margin:0 auto;padding:56px 0;text-align:center}
+.suc-icon{font-size:68px;display:block;margin-bottom:20px;animation:pop .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.suc-title{font-size:28px;font-weight:800;letter-spacing:-.75px;margin-bottom:10px}
+.suc-sub{font-size:15px;color:var(--tx2);margin-bottom:28px}
+.suc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--sh);padding:24px 28px;margin-bottom:24px;text-align:left}
+.suc-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);font-size:14px}
+.suc-row:first-child{padding-top:0}
+.suc-row:last-child{border-bottom:none;padding-bottom:0}
+.sr-lbl{color:var(--tx2);font-weight:500}
+.sr-val{font-weight:700}
+.sr-val.ac{color:var(--accent-tx)}
+.jira-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;text-decoration:none;padding:13px 24px;border-radius:var(--r);font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(79,70,229,.25);transition:all .15s;margin-bottom:12px}
+.jira-btn:hover{background:var(--accent-h);transform:translateY(-1px);box-shadow:0 4px 14px rgba(79,70,229,.35)}
+/* ── Toast ───────────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px 18px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:340px;box-shadow:var(--sh-lg)}
 .toast.on{transform:translateY(0);opacity:1}
-.toast.err{border-color:var(--danger);color:var(--danger)}
-.toast.ok{border-color:var(--success);color:var(--success)}
-
-@media(max-width:600px){.stats{grid-template-columns:1fr 1fr}.rev-hdr{flex-direction:column}.smeta,.snarr,.acs{margin-left:0}.steps{display:none}}
+.toast.err{border-color:var(--bad);color:var(--bad)}
+.toast.ok{border-color:var(--ok);color:var(--ok)}
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media(max-width:680px){
+  .stepper{display:none}
+  .step-mob{display:block}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .sec-hdr{flex-direction:column;align-items:flex-start}
+  .hist-panel{width:100vw}
+  .hdr{padding:0 16px}
+  .wrap{padding:28px 16px 48px}
+}
 </style>
 </head>
 <body>
 
+<!-- ── Header ──────────────────────────────────────────────────────────── -->
 <header>
-  <div class="hdr">
-    <div class="logo">
-      <div class="logo-icon">⚡</div>
-      <div>
-        <div class="logo-text">PO Bot</div>
-        <div class="logo-sub">Trio Games · Product Owner Tool</div>
-      </div>
-    </div>
-    <div class="steps">
-      <div class="dot active" id="d1"></div>
-      <div class="dot" id="d2"></div>
-      <div class="dot" id="d3"></div>
-      <div class="dot" id="d4"></div>
-      <div class="dot" id="d5"></div>
-      <div class="dot" id="d6"></div>
-      <span id="slabel">Upload</span>
-    </div>
+<div class="hdr">
+  <div class="logo">
+    <div class="logo-mark">P</div>
+    <div><div class="logo-name">PO Bot</div><div class="logo-sub">Trio Games</div></div>
   </div>
+
+  <div class="stepper" id="stepper">
+    <div class="step" id="st1"><div class="step-num">1</div><span class="step-lbl">Upload</span></div>
+    <div class="step-line" id="sl1"></div>
+    <div class="step" id="st2"><div class="step-num">2</div><span class="step-lbl">Standardise</span></div>
+    <div class="step-line" id="sl2"></div>
+    <div class="step" id="st3"><div class="step-num">3</div><span class="step-lbl">Generate</span></div>
+    <div class="step-line" id="sl3"></div>
+    <div class="step" id="st4"><div class="step-num">4</div><span class="step-lbl">Review</span></div>
+    <div class="step-line" id="sl4"></div>
+    <div class="step" id="st5"><div class="step-num">5</div><span class="step-lbl">Done</span></div>
+  </div>
+
+  <div class="step-mob" id="step-mob"></div>
+
+  <div class="hdr-right">
+    <button class="ibtn" onclick="toggleHistory()">📋 History</button>
+    <button class="ibtn ibtn-sq" id="theme-btn" onclick="toggleTheme()" title="Toggle theme"></button>
+  </div>
+</div>
 </header>
 
-<!-- ── PIN ─────────────────────────────────────────────────────────────── -->
+<!-- ── History ──────────────────────────────────────────────────────────── -->
+<div class="hist-bd" id="hist-bd" onclick="closeHistory()"></div>
+<div class="hist-panel" id="hist-panel">
+  <div class="hist-hd">
+    <h3>Project History</h3>
+    <button class="ibtn ibtn-sq" onclick="closeHistory()">✕</button>
+  </div>
+  <div class="hist-body" id="hist-body">
+    <div class="hist-empty">No projects yet.<br>Completed projects appear here.</div>
+  </div>
+  <div class="hist-ft">
+    <button class="btn btn-danger" onclick="clearHistory()">Clear History</button>
+  </div>
+</div>
+
+<!-- ── PIN ──────────────────────────────────────────────────────────────── -->
 <div class="screen on" id="s-pin">
 <div class="wrap">
-  <div class="pin-wrap">
+  <div class="pin-card">
+    <div class="pin-icon">🔐</div>
     <h2>Welcome back</h2>
-    <p>Enter your PIN to access the PO Bot</p>
-    <input class="pin-input" type="password" id="pin-input" maxlength="8"
-      placeholder="••••" autocomplete="off">
-    <div class="pin-error" id="pin-err"></div>
+    <p>Enter your PIN to access PO Bot</p>
+    <input class="pin-in" type="password" id="pin-in" maxlength="8" placeholder="••••" autocomplete="off">
+    <div class="pin-err" id="pin-err"></div>
   </div>
 </div>
 </div>
 
-<!-- ── UPLOAD ──────────────────────────────────────────────────────────── -->
+<!-- ── UPLOAD ───────────────────────────────────────────────────────────── -->
 <div class="screen" id="s-upload">
 <div class="wrap">
   <div class="hero">
-    <div class="tag">PRODUCT OWNER AUTOMATION</div>
-    <h1>Doc in.<br><span>Backlog</span> out.</h1>
-    <p>Drop your product document(s). Claude reads and structures them as a senior PO, then generates a full Scrum backlog.</p>
+    <div class="hero-tag">⚡ Product Owner Automation</div>
+    <h1>Doc in.<br><em>Backlog</em> out.</h1>
+    <p>Drop your product document. Claude reads it as a senior PO — first standardising your input, then generating a full sprint-ready backlog.</p>
   </div>
 
-  <div class="dropzone" id="dropzone">
-    <div style="font-size:40px">📄</div>
-    <h3>Drop your primary document here</h3>
-    <p>or click to browse</p>
-    <div class="fmts">
-      <span class="fmt">PDF</span><span class="fmt">DOCX</span>
-      <span class="fmt">MD</span><span class="fmt">TXT</span>
+  <div class="dz" id="dz">
+    <div class="dz-icon">📄</div>
+    <div class="dz-title">Drop your primary document here</div>
+    <div class="dz-sub">or click to browse</div>
+    <div class="dz-fmts">
+      <span class="dz-fmt">PDF</span><span class="dz-fmt">DOCX</span>
+      <span class="dz-fmt">Markdown</span><span class="dz-fmt">TXT</span>
     </div>
   </div>
-  <input type="file" id="file-input" accept=".pdf,.docx,.md,.txt">
-  <input type="file" id="file-input-extra" accept=".pdf,.docx,.md,.txt" multiple>
+  <input type="file" id="fi-primary" accept=".pdf,.docx,.md,.txt">
+  <input type="file" id="fi-extra" accept=".pdf,.docx,.md,.txt" multiple>
 
-  <div class="file-list" id="file-list"></div>
-
-  <button class="add-more" id="btn-add-more" style="display:none"
-    onclick="document.getElementById('file-input-extra').click()">
-    <span>＋</span> Add another document to merge
+  <div class="file-stack" id="file-stack"></div>
+  <button class="add-more" id="btn-add" onclick="document.getElementById('fi-extra').click()">
+    ＋ Add another document to merge
   </button>
-
-  <button class="btn btn-main" id="btn-std" onclick="doStandardise()" disabled>
+  <button class="btn btn-primary" id="btn-std" onclick="doStandardise()" disabled>
     ⚡ Standardise &amp; Review
   </button>
 </div>
 </div>
 
-<!-- ── PROCESSING 1 ────────────────────────────────────────────────────── -->
+<!-- ── PROC 1 ────────────────────────────────────────────────────────────── -->
 <div class="screen" id="s-proc1">
 <div class="wrap">
-  <div class="proc">
-    <div class="spin"></div>
-    <h2>Standardising document...</h2>
-    <p>Claude is reading and structuring your input</p>
-    <p class="proc-hint">Takes about 30–45 seconds</p>
-    <div class="log" id="log1">Uploading document...</div>
-    <div class="proc-stages">
-      <div class="proc-stage active" id="ps1-upload">Upload</div>
-      <div class="proc-stage" id="ps1-claude">Claude</div>
-      <div class="proc-stage" id="ps1-save">Save</div>
-    </div>
+  <div class="proc-wrap">
+    <div class="proc-anim"><div class="proc-ring"></div><div class="proc-ring2"></div></div>
+    <div class="proc-msg" id="p1-msg">Reading your document...</div>
+    <div class="proc-stage-lbl">Stage 1 of 2 · Standardising</div>
+    <div class="proc-bar-track"><div class="proc-bar" id="p1-bar"></div></div>
+    <div class="proc-timer" id="p1-timer">0s elapsed</div>
   </div>
 </div>
 </div>
 
-<!-- ── REVIEW STANDARDISED DOC ─────────────────────────────────────────── -->
+<!-- ── REVIEW STD ───────────────────────────────────────────────────────── -->
 <div class="screen" id="s-review-std">
 <div class="wrap">
-  <div class="rev-hdr">
+  <div class="sec-hdr">
     <div>
-      <h2>Review: Standardised Document</h2>
-      <p>Claude converted your input into a clean structured product doc. Edit if needed — your changes will be saved before generating the backlog.</p>
+      <div class="sec-title">Review: Standardised Document</div>
+      <div class="sec-sub">Claude has structured your input into a clean product document. Edit anything you like — changes are saved when you click Generate.</div>
     </div>
     <button class="btn btn-ghost" onclick="reset()">← Re-upload</button>
   </div>
-  <textarea class="std-editor" id="std-editor" spellcheck="false"></textarea>
-  <div class="std-note">✎ Edit freely — changes are saved when you click Generate Backlog</div>
-  <button class="btn btn-ok" id="btn-gen" onclick="doGenerate()">
-    Generate Backlog →
-  </button>
+  <textarea class="std-ta" id="std-ta" spellcheck="false"></textarea>
+  <div class="std-foot">
+    <span class="std-note" id="std-wc"></span>
+    <span class="std-note">✎ Editable — your changes are saved automatically</span>
+  </div>
+  <button class="btn btn-ok" id="btn-gen" onclick="doGenerate()">Generate Backlog →</button>
 </div>
 </div>
 
-<!-- ── PROCESSING 2 ────────────────────────────────────────────────────── -->
+<!-- ── PROC 2 ────────────────────────────────────────────────────────────── -->
 <div class="screen" id="s-proc2">
 <div class="wrap">
-  <div class="proc">
-    <div class="spin"></div>
-    <h2>Generating backlog...</h2>
-    <p>Acting as a senior Product Owner</p>
-    <p class="proc-hint">Takes about 45–60 seconds</p>
-    <div class="log" id="log2">Triggering workflow...</div>
-    <div class="proc-stages">
-      <div class="proc-stage active" id="ps2-trigger">Trigger</div>
-      <div class="proc-stage" id="ps2-claude">Claude PO</div>
-      <div class="proc-stage" id="ps2-save">Backlog</div>
-    </div>
+  <div class="proc-wrap">
+    <div class="proc-anim"><div class="proc-ring"></div><div class="proc-ring2"></div></div>
+    <div class="proc-msg" id="p2-msg">Thinking like a Product Owner...</div>
+    <div class="proc-stage-lbl">Stage 2 of 2 · Generating Backlog</div>
+    <div class="proc-bar-track"><div class="proc-bar" id="p2-bar"></div></div>
+    <div class="proc-timer" id="p2-timer">0s elapsed</div>
   </div>
 </div>
 </div>
 
-<!-- ── REVIEW BACKLOG ──────────────────────────────────────────────────── -->
+<!-- ── REVIEW BACKLOG ───────────────────────────────────────────────────── -->
 <div class="screen" id="s-review">
 <div class="wrap">
-  <div class="rev-hdr">
+  <div class="sec-hdr">
     <div>
-      <h2 id="proj-name">Product Backlog</h2>
-      <p id="proj-vision"></p>
+      <div class="sec-title" id="proj-name">Product Backlog</div>
+      <div class="sec-sub" id="proj-vision"></div>
     </div>
     <button class="btn btn-ghost" onclick="reset()">← New Doc</button>
   </div>
-  <div class="stats" id="stats"></div>
+  <div class="stats-grid" id="stats"></div>
   <div id="epics"></div>
-  <button class="btn btn-ok" id="btn-approve" onclick="approve()">
-    ✓ Approve &amp; Push to Jira
-  </button>
+  <button class="btn btn-ok" id="btn-approve" onclick="approve()">✓ Approve &amp; Push to Jira</button>
 </div>
 </div>
 
-<!-- ── SUCCESS ─────────────────────────────────────────────────────────── -->
+<!-- ── SUCCESS ──────────────────────────────────────────────────────────── -->
 <div class="screen" id="s-success">
 <div class="wrap">
-  <div class="suc">
-    <div class="suc-icon">🎉</div>
-    <h2>Pushed to Jira!</h2>
-    <p id="suc-msg">Your sprint-ready backlog is live.</p>
-    <br>
-    <a class="jira-btn" id="jira-link" href="#" target="_blank">Open in Jira →</a>
-    <br>
-    <button class="btn btn-ghost" onclick="reset()" style="margin-top:12px">Start another project</button>
+  <div class="suc-wrap">
+    <span class="suc-icon">🎉</span>
+    <div class="suc-title">Pushed to Jira!</div>
+    <div class="suc-sub">Your sprint-ready backlog is live and ready for the team.</div>
+    <div class="suc-card">
+      <div class="suc-row"><span class="sr-lbl">Project</span><span class="sr-val" id="s-pname">—</span></div>
+      <div class="suc-row"><span class="sr-lbl">Key</span><span class="sr-val ac" id="s-pkey">—</span></div>
+      <div class="suc-row"><span class="sr-lbl">Issues Created</span><span class="sr-val" id="s-count">—</span></div>
+      <div class="suc-row"><span class="sr-lbl">Epics</span><span class="sr-val" id="s-epics">—</span></div>
+    </div>
+    <a class="jira-btn" id="jira-link" href="#" target="_blank">Open in Jira →</a><br>
+    <button class="btn btn-ghost" onclick="reset()" style="width:auto;margin-top:12px">Start another project</button>
   </div>
 </div>
 </div>
@@ -315,403 +387,314 @@ header{border-bottom:1px solid var(--border);padding:18px 0;position:sticky;top:
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Config ────────────────────────────────────────────────────────────────────
 const WORKER_URL = 'https://po-bot-worker.prasanna-d75.workers.dev';
-// ─────────────────────────────────────────────────────────────────────────────
 
-let pin          = '';
-let selectedFiles = [];   // [File, ...] — index 0 = primary
-let docName      = '';    // from /api/standardise
-let stdPath      = '';    // from /api/poll-standard
-let stdName      = '';    // std filename without .md
-let backlogData  = null;
-let pollTimer    = null;
+// ── State ─────────────────────────────────────────────────────────────────────
+let pin = '', selectedFiles = [], docName = '', stdPath = '', backlogData = null;
+let pollTimer = null, procMsgInt = null, procTimerInt = null;
 
-// ── Navigation ────────────────────────────────────────────────────────────────
-function show(id, stepN) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
-  document.getElementById('s-' + id).classList.add('on');
-  for (let n = 1; n <= 6; n++) {
-    const d = document.getElementById('d' + n);
-    if (d) d.className = 'dot' + (n === stepN ? ' active' : n < stepN ? ' done' : '');
-  }
-  const labels = {
-    pin: '', upload: 'Upload', proc1: 'Standardising',
-    'review-std': 'Review Doc', proc2: 'Generating',
-    review: 'Review Backlog', success: 'Done'
-  };
-  document.getElementById('slabel').textContent = labels[id] || '';
+// ── Theme ─────────────────────────────────────────────────────────────────────
+(function(){
+  const t = localStorage.getItem('po_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  updateThemeBtn();
+})();
+function toggleTheme(){
+  const d = document.documentElement;
+  const next = d.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  d.setAttribute('data-theme', next);
+  localStorage.setItem('po_theme', next);
+  updateThemeBtn();
+}
+function updateThemeBtn(){
+  document.getElementById('theme-btn').textContent =
+    document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
 }
 
-function reset() {
-  if (pollTimer) clearInterval(pollTimer);
-  selectedFiles = [];
-  docName = stdPath = stdName = '';
-  backlogData = null;
-  document.getElementById('file-input').value = '';
-  document.getElementById('file-input-extra').value = '';
-  renderFileList();
+// ── Navigation ────────────────────────────────────────────────────────────────
+const STEP_FOR = { pin:0, upload:1, proc1:1, 'review-std':2, proc2:3, review:4, success:5 };
+const MOB_LBL  = { upload:'Upload', proc1:'Standardising…', 'review-std':'Review Doc',
+                   proc2:'Generating…', review:'Review Backlog', success:'Done' };
+function show(id, stepN){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById('s-' + id).classList.add('on');
+  for(let n=1;n<=5;n++){
+    const s = document.getElementById('st'+n);
+    const l = document.getElementById('sl'+n);
+    if(s) s.className = 'step' + (n===stepN?' active':n<stepN?' done':'');
+    if(l) l.className = 'step-line' + (n<stepN?' done':'');
+  }
+  const mob = document.getElementById('step-mob');
+  mob.textContent = stepN ? `Step ${stepN} of 5 · ${MOB_LBL[id]||''}` : '';
+}
+function reset(){
+  stopProc();
+  selectedFiles = []; docName = stdPath = ''; backlogData = null;
+  document.getElementById('fi-primary').value = '';
+  document.getElementById('fi-extra').value = '';
+  renderFiles();
   document.getElementById('btn-std').disabled = true;
+  document.getElementById('btn-add').style.display = 'none';
   show('upload', 1);
 }
 
 // ── PIN ───────────────────────────────────────────────────────────────────────
-async function onPinInput() {
-  const val = document.getElementById('pin-input').value;
-  if (val.length < 4) return;
+const pinEl = document.getElementById('pin-in');
+pinEl.addEventListener('input', () => { if(pinEl.value.length >= 4) submitPin(); });
+pinEl.addEventListener('keydown', e => { if(e.key==='Enter') submitPin(); });
+async function submitPin(){
+  const val = pinEl.value; if(val.length < 4) return;
   pin = val;
   document.getElementById('pin-err').textContent = '';
-
   try {
-    const r = await fetch(`${WORKER_URL}/api/verify-pin`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin }),
-    });
+    const r = await fetch(`${WORKER_URL}/api/verify-pin`,{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({pin})});
     const d = await r.json();
-    if (d.ok) {
-      document.getElementById('pin-input').value = '';
-      show('upload', 1);
-    } else {
-      document.getElementById('pin-err').textContent = 'Wrong PIN. Try again.';
-      document.getElementById('pin-input').value = '';
-    }
-  } catch (e) {
-    document.getElementById('pin-err').textContent = 'Cannot reach server. Check Worker URL.';
-  }
+    if(d.ok){ pinEl.value=''; show('upload',1); }
+    else { document.getElementById('pin-err').textContent='Wrong PIN — try again.'; pinEl.value=''; pin=''; }
+  } catch { document.getElementById('pin-err').textContent='Cannot reach server.'; }
 }
 
-document.getElementById('pin-input').addEventListener('input', () => {
-  const v = document.getElementById('pin-input').value;
-  if (v.length >= 4) onPinInput();
-});
-document.getElementById('pin-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') onPinInput();
-});
-
-// ── File selection ────────────────────────────────────────────────────────────
-function addFiles(fileList) {
-  for (const f of fileList) {
-    if (!selectedFiles.find(x => x.name === f.name)) {
-      selectedFiles.push(f);
-    }
-  }
-  renderFileList();
-  document.getElementById('btn-std').disabled = selectedFiles.length === 0;
-  document.getElementById('btn-add-more').style.display = selectedFiles.length > 0 ? 'flex' : 'none';
+// ── File handling ─────────────────────────────────────────────────────────────
+function addFiles(list){
+  for(const f of list) if(!selectedFiles.find(x=>x.name===f.name)) selectedFiles.push(f);
+  renderFiles();
+  document.getElementById('btn-std').disabled = selectedFiles.length===0;
+  document.getElementById('btn-add').style.display = selectedFiles.length ? 'flex':'none';
 }
-
-function removeFile(idx) {
-  selectedFiles.splice(idx, 1);
-  renderFileList();
-  document.getElementById('btn-std').disabled = selectedFiles.length === 0;
-  document.getElementById('btn-add-more').style.display = selectedFiles.length > 0 ? 'flex' : 'none';
+function removeFile(i){ selectedFiles.splice(i,1); renderFiles();
+  document.getElementById('btn-std').disabled = selectedFiles.length===0;
+  document.getElementById('btn-add').style.display = selectedFiles.length ? 'flex':'none';
 }
-
-function renderFileList() {
-  const list = document.getElementById('file-list');
-  if (selectedFiles.length === 0) { list.innerHTML = ''; return; }
-  list.innerHTML = selectedFiles.map((f, i) => `
-    <div class="file-pill${i > 0 ? ' extra' : ''}">
-      <span>${i === 0 ? '📄' : '📎'}</span>
-      <span class="file-badge${i > 0 ? ' merge' : ''}">${i === 0 ? 'primary' : 'merge'}</span>
-      <span class="file-name">${esc(f.name)}</span>
-      <span class="file-size">${(f.size / 1024).toFixed(1)} KB</span>
-      <span class="rm" onclick="removeFile(${i})">✕</span>
-    </div>
-  `).join('');
+function renderFiles(){
+  document.getElementById('file-stack').innerHTML = selectedFiles.map((f,i)=>`
+    <div class="file-pill ${i===0?'primary':'merge'}">
+      <span class="fp-badge ${i===0?'primary':'merge'}">${i===0?'Primary':'Merge'}</span>
+      <span class="fp-name" title="${esc(f.name)}">${esc(f.name)}</span>
+      <span class="fp-size">${(f.size/1024).toFixed(1)} KB</span>
+      <span class="fp-rm" onclick="removeFile(${i})">✕</span>
+    </div>`).join('');
+  updateWc();
 }
+const dz = document.getElementById('dz');
+dz.addEventListener('click',()=>document.getElementById('fi-primary').click());
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');addFiles(e.dataTransfer.files)});
+document.getElementById('fi-primary').addEventListener('change',e=>{if(e.target.files[0])addFiles(e.target.files);e.target.value=''});
+document.getElementById('fi-extra').addEventListener('change',e=>{if(e.target.files.length)addFiles(e.target.files);e.target.value=''});
 
-// Dropzone
-const dz = document.getElementById('dropzone');
-dz.addEventListener('click', () => document.getElementById('file-input').click());
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
-dz.addEventListener('drop', e => {
-  e.preventDefault(); dz.classList.remove('drag');
-  addFiles(e.dataTransfer.files);
-});
-
-document.getElementById('file-input').addEventListener('change', e => {
-  if (e.target.files[0]) addFiles(e.target.files);
-  e.target.value = '';
-});
-
-document.getElementById('file-input-extra').addEventListener('change', e => {
-  if (e.target.files.length) addFiles(e.target.files);
-  e.target.value = '';
-});
-
-// ── Stage 1: Standardise ──────────────────────────────────────────────────────
-async function doStandardise() {
-  if (selectedFiles.length === 0) return;
-  show('proc1', 2);
-  setLog('log1', 'Reading documents...');
-
+// ── Stage 1 ───────────────────────────────────────────────────────────────────
+async function doStandardise(){
+  if(!selectedFiles.length) return;
+  show('proc1', 1);
+  startProc('p1', ['Reading your document...','Cleaning up structure...','Almost ready...'], 50);
   try {
-    const primaryFile = selectedFiles[0];
-    const primaryB64 = await toBase64(primaryFile);
-
-    const extraFiles = [];
-    for (const f of selectedFiles.slice(1)) {
-      extraFiles.push({ filename: f.name, content_base64: await toBase64(f) });
-    }
-
-    setLog('log1', 'Uploading to GitHub...');
-    markStage('ps1-upload', 'done'); markStage('ps1-claude', 'active');
-
-    const r = await fetch(`${WORKER_URL}/api/standardise`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-PIN': pin },
-      body: JSON.stringify({
-        filename: primaryFile.name,
-        content_base64: primaryB64,
-        extra_files: extraFiles,
-      }),
-    });
+    const primaryB64 = await toB64(selectedFiles[0]);
+    const extras = [];
+    for(const f of selectedFiles.slice(1)) extras.push({filename:f.name,content_base64:await toB64(f)});
+    const r = await fetch(`${WORKER_URL}/api/standardise`,{method:'POST',
+      headers:{'Content-Type':'application/json','X-PIN':pin},
+      body:JSON.stringify({filename:selectedFiles[0].name,content_base64:primaryB64,extra_files:extras})});
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'Standardise failed');
-
+    if(!r.ok) throw new Error(d.error||'Standardise failed');
     docName = d.doc_name;
-    setLog('log1', 'Claude is standardising your document...');
-    pollStandard();
-
-  } catch (e) {
-    toast(e.message, 'err');
-    show('upload', 1);
-  }
+    pollStd();
+  } catch(e){ stopProc(); toast(e.message,'err'); show('upload',1); }
 }
-
-function pollStandard() {
-  let secs = 0;
-  pollTimer = setInterval(async () => {
-    secs += 6;
-    setLog('log1', `Waiting for Claude... (${secs}s)`);
-    if (secs > 360) {
-      clearInterval(pollTimer);
-      toast('Timed out. Check GitHub Actions for errors.', 'err');
-      show('upload', 1);
-      return;
-    }
-    if (secs > 30) markStage('ps1-save', 'active');
-
+function pollStd(){
+  let s=0;
+  pollTimer = setInterval(async()=>{
+    s+=6; setTimer('p1-timer', s);
+    if(s>360){ stopProc(); toast('Timed out — check GitHub Actions.','err'); show('upload',1); return; }
     try {
-      const r = await fetch(
-        `${WORKER_URL}/api/poll-standard?doc_name=${encodeURIComponent(docName)}`,
-        { headers: { 'X-PIN': pin } }
-      );
+      const r = await fetch(`${WORKER_URL}/api/poll-standard?doc_name=${encodeURIComponent(docName)}`,{headers:{'X-PIN':pin}});
       const d = await r.json();
-      if (d.status === 'ready') {
-        clearInterval(pollTimer);
-        markStage('ps1-save', 'done');
+      if(d.status==='ready'){
+        stopProc();
         stdPath = d.std_path;
-        stdName = d.std_name;
-        document.getElementById('std-editor').value = d.content;
-        show('review-std', 3);
+        document.getElementById('std-ta').value = d.content;
+        updateWc();
+        show('review-std', 2);
       }
-    } catch (_) {}
+    } catch(_){}
   }, 6000);
 }
 
-// ── Stage 2: Generate ─────────────────────────────────────────────────────────
-async function doGenerate() {
+// ── Stage 2 ───────────────────────────────────────────────────────────────────
+async function doGenerate(){
   const btn = document.getElementById('btn-gen');
   btn.disabled = true;
-  show('proc2', 4);
-  setLog('log2', 'Saving your edits...');
-
+  show('proc2', 3);
+  startProc('p2', ['Thinking like a Product Owner...','Writing user stories...','Finalising sprints...'], 60);
   try {
-    const editedContent = document.getElementById('std-editor').value;
-    const std_content_base64 = textToBase64(editedContent);
-
-    markStage('ps2-trigger', 'done'); markStage('ps2-claude', 'active');
-
-    const r = await fetch(`${WORKER_URL}/api/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-PIN': pin },
-      body: JSON.stringify({ std_path: stdPath, std_content_base64 }),
-    });
+    const edited = document.getElementById('std-ta').value;
+    const r = await fetch(`${WORKER_URL}/api/generate`,{method:'POST',
+      headers:{'Content-Type':'application/json','X-PIN':pin},
+      body:JSON.stringify({std_path:stdPath,std_content_base64:txtToB64(edited)})});
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'Generate failed');
-
-    setLog('log2', 'Claude is generating your backlog...');
+    if(!r.ok) throw new Error(d.error||'Generate failed');
     pollBacklog(d.doc_name);
-
-  } catch (e) {
-    toast(e.message, 'err');
-    btn.disabled = false;
-    show('review-std', 3);
-  }
+  } catch(e){ stopProc(); btn.disabled=false; toast(e.message,'err'); show('review-std',2); }
 }
-
-function pollBacklog(backlogDocName) {
-  let secs = 0;
-  pollTimer = setInterval(async () => {
-    secs += 6;
-    setLog('log2', `Waiting for Claude... (${secs}s)`);
-    if (secs > 360) {
-      clearInterval(pollTimer);
-      toast('Timed out. Check GitHub Actions for errors.', 'err');
-      show('review-std', 3);
-      return;
-    }
-    if (secs > 30) markStage('ps2-save', 'active');
-
+function pollBacklog(bdName){
+  let s=0;
+  pollTimer = setInterval(async()=>{
+    s+=6; setTimer('p2-timer', s);
+    if(s>360){ stopProc(); toast('Timed out — check GitHub Actions.','err'); show('review-std',2); return; }
     try {
-      const r = await fetch(
-        `${WORKER_URL}/api/poll?doc_name=${encodeURIComponent(backlogDocName)}`,
-        { headers: { 'X-PIN': pin } }
-      );
+      const r = await fetch(`${WORKER_URL}/api/poll?doc_name=${encodeURIComponent(bdName)}`,{headers:{'X-PIN':pin}});
       const d = await r.json();
-      if (d.status === 'ready') {
-        clearInterval(pollTimer);
-        markStage('ps2-save', 'done');
-        backlogData = d.backlog;
-        renderReview();
-        show('review', 5);
-      }
-    } catch (_) {}
+      if(d.status==='ready'){ stopProc(); backlogData=d.backlog; renderReview(); show('review',4); }
+    } catch(_){}
   }, 6000);
 }
 
-function markStage(id, state) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.className = 'proc-stage' + (state ? ' ' + state : '');
+// ── Proc helpers ──────────────────────────────────────────────────────────────
+function startProc(prefix, msgs, durSecs){
+  let i=0;
+  const msgEl = document.getElementById(prefix+'-msg');
+  const barEl = document.getElementById(prefix+'-bar');
+  if(msgEl) msgEl.textContent = msgs[0];
+  if(barEl){ barEl.style.transition='none'; barEl.style.width='0%';
+    setTimeout(()=>{ barEl.style.transition=`width ${durSecs}s linear`; barEl.style.width='85%'; },100); }
+  clearInterval(procMsgInt);
+  procMsgInt = setInterval(()=>{
+    i = Math.min(i+1, msgs.length-1);
+    if(msgEl){ msgEl.style.opacity='0';
+      setTimeout(()=>{ msgEl.textContent=msgs[i]; msgEl.style.opacity='1'; }, 300); }
+  }, 15000);
+  let secs=0; clearInterval(procTimerInt);
+  const timerEl = document.getElementById(prefix+'-timer');
+  procTimerInt = setInterval(()=>{ secs++; if(timerEl) timerEl.textContent=`${secs}s elapsed`; }, 1000);
 }
+function setTimer(id, s){ const el=document.getElementById(id); if(el) el.textContent=`${s}s elapsed`; }
+function stopProc(){ clearInterval(pollTimer); clearInterval(procMsgInt); clearInterval(procTimerInt); }
 
-// ── Review Backlog ────────────────────────────────────────────────────────────
-function renderReview() {
+// ── Review ────────────────────────────────────────────────────────────────────
+function renderReview(){
   const d = backlogData;
-  document.getElementById('proj-name').textContent = d.project_name || 'Product Backlog';
-  document.getElementById('proj-vision').textContent = d.vision || '';
-
-  const all = d.epics.flatMap(e => e.stories);
-  const pts = all.reduce((a, s) => a + s.story_points, 0);
-  const sp  = Math.max(...all.map(s => s.sprint));
-
-  document.getElementById('stats').innerHTML = `
-    <div class="stat"><div class="n">${d.epics.length}</div><div class="l">Epics</div></div>
-    <div class="stat"><div class="n">${all.length}</div><div class="l">Stories</div></div>
-    <div class="stat"><div class="n">${pts}</div><div class="l">Story Points</div></div>
-    <div class="stat"><div class="n">${sp}</div><div class="l">Sprints</div></div>
-  `;
-
-  document.getElementById('epics').innerHTML = d.epics.map((epic, ei) => `
-    <div class="epic${ei === 0 ? ' open' : ''}" id="epic-${ei}">
-      <div class="epic-hdr" onclick="toggleEpic(${ei})">
-        <span class="eid">${epic.id}</span>
-        <div style="flex:1">
-          <div class="ename">${esc(epic.name)}</div>
-          <div class="edesc">${esc(epic.description || '')}</div>
+  document.getElementById('proj-name').textContent = d.project_name||'Product Backlog';
+  document.getElementById('proj-vision').textContent = d.vision||'';
+  const all = d.epics.flatMap(e=>e.stories);
+  const pts = all.reduce((a,s)=>a+s.story_points,0);
+  const sp  = Math.max(...all.map(s=>s.sprint));
+  document.getElementById('stats').innerHTML=`
+    <div class="stat-card"><div class="stat-n">${d.epics.length}</div><div class="stat-l">Epics</div></div>
+    <div class="stat-card"><div class="stat-n">${all.length}</div><div class="stat-l">Stories</div></div>
+    <div class="stat-card"><div class="stat-n">${pts}</div><div class="stat-l">Story Points</div></div>
+    <div class="stat-card"><div class="stat-n">${sp}</div><div class="stat-l">Sprints</div></div>`;
+  document.getElementById('epics').innerHTML = d.epics.map((ep,ei)=>`
+    <div class="epic-card${ei===0?' open':''}" id="ep${ei}">
+      <div class="epic-hd" onclick="toggleEpic(${ei})">
+        <span class="epic-id">${ep.id}</span>
+        <div class="epic-info">
+          <div class="epic-name">${esc(ep.name)}</div>
+          <div class="epic-desc">${esc(ep.description||'')}</div>
         </div>
-        <span class="ecount">${epic.stories.length} stories</span>
-        <span class="chev">▼</span>
+        <span class="epic-ct">${ep.stories.length} stories</span>
+        <span class="epic-chev">▼</span>
       </div>
-      <div class="stories">
-        ${epic.stories.map((s, si) => storyHtml(s, ei, si)).join('')}
-      </div>
-    </div>
-  `).join('');
+      <div class="epic-stories">${ep.stories.map((s,si)=>storyHtml(s,ei,si)).join('')}</div>
+    </div>`).join('');
 }
-
-function storyHtml(s, ei, si) {
-  const pmap = { 'Must Have': 'p-must', 'Should Have': 'p-should', 'Could Have': 'p-could', 'Wont Have': 'p-wont' };
-  const pc = pmap[s.priority] || 'p-wont';
-  const priorities = ['Must Have', 'Should Have', 'Could Have', 'Wont Have'];
-  return `
-    <div class="story">
-      <div class="story-top">
-        <span class="sid">${s.id}</span>
-        <input class="stitle" type="text" value="${esc(s.title)}"
-          onchange="upd(${ei},${si},'title',this.value)">
-      </div>
-      <div class="snarr">${esc(s.user_story)}</div>
-      <div class="smeta">
-        <select class="psel ${pc}" onchange="upd(${ei},${si},'priority',this.value);this.className='psel '+(({'Must Have':'p-must','Should Have':'p-should','Could Have':'p-could','Wont Have':'p-wont'})[this.value]||'p-wont')">
-          ${priorities.map(p => `<option${p === s.priority ? ' selected' : ''}>${p}</option>`).join('')}
-        </select>
-        <select class="psel" onchange="upd(${ei},${si},'story_points',+this.value)">
-          ${[1, 2, 3, 5, 8, 13].map(n => `<option${n === s.story_points ? ' selected' : ''}>${n} pts</option>`).join('')}
-        </select>
-        <select class="psel" onchange="upd(${ei},${si},'sprint',+this.value)">
-          ${[1, 2, 3, 4, 5].map(n => `<option${n === s.sprint ? ' selected' : ''}>Sprint ${n}</option>`).join('')}
-        </select>
-      </div>
-      <div class="acs">
-        ${(s.acceptance_criteria || []).map(ac => `<div class="ac">${esc(ac)}</div>`).join('')}
-      </div>
+function storyHtml(s,ei,si){
+  const pm={'Must Have':'p-must','Should Have':'p-should','Could Have':'p-could','Wont Have':'p-wont'};
+  const pc=pm[s.priority]||'p-wont';
+  return `<div class="story-card">
+    <div class="story-hd">
+      <span class="story-id">${s.id}</span>
+      <input class="story-ti" type="text" value="${esc(s.title)}" onchange="upd(${ei},${si},'title',this.value)">
     </div>
-  `;
+    <div class="story-narr">${esc(s.user_story)}</div>
+    <div class="story-meta">
+      <select class="meta-sel ${pc}" onchange="upd(${ei},${si},'priority',this.value);this.className='meta-sel '+({'Must Have':'p-must','Should Have':'p-should','Could Have':'p-could','Wont Have':'p-wont'}[this.value]||'p-wont')">
+        ${['Must Have','Should Have','Could Have','Wont Have'].map(p=>`<option${p===s.priority?' selected':''}>${p}</option>`).join('')}
+      </select>
+      <select class="meta-sel" onchange="upd(${ei},${si},'story_points',+this.value)">
+        ${[1,2,3,5,8,13].map(n=>`<option value="${n}"${n===s.story_points?' selected':''}>${n} pts</option>`).join('')}
+      </select>
+      <select class="meta-sel" onchange="upd(${ei},${si},'sprint',+this.value)">
+        ${[1,2,3,4,5].map(n=>`<option value="${n}"${n===s.sprint?' selected':''}>${n===1?'Sprint 1':'Sprint '+n}</option>`).join('')}
+      </select>
+    </div>
+    <div class="story-acs">${(s.acceptance_criteria||[]).map(ac=>`<div class="ac"><span class="ac-chk">✓</span><span>${esc(ac)}</span></div>`).join('')}</div>
+  </div>`;
 }
-
-function toggleEpic(ei) { document.getElementById('epic-' + ei).classList.toggle('open'); }
-function upd(ei, si, field, val) { backlogData.epics[ei].stories[si][field] = val; }
+function toggleEpic(i){ document.getElementById('ep'+i).classList.toggle('open'); }
+function upd(ei,si,f,v){ backlogData.epics[ei].stories[si][f]=v; }
 
 // ── Approve ───────────────────────────────────────────────────────────────────
-async function approve() {
+async function approve(){
   const btn = document.getElementById('btn-approve');
-  btn.disabled = true;
-  btn.textContent = 'Pushing to Jira...';
-
+  btn.disabled=true; btn.textContent='Pushing to Jira…';
   try {
-    const r = await fetch(`${WORKER_URL}/api/approve`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-PIN': pin },
-      body: JSON.stringify({ backlog: backlogData }),
-    });
+    const r = await fetch(`${WORKER_URL}/api/approve`,{method:'POST',
+      headers:{'Content-Type':'application/json','X-PIN':pin},
+      body:JSON.stringify({backlog:backlogData})});
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'Approve failed');
-
-    document.getElementById('suc-msg').textContent =
-      `${d.issues_created} issues created across ${backlogData.epics.length} epics — project ${d.project_key}`;
+    if(!r.ok) throw new Error(d.error||'Approve failed');
+    document.getElementById('s-pname').textContent = backlogData.project_name||'—';
+    document.getElementById('s-pkey').textContent  = d.project_key;
+    document.getElementById('s-count').textContent = `${d.issues_created} issues`;
+    document.getElementById('s-epics').textContent = `${backlogData.epics.length} epics`;
     document.getElementById('jira-link').href = d.jira_url;
-    show('success', 6);
-
-  } catch (e) {
-    toast(e.message, 'err');
-    btn.disabled = false;
-    btn.textContent = '✓ Approve & Push to Jira';
+    addHistory({project_name:backlogData.project_name||'Project',jira_key:d.project_key,
+      jira_url:d.jira_url,date:new Date().toISOString(),stories_count:d.issues_created});
+    show('success',5);
+  } catch(e){
+    toast(e.message,'err'); btn.disabled=false; btn.textContent='✓ Approve & Push to Jira';
   }
 }
 
-// ── Utilities ─────────────────────────────────────────────────────────────────
-function setLog(id, msg) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = msg;
+// ── History ───────────────────────────────────────────────────────────────────
+function getHistory(){ try{ return JSON.parse(localStorage.getItem('po_bot_history')||'[]'); } catch{ return []; } }
+function addHistory(entry){
+  const h=getHistory(); h.unshift(entry); if(h.length>30) h.pop();
+  localStorage.setItem('po_bot_history',JSON.stringify(h)); renderHistory();
 }
+function clearHistory(){ if(!confirm('Clear all history?')) return;
+  localStorage.removeItem('po_bot_history'); renderHistory(); }
+function renderHistory(){
+  const h=getHistory(), el=document.getElementById('hist-body');
+  el.innerHTML = h.length ? h.map(x=>`
+    <div class="hist-item">
+      <div class="hist-pname">${esc(x.project_name)}</div>
+      <div class="hist-meta">${esc(x.jira_key)} · ${x.stories_count} stories · ${fmtDate(x.date)}</div>
+      <a class="hist-link" href="${esc(x.jira_url)}" target="_blank">Open in Jira →</a>
+    </div>`).join('') :
+    '<div class="hist-empty">No projects yet.<br>Completed projects appear here.</div>';
+}
+function fmtDate(iso){ try{ return new Date(iso).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}); } catch{ return iso; } }
+function toggleHistory(){ document.getElementById('hist-panel').classList.toggle('on'); document.getElementById('hist-bd').classList.toggle('on'); }
+function closeHistory(){ document.getElementById('hist-panel').classList.remove('on'); document.getElementById('hist-bd').classList.remove('on'); }
 
-function toBase64(file) {
-  return new Promise((res, rej) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const bytes = new Uint8Array(reader.result);
-      let bin = '';
-      for (const b of bytes) bin += String.fromCharCode(b);
-      res(btoa(bin));
-    };
-    reader.onerror = rej;
-    reader.readAsArrayBuffer(file);
+// ── Word count ────────────────────────────────────────────────────────────────
+function updateWc(){
+  const ta=document.getElementById('std-ta'); if(!ta) return;
+  const w=ta.value.trim().split(/\s+/).filter(Boolean).length;
+  const el=document.getElementById('std-wc'); if(el) el.textContent=`${w.toLocaleString()} words`;
+}
+document.getElementById('std-ta').addEventListener('input',updateWc);
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function toB64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>{ const b=new Uint8Array(r.result); let s=''; for(const x of b)s+=String.fromCharCode(x); res(btoa(s)); };
+    r.onerror=rej; r.readAsArrayBuffer(file);
   });
 }
-
-function textToBase64(str) {
-  const bytes = new TextEncoder().encode(str);
-  let bin = '';
-  for (const b of bytes) bin += String.fromCharCode(b);
-  return btoa(bin);
+function txtToB64(str){ const b=new TextEncoder().encode(str); let s=''; for(const x of b)s+=String.fromCharCode(x); return btoa(s); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg,type=''){
+  const t=document.getElementById('toast'); t.textContent=msg; t.className='toast on '+type;
+  setTimeout(()=>t.classList.remove('on'),5000);
 }
 
-function esc(s) {
-  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function toast(msg, type = '') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast on ' + type;
-  setTimeout(() => t.classList.remove('on'), 5000);
-}
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderHistory();
+show('pin', 0);
 </script>
 </body>
 </html>
