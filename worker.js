@@ -155,6 +155,22 @@ async function handleGenerate(request, env) {
   return jsonResponse({ doc_name: docName, status: 'triggered' });
 }
 
+// GET /api/get-standard-doc?filename={filename} — fetch standardised doc and return as plain text
+async function handleGetStandardDoc(request, env) {
+  const filename = new URL(request.url).searchParams.get('filename');
+  if (!filename) return new Response('Missing filename', { status: 400, headers: CORS_HEADERS });
+
+  const res = await ghFetch(`contents/standardised/${filename}`, env);
+  if (!res.ok) return new Response('Not found', { status: 404, headers: CORS_HEADERS });
+
+  const data = await res.json();
+  const content = atob((data.content || '').replace(/\n/g, ''));
+  return new Response(content, {
+    status: 200,
+    headers: { 'Content-Type': 'text/plain; charset=utf-8', ...CORS_HEADERS },
+  });
+}
+
 // GET /api/teams — return teams config from Worker secret (emails stripped)
 async function handleGetTeams(request, env) {
   try {
@@ -435,6 +451,7 @@ export default {
       return jsonResponse({ error: 'Invalid PIN' }, 401);
     }
 
+    if (path === '/api/get-standard-doc' && request.method === 'GET') return handleGetStandardDoc(request, env);
     if (path === '/api/teams'        && request.method === 'GET')  return handleGetTeams(request, env);
     if (path === '/api/standardise'  && request.method === 'POST') return handleStandardise(request, env);
     if (path === '/api/poll-standard'&& request.method === 'GET')  return handlePollStandard(request, env);
