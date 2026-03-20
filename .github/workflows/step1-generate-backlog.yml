@@ -77,5 +77,15 @@ jobs:
           git diff --staged --quiet || git commit -m "pipeline: ${{ steps.detect.outputs.mode }} from ${{ steps.detect.outputs.filename }}"
           git push
 
+      - name: Clean up uploaded documents
+        if: steps.detect.outputs.file != '' && steps.detect.outputs.mode == 'generate'
+        run: |
+          git config user.name "PO Bot"
+          git config user.email "po-bot@users.noreply.github.com"
+          git rm --ignore-unmatch "${{ steps.detect.outputs.file }}" || true
+          git rm --ignore-unmatch standardised/*.md 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "cleanup: remove processed documents"
+          git push
+
       - if: steps.detect.outputs.file == ''
         run: echo "No document found - skipping."
