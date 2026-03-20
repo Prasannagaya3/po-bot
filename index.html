@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PO Bot — Trio Games</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c26;
+    --border: #2a2a3a;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --success: #4ecdc4;
+    --warning: #ffd93d;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --must: #ff6b6b;
+    --should: #ffd93d;
+    --could: #4ecdc4;
+    --wont: #6b6b80;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo-sub { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 1px; }
+
+  .step-indicator {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .step-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+  }
+  .step-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .step-dot.done { background: var(--success); }
+
+  /* Screens */
+  .screen { display: none; padding: 48px 0; animation: fadeIn 0.4s ease; }
+  .screen.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Screen 1 — Upload */
+  .hero { text-align: center; margin-bottom: 48px; }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  .hero h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 16px; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { font-size: 16px; color: var(--muted); max-width: 500px; margin: 0 auto; line-height: 1.6; }
+
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 64px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upload-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(108,99,255,0.05) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); }
+  .upload-zone:hover::before, .upload-zone.drag::before { opacity: 1; }
+
+  .upload-icon { font-size: 48px; margin-bottom: 16px; }
+  .upload-zone h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .upload-zone p { color: var(--muted); font-size: 14px; }
+  .upload-zone .formats {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .fmt-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  #file-input { display: none; }
+
+  .config-section {
+    margin-top: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .config-section h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .field input, .field select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--muted); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    width: 100%;
+    justify-content: center;
+    margin-top: 24px;
+    font-size: 16px;
+    padding: 16px;
+  }
+  .btn-primary:hover { background: #7c74ff; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-success {
+    background: var(--success);
+    color: #0a0a0f;
+    width: 100%;
+    justify-content: center;
+    margin-top: 16px;
+    font-size: 16px;
+    padding: 16px;
+  }
+  .btn-success:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn-success:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Screen 2 — Processing */
+  .processing-center { text-align: center; padding: 80px 0; }
+  .spinner {
+    width: 64px; height: 64px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 32px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .processing-center h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+  .processing-center p { color: var(--muted); margin-bottom: 8px; }
+  #status-log {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    margin-top: 24px;
+    min-height: 20px;
+  }
+
+  /* Screen 3 — Review */
+  .review-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .review-header h2 { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+  .review-header p { color: var(--muted); margin-top: 6px; font-size: 14px; }
+
+  .review-actions { display: flex; gap: 12px; align-items: center; flex-shrink: 0; }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+
+  .stat-card .num {
+    font-size: 28px;
+    font-weight: 800;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+  }
+  .stat-card .label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .epic-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .epic-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+    gap: 16px;
+  }
+  .epic-header:hover { background: var(--surface2); }
+
+  .epic-id {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(108,99,255,0.1);
+    border: 1px solid rgba(108,99,255,0.3);
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .epic-name { font-size: 16px; font-weight: 700; flex: 1; }
+  .epic-desc { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .epic-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .epic-chevron { color: var(--muted); transition: transform 0.3s; flex-shrink: 0; }
+  .epic-block.open .epic-chevron { transform: rotate(180deg); }
+
+  .stories-list { border-top: 1px solid var(--border); display: none; }
+  .epic-block.open .stories-list { display: block; }
+
+  .story-card {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+    transition: background 0.2s;
+  }
+  .story-card:last-child { border-bottom: none; }
+  .story-card:hover { background: rgba(108,99,255,0.03); }
+
+  .story-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .story-id {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+    margin-top: 3px;
+    width: 52px;
+  }
+
+  .story-title-input {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+    padding-bottom: 2px;
+  }
+  .story-title-input:focus { border-bottom-color: var(--accent); }
+
+  .story-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: 64px;
+    margin-bottom: 10px;
+  }
+
+  .priority-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+  }
+  .p-must { background: rgba(255,107,107,0.15); color: var(--must); border-color: rgba(255,107,107,0.3); }
+  .p-should { background: rgba(255,217,61,0.15); color: var(--warning); border-color: rgba(255,217,61,0.3); }
+  .p-could { background: rgba(78,205,196,0.15); color: var(--success); border-color: rgba(78,205,196,0.3); }
+  .p-wont { background: rgba(107,107,128,0.15); color: var(--muted); border-color: rgba(107,107,128,0.3); }
+
+  .sp-select, .sprint-select {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    outline: none;
+  }
+
+  .story-narrative {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    margin-left: 64px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .ac-list { margin-left: 64px; }
+  .ac-item {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 4px 0;
+    font-family: 'DM Mono', monospace;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+  .ac-item::before { content: '✓'; color: var(--success); flex-shrink: 0; margin-top: 1px; }
+
+  /* Priority selector dropdown */
+  .priority-select {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* Screen 4 — Success */
+  .success-center { text-align: center; padding: 80px 0; }
+  .success-icon { font-size: 72px; margin-bottom: 24px; animation: bounce 0.5s ease; }
+  @keyframes bounce { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
+  .success-center h2 { font-size: 36px; font-weight: 800; margin-bottom: 12px; letter-spacing: -1px; }
+  .success-center p { color: var(--muted); font-size: 16px; margin-bottom: 32px; }
+
+  .jira-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 24px;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-bottom: 24px;
+  }
+  .jira-link:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-size: 14px;
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    max-width: 320px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { border-color: var(--must); color: var(--must); }
+  .toast.success { border-color: var(--success); color: var(--success); }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .config-grid { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: 1fr 1fr; }
+    .review-header { flex-direction: column; }
+    .story-meta, .story-narrative, .ac-list { margin-left: 0; }
+  }
+
+  .file-selected {
+    background: rgba(108,99,255,0.08);
+    border-color: var(--accent);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 16px;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+  .file-selected.show { display: flex; }
+  .file-selected .remove { color: var(--must); cursor: pointer; margin-left: auto; }
+
+  .section-full { grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <div class="logo-text">PO Bot</div>
+        <div class="logo-sub">trio-po-bot · by Trio Games</div>
+      </div>
+    </div>
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+      <div class="step-dot" id="dot-4"></div>
+      <span id="step-label">Upload</span>
+    </div>
+  </div>
+</header>
+
+<!-- SCREEN 1: UPLOAD -->
+<div class="screen active" id="screen-upload">
+  <div class="container">
+    <div class="hero">
+      <div class="hero-tag">PRODUCT OWNER AUTOMATION</div>
+      <h1>From doc to<br><span>sprint-ready</span><br>backlog.</h1>
+      <p>Upload your product document. Claude reads it as a senior PO and generates a full Scrum backlog. You review, edit, approve. Done.</p>
+    </div>
+
+    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+      <div class="upload-icon">📄</div>
+      <h3>Drop your product document here</h3>
+      <p>or click to browse</p>
+      <div class="formats">
+        <span class="fmt-badge">PDF</span>
+        <span class="fmt-badge">DOCX</span>
+        <span class="fmt-badge">MD</span>
+        <span class="fmt-badge">TXT</span>
+      </div>
+    </div>
+    <input type="file" id="file-input" accept=".pdf,.docx,.md,.txt">
+
+    <div class="file-selected" id="file-selected">
+      <span>📄</span>
+      <span id="file-name">—</span>
+      <span class="remove" onclick="clearFile()">✕ Remove</span>
+    </div>
+
+    <div class="config-section">
+      <h3>Configuration</h3>
+      <div class="config-grid">
+        <div class="field">
+          <label>GitHub Token (classic, repo+workflow scope)</label>
+          <input type="password" id="cfg-gh-token" placeholder="ghp_...">
+        </div>
+        <div class="field">
+          <label>GitHub Repo</label>
+          <input type="text" id="cfg-gh-repo" value="Prasannagaya3/po-bot" placeholder="owner/repo">
+        </div>
+        <div class="field">
+          <label>Jira Domain</label>
+          <input type="text" id="cfg-jira-domain" value="triogames.atlassian.net" placeholder="yoursite.atlassian.net">
+        </div>
+        <div class="field">
+          <label>Jira Email</label>
+          <input type="email" id="cfg-jira-email" value="Prasannakuppu@gmail.com" placeholder="you@email.com">
+        </div>
+        <div class="field section-full">
+          <label>Jira API Token</label>
+          <input type="password" id="cfg-jira-token" placeholder="ATATT3x...">
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px;font-family:'DM Mono',monospace;">
+        ⚠ Tokens are used only in your browser session and never stored or sent anywhere except GitHub and Jira directly.
+      </p>
+    </div>
+
+    <button class="btn btn-primary" id="btn-generate" onclick="startGeneration()" disabled>
+      ⚡ Generate Backlog
+    </button>
+  </div>
+</div>
+
+<!-- SCREEN 2: PROCESSING -->
+<div class="screen" id="screen-processing">
+  <div class="container">
+    <div class="processing-center">
+      <div class="spinner"></div>
+      <h2>Claude is thinking...</h2>
+      <p>Reading your document as a senior Product Owner</p>
+      <p style="font-size:12px;margin-top:4px;">This takes about 60 seconds</p>
+      <div id="status-log">Triggering GitHub Actions workflow...</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3: REVIEW -->
+<div class="screen" id="screen-review">
+  <div class="container">
+    <div class="review-header">
+      <div>
+        <h2 id="review-project-name">Project Name</h2>
+        <p id="review-vision">Vision statement</p>
+      </div>
+      <div class="review-actions">
+        <button class="btn btn-outline" onclick="goBack()">← New Document</button>
+      </div>
+    </div>
+
+    <div class="stats-bar" id="stats-bar"></div>
+    <div id="epics-container"></div>
+
+    <button class="btn btn-success" id="btn-approve" onclick="approveAndPush()">
+      ✓ Approve &amp; Push to Jira
+    </button>
+  </div>
+</div>
+
+<!-- SCREEN 4: SUCCESS -->
+<div class="screen" id="screen-success">
+  <div class="container">
+    <div class="success-center">
+      <div class="success-icon">🎉</div>
+      <h2>Backlog pushed to Jira!</h2>
+      <p id="success-summary">Your sprint-ready backlog is live.</p>
+      <br>
+      <a class="jira-link" id="jira-project-link" href="#" target="_blank">
+        Open in Jira →
+      </a>
+      <br><br>
+      <button class="btn btn-outline" onclick="goBack()">Start another project</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let backlogData = null;
+let selectedFile = null;
+let pollInterval = null;
+
+// ─── Config helpers ───────────────────────────────────────────────────────────
+const cfg = () => ({
+  ghToken:    document.getElementById('cfg-gh-token').value.trim(),
+  ghRepo:     document.getElementById('cfg-gh-repo').value.trim(),
+  jiraDomain: document.getElementById('cfg-jira-domain').value.trim(),
+  jiraEmail:  document.getElementById('cfg-jira-email').value.trim(),
+  jiraToken:  document.getElementById('cfg-jira-token').value.trim(),
+});
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  const steps = { upload: 1, processing: 2, review: 3, success: 4 };
+  const n = steps[id];
+  document.querySelectorAll('.step-dot').forEach((d, i) => {
+    d.classList.toggle('active', i + 1 === n);
+    d.classList.toggle('done', i + 1 < n);
+  });
+  const labels = { upload: 'Upload', processing: 'Processing', review: 'Review', success: 'Done' };
+  document.getElementById('step-label').textContent = labels[id];
+}
+
+function goBack() {
+  if (pollInterval) clearInterval(pollInterval);
+  showScreen('upload');
+}
+
+// ─── File selection ───────────────────────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  selectedFile = f;
+  document.getElementById('file-name').textContent = f.name + '  (' + (f.size / 1024).toFixed(1) + ' KB)';
+  document.getElementById('file-selected').classList.add('show');
+  checkReady();
+});
+
+const zone = document.getElementById('upload-zone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) { document.getElementById('file-input').files = e.dataTransfer.files; selectedFile = f; document.getElementById('file-name').textContent = f.name; document.getElementById('file-selected').classList.add('show'); checkReady(); }
+});
+
+function clearFile() {
+  selectedFile = null;
+  document.getElementById('file-input').value = '';
+  document.getElementById('file-selected').classList.remove('show');
+  checkReady();
+}
+
+document.querySelectorAll('.config-section input').forEach(i => i.addEventListener('input', checkReady));
+
+function checkReady() {
+  const c = cfg();
+  const ok = selectedFile && c.ghToken && c.ghRepo && c.jiraDomain && c.jiraEmail && c.jiraToken;
+  document.getElementById('btn-generate').disabled = !ok;
+}
+
+// ─── GitHub API helpers ───────────────────────────────────────────────────────
+async function ghFetch(path, opts = {}) {
+  const c = cfg();
+  const url = path.startsWith('http') ? path : `https://api.github.com/repos/${c.ghRepo}/${path}`;
+  const res = await fetch(url, {
+    ...opts,
+    headers: {
+      'Authorization': `Bearer ${c.ghToken}`,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(opts.headers || {}),
+    },
+  });
+  return res;
+}
+
+async function b64encode(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(btoa(r.result));
+    r.onerror = reject;
+    r.readAsBinaryString(file);
+  });
+}
+
+// ─── Main generation flow ─────────────────────────────────────────────────────
+async function startGeneration() {
+  const c = cfg();
+  if (!selectedFile) return;
+
+  showScreen('processing');
+  setLog('Uploading document to GitHub...');
+
+  try {
+    // 1. Upload file to docs/ in the repo
+    const filename = selectedFile.name;
+    const path = `docs/${filename}`;
+    const content = await b64encode(selectedFile);
+    const docName = filename.replace(/\.[^.]+$/, '');
+
+    // Check if file exists (get SHA)
+    const existRes = await ghFetch(`contents/${path}`);
+    const body = { message: `docs: upload ${filename}`, content };
+    if (existRes.status === 200) body.sha = (await existRes.json()).sha;
+
+    const upRes = await ghFetch(`contents/${path}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!upRes.ok) throw new Error(`Upload failed: ${upRes.status}`);
+
+    setLog('Document uploaded. Triggering workflow...');
+
+    // 2. Trigger workflow
+    const wfListRes = await ghFetch('actions/workflows');
+    const wfList = await wfListRes.json();
+    const wf = wfList.workflows?.find(w => w.path.includes('step1') || w.path.includes('generate'));
+    if (!wf) throw new Error('Workflow not found in repo. Check Actions tab.');
+
+    await ghFetch(`actions/workflows/${wf.id}/dispatches`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref: 'main', inputs: { doc_path: path } }),
+    });
+
+    setLog('Workflow triggered. Waiting for Claude to generate backlog...');
+
+    // 3. Poll for the JSON output
+    await pollForBacklog(docName);
+
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+    showScreen('upload');
+  }
+}
+
+async function pollForBacklog(docName) {
+  let attempts = 0;
+  const maxAttempts = 40; // ~4 minutes
+
+  pollInterval = setInterval(async () => {
+    attempts++;
+    setLog(`Waiting for Claude... (${attempts * 6}s)`);
+
+    if (attempts > maxAttempts) {
+      clearInterval(pollInterval);
+      showToast('Timed out waiting for backlog. Check GitHub Actions for errors.', 'error');
+      showScreen('upload');
+      return;
+    }
+
+    try {
+      // List backlog/ folder and find a file matching docName
+      const res = await ghFetch('contents/backlog');
+      if (!res.ok) return;
+      const files = await res.json();
+      const match = files.find(f => f.name.startsWith(docName) && f.name.endsWith('.json') && !f.name.includes('.gitkeep'));
+      if (!match) return;
+
+      // Found it — fetch content
+      clearInterval(pollInterval);
+      setLog('Backlog generated! Loading review...');
+
+      const fileRes = await ghFetch(match.download_url.replace('https://raw.githubusercontent.com', 'https://raw.githubusercontent.com'));
+      const raw = await fetch(match.download_url);
+      backlogData = await raw.json();
+
+      renderReview();
+      showScreen('review');
+
+    } catch (e) {
+      // Still waiting
+    }
+  }, 6000);
+}
+
+function setLog(msg) {
+  document.getElementById('status-log').textContent = msg;
+}
+
+// ─── Review Rendering ─────────────────────────────────────────────────────────
+function renderReview() {
+  const d = backlogData;
+  document.getElementById('review-project-name').textContent = d.project_name || 'Product Backlog';
+  document.getElementById('review-vision').textContent = d.vision || '';
+
+  const allStories = d.epics.flatMap(e => e.stories);
+  const totalPts = allStories.reduce((a, s) => a + s.story_points, 0);
+  const sprints = Math.max(...allStories.map(s => s.sprint));
+  const mustCount = allStories.filter(s => s.priority === 'Must Have').length;
+
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stat-card"><div class="num">${d.epics.length}</div><div class="label">Epics</div></div>
+    <div class="stat-card"><div class="num">${allStories.length}</div><div class="label">User Stories</div></div>
+    <div class="stat-card"><div class="num">${totalPts}</div><div class="label">Story Points</div></div>
+    <div class="stat-card"><div class="num">${sprints}</div><div class="label">Sprints</div></div>
+  `;
+
+  const container = document.getElementById('epics-container');
+  container.innerHTML = '';
+
+  d.epics.forEach((epic, ei) => {
+    const block = document.createElement('div');
+    block.className = 'epic-block';
+    if (ei === 0) block.classList.add('open');
+
+    block.innerHTML = `
+      <div class="epic-header" onclick="toggleEpic(this)">
+        <span class="epic-id">${epic.id}</span>
+        <div style="flex:1">
+          <div class="epic-name">${epic.name}</div>
+          <div class="epic-desc">${epic.description || ''}</div>
+        </div>
+        <span class="epic-count">${epic.stories.length} stories</span>
+        <span class="epic-chevron">▼</span>
+      </div>
+      <div class="stories-list">
+        ${epic.stories.map((story, si) => renderStory(story, ei, si)).join('')}
+      </div>
+    `;
+    container.appendChild(block);
+  });
+}
+
+function renderStory(story, ei, si) {
+  const priorities = ['Must Have', 'Should Have', 'Could Have', 'Wont Have'];
+  const pClass = { 'Must Have': 'p-must', 'Should Have': 'p-should', 'Could Have': 'p-could', 'Wont Have': 'p-wont' };
+
+  return `
+    <div class="story-card">
+      <div class="story-top">
+        <span class="story-id">${story.id}</span>
+        <input class="story-title-input" type="text"
+          value="${escHtml(story.title)}"
+          onchange="updateStory(${ei},${si},'title',this.value)">
+      </div>
+      <div class="story-narrative">${escHtml(story.user_story)}</div>
+      <div class="story-meta">
+        <select class="priority-select ${pClass[story.priority] || 'p-wont'}"
+          onchange="updateStory(${ei},${si},'priority',this.value);updatePriorityClass(this)">
+          ${priorities.map(p => `<option value="${p}" ${p === story.priority ? 'selected' : ''}>${p}</option>`).join('')}
+        </select>
+        <select class="sp-select" onchange="updateStory(${ei},${si},'story_points',+this.value)">
+          ${[1,2,3,5,8,13].map(n => `<option ${n===story.story_points?'selected':''}>${n}</option>`).join('')}
+        </select>
+        <select class="sprint-select" onchange="updateStory(${ei},${si},'sprint',+this.value)">
+          ${[1,2,3,4,5].map(n => `<option ${n===story.sprint?'selected':''}>${'Sprint '+n}</option>`).join('')}
+        </select>
+      </div>
+      <div class="ac-list">
+        ${story.acceptance_criteria.map(ac => `<div class="ac-item">${escHtml(ac)}</div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function updatePriorityClass(sel) {
+  const map = { 'Must Have': 'p-must', 'Should Have': 'p-should', 'Could Have': 'p-could', 'Wont Have': 'p-wont' };
+  sel.className = 'priority-select ' + (map[sel.value] || 'p-wont');
+}
+
+function toggleEpic(header) {
+  header.parentElement.classList.toggle('open');
+}
+
+function updateStory(ei, si, field, value) {
+  backlogData.epics[ei].stories[si][field] = value;
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Jira Push ────────────────────────────────────────────────────────────────
+async function approveAndPush() {
+  const btn = document.getElementById('btn-approve');
+  btn.disabled = true;
+  btn.textContent = 'Pushing to Jira...';
+
+  const c = cfg();
+  const auth = btoa(`${c.jiraEmail}:${c.jiraToken}`);
+  const base = `https://${c.jiraDomain}/rest/api/3`;
+  const headers = {
+    'Authorization': `Basic ${auth}`,
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  try {
+    // 1. Get account ID
+    btn.textContent = 'Connecting to Jira...';
+    const meRes = await fetch(`https://${c.jiraDomain}/rest/api/3/myself`, { headers });
+    if (!meRes.ok) throw new Error(`Jira auth failed (${meRes.status}). Check your domain, email, and API token.`);
+    const me = await meRes.json();
+    const accountId = me.accountId;
+
+    // 2. Create Jira project
+    btn.textContent = 'Creating project...';
+    const projKey = (backlogData.project_name || 'PROJ')
+      .replace(/[^a-zA-Z0-9 ]/g, '')
+      .split(' ')
+      .map(w => w[0] || '')
+      .join('')
+      .toUpperCase()
+      .slice(0, 6) || 'PROJ';
+
+    // Check if project key exists, add number if so
+    const finalKey = projKey + Math.floor(Math.random() * 90 + 10);
+
+    const projRes = await fetch(`${base}/project`, {
+      method: 'POST', headers,
+      body: JSON.stringify({
+        key: finalKey,
+        name: backlogData.project_name || 'Product Backlog',
+        projectTypeKey: 'software',
+        projectTemplateKey: 'com.pyxis.greenhopper.jira:gh-scrum-template',
+        description: backlogData.vision || '',
+        leadAccountId: accountId,
+      }),
+    });
+
+    let projectKey = finalKey;
+    if (!projRes.ok) {
+      const err = await projRes.json();
+      // If project already exists, get existing key
+      if (err.errors?.projectKey) {
+        throw new Error(`Jira project key conflict. Try again — a random key will be generated.`);
+      }
+      throw new Error(`Failed to create Jira project: ${JSON.stringify(err.errors || err)}`);
+    }
+    const proj = await projRes.json();
+    projectKey = proj.key;
+
+    // 3. Get issue types
+    const typesRes = await fetch(`${base}/issuetype`, { headers });
+    const types = await typesRes.json();
+    const epicType  = types.find(t => t.name === 'Epic');
+    const storyType = types.find(t => t.name === 'Story');
+
+    if (!epicType || !storyType) throw new Error('Could not find Epic or Story issue types in Jira.');
+
+    // 4. Create Epics + Stories
+    let issuesCreated = 0;
+    btn.textContent = 'Creating issues...';
+
+    for (const epic of backlogData.epics) {
+      // Create Epic
+      const epicRes = await fetch(`${base}/issue`, {
+        method: 'POST', headers,
+        body: JSON.stringify({
+          fields: {
+            project: { key: projectKey },
+            summary: `[${epic.id}] ${epic.name}`,
+            description: {
+              type: 'doc', version: 1,
+              content: [{ type: 'paragraph', content: [{ type: 'text', text: epic.description || '' }] }]
+            },
+            issuetype: { id: epicType.id },
+          }
+        }),
+      });
+      const epicIssue = epicRes.ok ? await epicRes.json() : null;
+
+      // Create Stories under this Epic
+      for (const story of epic.stories) {
+        const acText = story.acceptance_criteria.map(ac => `• ${ac}`).join('\n');
+        const storyBody = {
+          fields: {
+            project: { key: projectKey },
+            summary: `[${story.id}] ${story.title}`,
+            description: {
+              type: 'doc', version: 1,
+              content: [
+                { type: 'paragraph', content: [{ type: 'text', text: story.user_story, marks: [{ type: 'em' }] }] },
+                { type: 'paragraph', content: [{ type: 'text', text: '\nAcceptance Criteria:\n' + acText }] },
+              ]
+            },
+            issuetype: { id: storyType.id },
+            priority: { name: story.priority === 'Must Have' ? 'High' : story.priority === 'Should Have' ? 'Medium' : 'Low' },
+            story_points: story.story_points,
+          }
+        };
+        if (epicIssue) storyBody.fields['customfield_10014'] = epicIssue.key;
+
+        const stRes = await fetch(`${base}/issue`, { method: 'POST', headers, body: JSON.stringify(storyBody) });
+        if (stRes.ok) issuesCreated++;
+      }
+    }
+
+    // 5. Done
+    const jiraUrl = `https://${c.jiraDomain}/jira/software/projects/${projectKey}/boards`;
+    document.getElementById('success-summary').textContent =
+      `${issuesCreated} issues created across ${backlogData.epics.length} epics in project ${projectKey}.`;
+    document.getElementById('jira-project-link').href = jiraUrl;
+    showScreen('success');
+
+  } catch (err) {
+    showToast(err.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '✓ Approve & Push to Jira';
+  }
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => { t.classList.remove('show'); }, 5000);
+}
+</script>
+</body>
+</html>
