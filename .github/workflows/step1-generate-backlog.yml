@@ -77,13 +77,13 @@ jobs:
           git diff --staged --quiet || git commit -m "pipeline: ${{ steps.detect.outputs.mode }} from ${{ steps.detect.outputs.filename }}"
           git push
 
-      - name: Clean up uploaded documents
-        if: steps.detect.outputs.file != '' && steps.detect.outputs.mode == 'generate'
+      - name: Clean up processed documents
+        if: steps.detect.outputs.file != ''
         run: |
           git config user.name "PO Bot"
           git config user.email "po-bot@users.noreply.github.com"
           git rm --ignore-unmatch "${{ steps.detect.outputs.file }}" || true
-          git rm --ignore-unmatch standardised/*.md 2>/dev/null || true
+          for f in standardised/*.md; do git rm --ignore-unmatch "$f" || true; done
           git diff --staged --quiet || git commit -m "cleanup: remove processed documents"
           git push
 
