@@ -228,6 +228,16 @@ input[type="file"]{display:none}
 .save-copy{position:absolute;top:8px;right:8px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
 .save-copy:hover{background:var(--accent-h)}
 .save-note{font-size:11px;color:var(--tx3);margin-top:10px;line-height:1.55}
+/* ── Jira Steps ──────────────────────────────────────────────────── */
+.jira-steps{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-top:14px}
+.jira-step{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;font-weight:500;border-bottom:1px solid var(--border)}
+.jira-step:last-child{border-bottom:none}
+.jira-step.done{color:var(--ok)}
+.jira-step.waiting{color:var(--tx3)}
+.jira-step.spinning{color:var(--accent-tx)}
+.step-spin{display:inline-block;width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+/* ── Save result ─────────────────────────────────────────────────── */
+.save-result{font-size:13px;margin-top:10px;min-height:18px;line-height:1.55;padding:0 2px}
 /* ── Toast ───────────────────────────────────────────────────────── */
 .toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px 18px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:340px;box-shadow:var(--sh-lg)}
 .toast.on{transform:translateY(0);opacity:1}
@@ -403,6 +413,7 @@ input[type="file"]{display:none}
   <div class="stats-grid" id="stats"></div>
   <div id="epics"></div>
   <button class="btn btn-ok" id="btn-approve" onclick="approve()">✓ Approve &amp; Push to Jira</button>
+  <div class="jira-steps" id="jira-steps" style="display:none"></div>
 </div>
 </div>
 
@@ -414,6 +425,9 @@ input[type="file"]{display:none}
     <div class="suc-title">Pushed to Jira!</div>
     <div class="suc-sub">Your sprint-ready backlog is live and ready for the team.</div>
     <div class="suc-card">
+      <div class="suc-row" id="s-orig-row" style="display:none">
+        <span class="sr-lbl">Original document</span><span class="sr-val" id="s-orig-doc" style="color:var(--tx3);font-size:12px">—</span>
+      </div>
       <div class="suc-row"><span class="sr-lbl">Project</span><span class="sr-val" id="s-pname">—</span></div>
       <div class="suc-row"><span class="sr-lbl">Key</span><span class="sr-val ac" id="s-pkey">—</span></div>
       <div class="suc-row"><span class="sr-lbl">Issues Created</span><span class="sr-val" id="s-count">—</span></div>
@@ -426,22 +440,10 @@ input[type="file"]{display:none}
       </div>
     </div>
     <a class="jira-btn" id="jira-link" href="#" target="_blank">Open in Jira →</a><br>
-    <button class="save-btn" onclick="toggleSavePanel()">💾 Save to local folder</button>
-    <div class="save-panel" id="save-panel">
-      <div class="save-panel-hd">Run this in your terminal</div>
-      <div class="save-cmd-wrap">
-        <div class="save-cmd" id="save-cmd"></div>
-        <button class="save-copy" onclick="copySaveCmd()">Copy</button>
-      </div>
-      <div class="save-note">
-        Saves backlog.json + standardised_doc.md to<br>
-        <code style="font-size:11px">D:\Work\Unity_Applications\Product Development\{project_name}\</code><br><br>
-        Replace the last argument with the actual path to your original document, or omit it.<br><br>
-        The GitHub token is read from env or saved automatically on first run — you won't be asked again.
-      </div>
-    </div>
-    <div class="team-note" style="margin-top:10px;text-align:center">
-      Tip: Run the save command before starting another project to include your original document.
+    <button class="save-btn" onclick="doLocalSave()">💾 Save to local folder</button>
+    <div class="save-result" id="save-result"></div>
+    <div class="team-note" style="margin-top:4px;text-align:center">
+      To save directly to your projects folder, run <code style="font-size:11px">scripts\start_saver.bat</code> first.
     </div>
     <br>
     <button class="btn btn-ghost" onclick="reset()" style="width:auto;margin-top:12px">Start another project</button>
@@ -458,6 +460,7 @@ const WORKER_URL = window.PO_BOT_WORKER_URL || '';
 // ── State ─────────────────────────────────────────────────────────────────────
 let pin = '', selectedFiles = [], docName = '', stdPath = '', backlogData = null;
 let selectedTeams = [], teamsData = null, backlogFilename = '';
+let uploadedFilename = '', stdFilename = '';
 let pollTimer = null, procMsgInt = null, procTimerInt = null;
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
@@ -494,7 +497,7 @@ function show(id, stepN){
 function reset(){
   stopProc();
   selectedFiles = []; docName = stdPath = ''; backlogData = null;
-  selectedTeams = []; backlogFilename = '';
+  selectedTeams = []; backlogFilename = ''; uploadedFilename = ''; stdFilename = '';
   document.getElementById('fi-primary').value = '';
   document.getElementById('fi-extra').value = '';
   renderFiles();
@@ -503,6 +506,8 @@ function reset(){
   document.getElementById('team-section').classList.remove('on');
   document.getElementById('s-team-row').style.display = 'none';
   document.getElementById('s-sprints-row').style.display = 'none';
+  document.getElementById('s-orig-row').style.display = 'none';
+  document.getElementById('save-result').textContent = '';
   show('upload', 1);
 }
 
@@ -605,6 +610,7 @@ document.getElementById('fi-extra').addEventListener('change', e => { if(e.targe
 // ── Stage 1: Standardise ──────────────────────────────────────────────────────
 async function doStandardise(){
   if(!selectedFiles.length) return;
+  uploadedFilename = selectedFiles[0].name;
   show('proc1', 1);
   startProc('p1', ['Reading your document...','Cleaning up structure...','Almost ready...'], 50);
   try {
@@ -631,7 +637,7 @@ function pollStd(){
         {headers:{'X-PIN':pin}});
       const d = await r.json();
       if(d.status==='ready'){
-        stopProc(); stdPath=d.std_path;
+        stopProc(); stdPath=d.std_path; stdFilename=d.std_name+'.md';
         document.getElementById('std-ta').value = d.content;
         updateWc(); show('review-std', 2);
       }
@@ -741,18 +747,38 @@ function upd(ei,si,f,v){ backlogData.epics[ei].stories[si][f]=v; }
 // ── Approve ───────────────────────────────────────────────────────────────────
 async function approve(){
   const btn=document.getElementById('btn-approve');
-  btn.disabled=true; btn.textContent='Pushing to Jira…';
+  btn.disabled=true;
+  const stepsEl=document.getElementById('jira-steps');
+  const stepNames=['Creating Jira project...','Creating stories...','Creating sprints...','Inviting team members...','Finishing up...'];
+  let cur=0;
+  function renderSteps(doneCount,spinIdx){
+    stepsEl.innerHTML=stepNames.map((name,i)=>{
+      if(i<doneCount) return `<div class="jira-step done">✓ ${name}</div>`;
+      if(i===spinIdx) return `<div class="jira-step spinning"><span class="step-spin"></span> ${name}</div>`;
+      return `<div class="jira-step waiting">○ ${name}</div>`;
+    }).join('');
+  }
+  stepsEl.style.display='block';
+  renderSteps(0,0);
+  const stepInt=setInterval(()=>{ cur=Math.min(cur+1,stepNames.length-1); renderSteps(cur,cur); },4000);
   try {
     const r=await fetch(`${WORKER_URL}/api/approve`,{method:'POST',
       headers:{'Content-Type':'application/json','X-PIN':pin},
       body:JSON.stringify({backlog:backlogData, selected_teams:selectedTeams})});
     const d=await r.json();
+    clearInterval(stepInt);
     if(!r.ok) throw new Error(d.error||'Approve failed');
+    renderSteps(stepNames.length,-1);
 
     document.getElementById('s-pname').textContent = backlogData.project_name||'—';
     document.getElementById('s-pkey').textContent  = d.project_key;
     document.getElementById('s-count').textContent = `${d.issues_created} issues`;
     document.getElementById('s-epics').textContent = `${backlogData.epics.length} epics`;
+
+    if(uploadedFilename){
+      document.getElementById('s-orig-row').style.display='flex';
+      document.getElementById('s-orig-doc').textContent=uploadedFilename;
+    }
 
     if(selectedTeams.length > 0){
       const row=document.getElementById('s-team-row'), val=document.getElementById('s-team');
@@ -761,41 +787,111 @@ async function approve(){
         ? `${d.team_invited} member${d.team_invited!==1?'s':''} invited`
         : 'No members configured yet';
     }
-
     if(d.sprints_created > 0){
       document.getElementById('s-sprints-row').style.display='flex';
       document.getElementById('s-sprints').textContent =
         `${d.sprints_created} sprint${d.sprints_created!==1?'s':''} created`;
     }
     document.getElementById('jira-link').href=d.jira_url;
-    document.getElementById('save-cmd').textContent = buildSaveCmd(backlogData.project_name||'Project', d.project_key);
-    document.getElementById('save-panel').classList.remove('on');
+    document.getElementById('save-result').textContent='';
 
     addHistory({project_name:backlogData.project_name||'Project', jira_key:d.project_key,
       jira_url:d.jira_url, date:new Date().toISOString(), stories_count:d.issues_created});
+
+    await new Promise(res=>setTimeout(res,1500));
+    stepsEl.style.display='none';
     show('success',5);
   } catch(e){
-    toast(e.message,'err'); btn.disabled=false; btn.textContent='✓ Approve & Push to Jira';
+    clearInterval(stepInt);
+    stepsEl.style.display='none';
+    toast(e.message,'err'); btn.disabled=false;
   }
 }
 
-// ── Save panel ────────────────────────────────────────────────────────────────
-function buildSaveCmd(projectName, jiraKey){
-  const parts = [`python scripts/save_project.py`, `"${projectName}"`, `"${jiraKey}"`];
-  if(backlogFilename) parts.push(`"backlog/${backlogFilename}"`);
-  parts.push(`"path/to/your/original/doc"`);
-  return parts.join(' ');
+// ── Local save ────────────────────────────────────────────────────────────────
+async function doLocalSave(){
+  const resultEl=document.getElementById('save-result');
+  resultEl.style.color='var(--tx3)';
+  resultEl.textContent='Checking local saver…';
+
+  let helperRunning=false;
+  try {
+    const ctrl=new AbortController();
+    const to=setTimeout(()=>ctrl.abort(),2000);
+    const r=await fetch('http://localhost:9847/ping',{signal:ctrl.signal});
+    clearTimeout(to);
+    helperRunning=r.ok;
+  } catch(_){}
+
+  const projectName=backlogData.project_name||'Project';
+  const safeName=projectName.replace(/[<>:"/\\|?*]/g,'_');
+  const jiraKey=document.getElementById('s-pkey').textContent;
+  const jiraUrl=document.getElementById('jira-link').href;
+  const all=backlogData.epics.flatMap(e=>e.stories);
+  const sp=all.length?Math.max(...all.map(s=>s.sprint)):0;
+  const info=[
+    `Project Name  : ${projectName}`,
+    `Jira Key      : ${jiraKey}`,
+    `Jira URL      : ${jiraUrl}`,
+    `Date Created  : ${new Date().toLocaleString()}`,
+    `Issues Created: ${document.getElementById('s-count').textContent}`,
+    `Epics         : ${backlogData.epics.length}`,
+    `Sprints       : ${sp}`,
+    `Teams         : ${selectedTeams.join(', ')||'none'}`,
+  ].join('\n');
+
+  if(helperRunning){
+    resultEl.textContent='Saving…';
+    try {
+      let docContent='';
+      if(stdFilename){
+        try {
+          const dr=await fetch(`${WORKER_URL}/api/get-standard-doc?filename=${encodeURIComponent(stdFilename)}`,
+            {headers:{'X-PIN':pin}});
+          if(dr.ok) docContent=await dr.text();
+        } catch(_){}
+      }
+      const files=[
+        {filename:`${safeName}_backlog.json`, content:JSON.stringify(backlogData,null,2)},
+        {filename:`${safeName}_project_info.txt`, content:info},
+      ];
+      if(docContent) files.push({filename:`${safeName}_product_doc.md`, content:docContent});
+      const sr=await fetch('http://localhost:9847/save',{method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({project_name:projectName, files})});
+      const sd=await sr.json();
+      if(sd.success){
+        resultEl.style.color='var(--ok)';
+        resultEl.textContent=`Saved to ${sd.path}`;
+      } else { throw new Error(sd.error||'Save failed'); }
+    } catch(e){
+      resultEl.style.color='var(--bad)';
+      resultEl.textContent=`Save error: ${e.message} — downloading instead…`;
+      doBrowserDownloads(safeName,info);
+    }
+  } else {
+    resultEl.style.color='var(--tx2)';
+    resultEl.textContent='Local saver not running — downloading files instead. Run start_saver.bat next time to save directly to your projects folder.';
+    doBrowserDownloads(safeName,info);
+  }
 }
-function toggleSavePanel(){
-  document.getElementById('save-panel').classList.toggle('on');
-}
-function copySaveCmd(){
-  const cmd = document.getElementById('save-cmd').textContent;
-  navigator.clipboard.writeText(cmd).then(() => toast('Command copied!','ok')).catch(() => {
-    const el = document.getElementById('save-cmd');
-    const sel = window.getSelection(); const range = document.createRange();
-    range.selectNodeContents(el); sel.removeAllRanges(); sel.addRange(range);
-  });
+function doBrowserDownloads(safeName,info){
+  const dl=(content,filename)=>{
+    const a=document.createElement('a');
+    a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(content);
+    a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  };
+  dl(JSON.stringify(backlogData,null,2),`${safeName}_backlog.json`);
+  setTimeout(()=>dl(info,`${safeName}_project_info.txt`),500);
+  if(stdFilename){
+    setTimeout(async()=>{
+      try {
+        const dr=await fetch(`${WORKER_URL}/api/get-standard-doc?filename=${encodeURIComponent(stdFilename)}`,
+          {headers:{'X-PIN':pin}});
+        if(dr.ok) dl(await dr.text(),`${safeName}_product_doc.md`);
+      } catch(_){}
+    },1000);
+  }
 }
 
 // ── History ───────────────────────────────────────────────────────────────────
