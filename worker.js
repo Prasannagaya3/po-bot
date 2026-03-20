@@ -155,27 +155,22 @@ async function handleGenerate(request, env) {
   return jsonResponse({ doc_name: docName, status: 'triggered' });
 }
 
-// GET /api/teams — return teams config from GitHub
+// GET /api/teams — return teams config from GitHub (base64 decode)
 async function handleGetTeams(request, env) {
-  const metaRes = await ghFetch('contents/config/teams.json', env);
-  if (!metaRes.ok) return jsonResponse({ error: 'Teams config not found' }, 404);
-
-  const meta = await metaRes.json();
-  const rawRes = await fetch(meta.download_url, { headers: { 'User-Agent': 'PO-Bot-Worker' } });
-  if (!rawRes.ok) return jsonResponse({ error: 'Could not read teams config' }, 500);
-
-  const teams = await rawRes.json();
-  return jsonResponse(teams);
+  const res = await ghFetch('contents/config/teams.json', env);
+  if (!res.ok) return jsonResponse({ error: 'Teams config not found' }, 404);
+  const data = await res.json();
+  const decoded = atob(data.content.replace(/\n/g, ''));
+  return jsonResponse(JSON.parse(decoded));
 }
 
-// Assign a team responsibility label based on story summary + epic name
+// Assign a team responsibility label based on story title + epic name
 function teamLabelFor(text) {
-  if (/development|unity|scene|gameplay/i.test(text)) return 'unity_dev';
-  if (/art|3d|model|texture|animation/i.test(text)) return '3d_team';
-  if (/backend|api|server|database/i.test(text)) return 'backend_team';
-  if (/audio|sound/i.test(text)) return '3d_team';
-  if (/deploy|store|build|release/i.test(text)) return 'unity_dev';
-  if (/ui|ux/i.test(text)) return 'unity_dev';
+  const t = text.toLowerCase();
+  if (/develop|code|unity|gameplay|scene|ui|deploy|store|build|playstore/.test(t)) return 'unity_dev';
+  if (/3d|model|texture|animation|art|render/.test(t)) return '3d_team';
+  if (/backend|api|server|database|auth/.test(t)) return 'backend_team';
+  if (/audio|sound|music/.test(t)) return '3d_team';
   return 'unity_dev';
 }
 
@@ -314,21 +309,18 @@ async function handleApprove(request, env) {
   if (selected_teams.length > 0) {
     const cfgRes = await ghFetch('contents/config/teams.json', env);
     if (cfgRes.ok) {
-      const cfgMeta = await cfgRes.json();
-      const cfgRaw = await fetch(cfgMeta.download_url, { headers: { 'User-Agent': 'PO-Bot-Worker' } });
-      if (cfgRaw.ok) {
-        const teamsConfig = await cfgRaw.json();
-        for (const teamId of selected_teams) {
-          const team = (teamsConfig.teams || []).find(t => t.id === teamId);
-          if (!team || !team.members || team.members.length === 0) continue;
-          const emails = team.members.map(m => m.email).filter(Boolean);
-          if (emails.length === 0) continue;
-          await fetch(`${jiraBase}/project/${finalKey}/role/10002`, {
-            method: 'POST', headers: jHeaders,
-            body: JSON.stringify({ emailAddress: emails }),
-          });
-          totalInvited += emails.length;
-        }
+      const cfgData = await cfgRes.json();
+      const teamsConfig = JSON.parse(atob(cfgData.content.replace(/\n/g, '')));
+      for (const teamId of selected_teams) {
+        const team = (teamsConfig.teams || []).find(t => t.id === teamId);
+        if (!team || !team.members || team.members.length === 0) continue;
+        const emails = team.members.map(m => m.email).filter(Boolean);
+        if (emails.length === 0) continue;
+        await fetch(`${jiraBase}/project/${finalKey}/role/10002`, {
+          method: 'POST', headers: jHeaders,
+          body: JSON.stringify({ emailAddress: emails }),
+        });
+        totalInvited += emails.length;
       }
     }
   }
