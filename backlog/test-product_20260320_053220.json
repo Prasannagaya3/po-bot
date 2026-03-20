@@ -1,0 +1,148 @@
+{
+  "project_name": "Simple Todo App",
+  "vision": "A mobile app for individuals to manage daily tasks efficiently.",
+  "personas": [
+    "Individual user"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "Task Creation",
+      "description": "Enable users to create new tasks with essential details",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Create task with title",
+          "user_story": "As an Individual user, I want to create a task with a title, so that I can record what I need to do",
+          "acceptance_criteria": [
+            "Given I am on the task list screen When I tap the add task button Then I see a form to enter task details",
+            "Given I am on the add task form When I enter a title and save Then the task appears in my task list"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - core creation flow"
+        },
+        {
+          "id": "US-002",
+          "title": "Add due date to task",
+          "user_story": "As an Individual user, I want to add a due date to my task, so that I know when it needs to be completed",
+          "acceptance_criteria": [
+            "Given I am creating a task When I tap the due date field Then I see a date picker",
+            "Given I have selected a due date When I save the task Then the due date is displayed with the task"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Task List View",
+      "description": "Display all tasks in an organized list format",
+      "stories": [
+        {
+          "id": "US-003",
+          "title": "View all tasks in list",
+          "user_story": "As an Individual user, I want to view all my tasks in a list, so that I can see everything I need to do",
+          "acceptance_criteria": [
+            "Given I have created tasks When I open the app Then I see all my tasks displayed in a list",
+            "Given I am viewing the task list When tasks exist Then each task shows its title and due date"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - core display"
+        },
+        {
+          "id": "US-004",
+          "title": "Filter tasks by completion status",
+          "user_story": "As an Individual user, I want to filter tasks by complete and incomplete, so that I can focus on what still needs to be done",
+          "acceptance_criteria": [
+            "Given I am on the task list When I select the incomplete filter Then I see only incomplete tasks",
+            "Given I am on the task list When I select the complete filter Then I see only completed tasks",
+            "Given I am on the task list When I select all tasks filter Then I see both complete and incomplete tasks"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Task Completion",
+      "description": "Allow users to mark tasks as complete",
+      "stories": [
+        {
+          "id": "US-005",
+          "title": "Mark task as complete",
+          "user_story": "As an Individual user, I want to mark a task as complete, so that I can track my progress",
+          "acceptance_criteria": [
+            "Given I am viewing my task list When I tap the complete button on a task Then the task is marked as complete",
+            "Given a task is marked complete When I view the task list Then the task displays a visual completion indicator"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-006",
+          "title": "Unmark task as incomplete",
+          "user_story": "As an Individual user, I want to unmark a completed task, so that I can reopen it if needed",
+          "acceptance_criteria": [
+            "Given a task is marked complete When I tap the complete button again Then the task is marked as incomplete",
+            "Given I unmark a task When I view the task list Then the task no longer shows the completion indicator"
+          ],
+          "story_points": 1,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "name": "Task Deletion",
+      "description": "Enable users to remove tasks they no longer need",
+      "stories": [
+        {
+          "id": "US-007",
+          "title": "Delete a task",
+          "user_story": "As an Individual user, I want to delete a task, so that I can remove items I no longer need",
+          "acceptance_criteria": [
+            "Given I am viewing my task list When I perform the delete action on a task Then the task is removed from the list",
+            "Given I delete a task When I view the task list Then the deleted task no longer appears"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-008",
+          "title": "Confirm before deleting task",
+          "user_story": "As an Individual user, I want to confirm before deleting a task, so that I don't accidentally remove important items",
+          "acceptance_criteria": [
+            "Given I tap delete on a task When the delete action is triggered Then I see a confirmation dialog",
+            "Given I see the confirmation dialog When I confirm deletion Then the task is deleted",
+            "Given I see the confirmation dialog When I cancel Then the task remains in the list"
+          ],
+          "story_points": 1,
+          "priority": "Could Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "docs/test-product.txt",
+    "generated_at": "2026-03-20T05:32:20.784575+00:00",
+    "status": "pending_review"
+  }
+}
