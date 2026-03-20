@@ -89,11 +89,35 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(json.dumps({"success": False, "error": msg}).encode())
 
 
+MARKER_FILE = os.path.join(BASE_DIR, ".saver_installed")
+BAT_PATH = r"D:\Work\Unity_Applications\Freelance\po-bot-cloudflare\scripts\start_saver.bat"
+
+def ensure_startup():
+    if os.path.exists(MARKER_FILE):
+        print("Already in startup.")
+        return
+    try:
+        import winreg
+        key = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Run",
+            0, winreg.KEY_SET_VALUE
+        )
+        winreg.SetValueEx(key, "PO Bot Saver", 0, winreg.REG_SZ, BAT_PATH)
+        winreg.CloseKey(key)
+        os.makedirs(BASE_DIR, exist_ok=True)
+        open(MARKER_FILE, "w").close()
+        print("PO Bot Saver added to Windows startup - will run automatically on login.")
+    except Exception as e:
+        print(f"Could not add to startup: {e}")
+
+
 if __name__ == "__main__":
     server = http.server.HTTPServer(("localhost", PORT), Handler)
     print(f"PO Bot Saver running on http://localhost:{PORT}")
     print(f"Saving projects to: {BASE_DIR}")
     print("Press Ctrl+C to stop.")
+    ensure_startup()
     try:
         server.serve_forever()
     except KeyboardInterrupt:
