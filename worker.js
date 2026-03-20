@@ -155,6 +155,80 @@ async function handleGenerate(request, env) {
   return jsonResponse({ doc_name: docName, status: 'triggered' });
 }
 
+// GET /api/teams — return teams config from GitHub
+async function handleGetTeams(request, env) {
+  const metaRes = await ghFetch('contents/config/teams.json', env);
+  if (!metaRes.ok) return jsonResponse({ error: 'Teams config not found' }, 404);
+
+  const meta = await metaRes.json();
+  const rawRes = await fetch(meta.download_url, { headers: { 'User-Agent': 'PO-Bot-Worker' } });
+  if (!rawRes.ok) return jsonResponse({ error: 'Could not read teams config' }, 500);
+
+  const teams = await rawRes.json();
+  return jsonResponse(teams);
+}
+
+// Invite team members to a Jira project (best-effort, non-blocking)
+async function inviteTeamToJira(projectKey, teamId, jiraBase, jHeaders, env) {
+  const metaRes = await ghFetch('contents/config/teams.json', env);
+  if (!metaRes.ok) return { invited: 0, skipped: 0, errors: [] };
+
+  const meta = await metaRes.json();
+  const rawRes = await fetch(meta.download_url, { headers: { 'User-Agent': 'PO-Bot-Worker' } });
+  if (!rawRes.ok) return { invited: 0, skipped: 0, errors: [] };
+
+  const teamsConfig = await rawRes.json();
+  const team = (teamsConfig.teams || []).find(t => t.id === teamId);
+  if (!team || !team.members || team.members.length === 0) {
+    return { invited: 0, skipped: 0, errors: [] };
+  }
+
+  // Discover a non-Admin project role to assign members to
+  const rolesRes = await fetch(`${jiraBase}/project/${projectKey}/role`, { headers: jHeaders });
+  let memberRoleId = null;
+  if (rolesRes.ok) {
+    const roles = await rolesRes.json();
+    for (const name of ['Member', 'Developer', 'Service Desk Team']) {
+      if (roles[name]) { memberRoleId = roles[name].split('/').pop(); break; }
+    }
+    if (!memberRoleId) {
+      for (const [name, url] of Object.entries(roles)) {
+        if (name !== 'Administrator') { memberRoleId = url.split('/').pop(); break; }
+      }
+    }
+  }
+  if (!memberRoleId) return { invited: 0, skipped: 0, errors: ['No suitable project role found'] };
+
+  let invited = 0, skipped = 0;
+  const errors = [];
+
+  for (const member of team.members) {
+    // Look up Jira account by email
+    const searchRes = await fetch(
+      `${jiraBase}/user/search?query=${encodeURIComponent(member.email)}`,
+      { headers: jHeaders }
+    );
+    if (!searchRes.ok) {
+      errors.push(`${member.email}: search failed (${searchRes.status})`);
+      skipped++; continue;
+    }
+    const users = await searchRes.json();
+    if (!Array.isArray(users) || users.length === 0) {
+      errors.push(`${member.email}: not found in Jira`);
+      skipped++; continue;
+    }
+
+    const addRes = await fetch(`${jiraBase}/project/${projectKey}/role/${memberRoleId}`, {
+      method: 'POST', headers: jHeaders,
+      body: JSON.stringify({ user: [users[0].accountId] }),
+    });
+    if (addRes.ok) { invited++; }
+    else { const e = await addRes.text(); errors.push(`${member.email}: ${e.slice(0, 80)}`); skipped++; }
+  }
+
+  return { invited, skipped, errors };
+}
+
 // GET /api/poll?doc_name=xxx — poll backlog/ folder for result
 async function handlePoll(request, env) {
   const docName = new URL(request.url).searchParams.get('doc_name');
@@ -183,7 +257,7 @@ async function handleApprove(request, env) {
   const body = await request.json().catch(() => null);
   if (!body || !body.backlog) return jsonResponse({ error: 'Missing backlog' }, 400);
 
-  const { backlog } = body;
+  const { backlog, team_id } = body;
   const jiraBase = `https://${env.JIRA_DOMAIN}/rest/api/3`;
   const auth = btoa(`${env.JIRA_EMAIL}:${env.JIRA_TOKEN}`);
   const jHeaders = {
@@ -285,10 +359,19 @@ async function handleApprove(request, env) {
     return jsonResponse({ error: `Stories failed: ${errors[0]}` }, 500);
   }
 
+  // Invite team members (best-effort — never fails the whole request)
+  let teamInvite = { invited: 0, skipped: 0, errors: [] };
+  if (team_id) {
+    teamInvite = await inviteTeamToJira(finalKey, team_id, jiraBase, jHeaders, env);
+  }
+
   return jsonResponse({
     project_key: finalKey,
     issues_created: issuesCreated,
     jira_url: `https://${env.JIRA_DOMAIN}/jira/software/projects/${finalKey}/board`,
+    team_invited: teamInvite.invited,
+    team_skipped: teamInvite.skipped,
+    team_errors: teamInvite.errors,
   });
 }
 
@@ -311,6 +394,7 @@ export default {
       return jsonResponse({ error: 'Invalid PIN' }, 401);
     }
 
+    if (path === '/api/teams'        && request.method === 'GET')  return handleGetTeams(request, env);
     if (path === '/api/standardise'  && request.method === 'POST') return handleStandardise(request, env);
     if (path === '/api/poll-standard'&& request.method === 'GET')  return handlePollStandard(request, env);
     if (path === '/api/generate'     && request.method === 'POST') return handleGenerate(request, env);
