@@ -80,7 +80,9 @@ jobs:
           git config user.name "PO Bot"
           git config user.email "po-bot@users.noreply.github.com"
           git rm --ignore-unmatch "${{ steps.detect.outputs.file }}" || true
-          for f in standardised/*.md; do git rm --ignore-unmatch "$f" || true; done
+          if [ "${{ steps.detect.outputs.mode }}" = "generate" ]; then
+            for f in standardised/*.md; do git rm --ignore-unmatch "$f" || true; done
+          fi
           git diff --staged --quiet || git commit -m "cleanup: remove processed documents"
           git pull --rebase origin main && git push
 
