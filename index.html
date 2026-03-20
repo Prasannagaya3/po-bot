@@ -331,12 +331,12 @@ input[type="file"]{display:none}
   <!-- Team selection — shown after first file is added -->
   <div class="team-section" id="team-section">
     <div class="team-sec-hd">
-      <span class="team-sec-title">Project Teams</span>
+      <span class="team-sec-title">Select teams for this project</span>
     </div>
     <div class="team-cards" id="team-cards">
       <span class="team-loading">Loading teams…</span>
     </div>
-    <div class="team-note">All checked teams will be added to the Jira project. Stories are auto-labelled by responsibility.</div>
+    <div class="team-note">All selected teams will be invited to Jira. You can deselect teams not needed for this project.</div>
   </div>
 
   <button class="btn btn-primary" id="btn-std" onclick="doStandardise()" disabled>
@@ -446,7 +446,7 @@ input[type="file"]{display:none}
 <div class="toast" id="toast"></div>
 
 <script>
-const WORKER_URL = 'https://po-bot-worker.prasanna-d75.workers.dev';
+const WORKER_URL = 'REPLACE_WITH_WORKER_URL';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let pin = '', selectedFiles = [], docName = '', stdPath = '', backlogData = null;
@@ -544,7 +544,7 @@ function renderTeamCards(){
       <div class="tc-check">${checked?'✓':''}</div>
       <span class="tc-dot" style="background:${esc(t.color)}"></span>
       <div class="tc-body">
-        <div class="tc-name">${esc(t.name)}</div>
+        <div class="tc-name" style="color:${esc(t.color)}">${esc(t.name)}</div>
         <div class="tc-primary">${esc(t.primary)}</div>
       </div>
       <span class="tc-members">${mc?mc+' member'+(mc!==1?'s':''):'no members'}</span>
@@ -605,7 +605,7 @@ async function doStandardise(){
     const r = await fetch(`${WORKER_URL}/api/standardise`,{method:'POST',
       headers:{'Content-Type':'application/json','X-PIN':pin},
       body:JSON.stringify({filename:selectedFiles[0].name, content_base64:primaryB64,
-        extra_files:extras, teams:selectedTeams})});
+        extra_files:extras, selected_teams:selectedTeams})});
     const d = await r.json();
     if(!r.ok) throw new Error(d.error||'Standardise failed');
     docName = d.doc_name;
