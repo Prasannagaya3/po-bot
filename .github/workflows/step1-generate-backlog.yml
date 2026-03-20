@@ -1,0 +1,67 @@
+name: Step 1 - Generate Backlog JSON
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      doc_path:
+        description: 'Path to document e.g. docs/my-product.md'
+        required: true
+        type: string
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic PyPDF2 python-docx
+
+      - name: Detect changed document
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            FILE="${{ github.event.inputs.doc_path }}"
+          else
+            if git rev-parse HEAD~1 >/dev/null 2>&1; then
+              FILE=$(git diff --name-only HEAD~1 HEAD -- 'docs/' | grep -E '\.(pdf|txt|md|docx)$' | head -1)
+            else
+              FILE=$(git diff-tree --no-commit-id -r --name-only HEAD -- 'docs/' | grep -E '\.(pdf|txt|md|docx)$' | head -1)
+            fi
+          fi
+          echo "file=$FILE" >> $GITHUB_OUTPUT
+          FILENAME=$(basename "$FILE" | sed 's/\.[^.]*$//')
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+          echo "Detected: $FILE"
+
+      - name: Generate backlog JSON
+        if: steps.detect.outputs.file != ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DOC_FILE: ${{ steps.detect.outputs.file }}
+          DOC_NAME: ${{ steps.detect.outputs.filename }}
+        run: python scripts/generate_backlog.py
+
+      - name: Commit JSON back to repo
+        if: steps.detect.outputs.file != ''
+        run: |
+          git config user.name  "PO Bot"
+          git config user.email "po-bot@users.noreply.github.com"
+          git add backlog/
+          git diff --staged --quiet || git commit -m "backlog: generated from ${{ steps.detect.outputs.filename }}"
+          git push
+
+      - if: steps.detect.outputs.file == ''
+        run: echo "No document found in docs/ - skipping."
