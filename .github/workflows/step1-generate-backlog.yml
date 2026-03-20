@@ -1,9 +1,6 @@
 name: Step 1 - Generate Backlog JSON
 
 on:
-  push:
-    paths:
-      - 'docs/**'
   workflow_dispatch:
     inputs:
       doc_path:
