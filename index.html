@@ -492,10 +492,7 @@ input[type="file"]{display:none}
       <a class="jira-btn" id="jira-link" href="#" target="_blank">Open in Jira →</a>
       <button class="save-btn" onclick="doLocalSave()">💾 Save project files</button>
     </div>
-    <div class="save-result" id="save-result"></div>
-    <div class="suc-note">
-      Run <code style="font-size:11px">scripts\start_saver.bat</code> to auto-save directly to your projects folder.
-    </div>
+    <div class="save-result" id="save-result" style="display:none"></div>
     <br>
     <button class="btn btn-ghost" onclick="reset()" style="width:auto;margin-top:8px">← Start another project</button>
   </div>
@@ -862,10 +859,6 @@ async function approve(){
 
 // ── Local save ────────────────────────────────────────────────────────────────
 async function doLocalSave(){
-  const resultEl=document.getElementById('save-result');
-  resultEl.style.color='var(--tx3)';
-  resultEl.textContent='Checking local saver…';
-
   let helperRunning=false;
   try {
     const ctrl=new AbortController();
@@ -893,14 +886,12 @@ async function doLocalSave(){
   ].join('\n');
 
   if(helperRunning){
-    resultEl.textContent='Saving…';
     try {
       const files=[
         {filename:`${safeName}_backlog.json`, content:JSON.stringify(backlogData,null,2)},
         {filename:`${safeName}_project_info.txt`, content:info},
       ];
       if(stdContent) files.push({filename:`${safeName}_product_doc.md`, content:stdContent});
-      // Original uploaded file — read as base64 so saver handles binary (pdf/docx) correctly
       if(selectedFiles[0]){
         const origB64=await toB64(selectedFiles[0]);
         files.push({filename:selectedFiles[0].name, content:origB64, encoding:'base64', subfolder:'original_docs'});
@@ -909,19 +900,15 @@ async function doLocalSave(){
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({project_name:projectName, files})});
       const sd=await sr.json();
-      if(sd.success){
-        resultEl.style.color='var(--ok)';
-        resultEl.textContent=`Saved to ${sd.path}`;
-      } else { throw new Error(sd.error||'Save failed'); }
+      if(sd.success){ toast('Saved to projects folder','ok'); }
+      else { throw new Error(sd.error||'Save failed'); }
     } catch(e){
-      resultEl.style.color='var(--bad)';
-      resultEl.textContent=`Save error: ${e.message} — downloading instead…`;
+      toast(e.message,'err');
       doBrowserDownloads(safeName,info);
     }
   } else {
-    resultEl.style.color='var(--tx2)';
-    resultEl.textContent=`Files downloading to your default Downloads folder. To auto-save to D:\\Work\\Unity_Applications\\Product Development\\ instead, run scripts\\start_saver.bat and click Save again.`;
     doBrowserDownloads(safeName,info);
+    toast('Files downloaded to Downloads folder','ok');
   }
 }
 function doBrowserDownloads(safeName,info){
@@ -930,17 +917,17 @@ function doBrowserDownloads(safeName,info){
     a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(content);
     a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a);
   };
-  dlText(JSON.stringify(backlogData,null,2),`${safeName}/${safeName}_backlog.json`);
-  setTimeout(()=>dlText(info,`${safeName}/${safeName}_project_info.txt`),500);
+  dlText(JSON.stringify(backlogData,null,2),`${safeName}_backlog.json`);
+  setTimeout(()=>dlText(info,`${safeName}_project_info.txt`),500);
   if(stdContent){
-    setTimeout(()=>dlText(stdContent,`${safeName}/${safeName}_product_doc.md`),1000);
+    setTimeout(()=>dlText(stdContent,`${safeName}_product_doc.md`),1000);
   }
   // Download original file using object URL (handles binary pdf/docx correctly)
   if(selectedFiles[0]){
     setTimeout(()=>{
       const url=URL.createObjectURL(selectedFiles[0]);
       const a=document.createElement('a');
-      a.href=url; a.download=`${safeName}/original_docs/${selectedFiles[0].name}`;
+      a.href=url; a.download=selectedFiles[0].name;
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(()=>URL.revokeObjectURL(url),1000);
     },1500);
@@ -987,7 +974,7 @@ function toB64(file){
 }
 function txtToB64(str){ const b=new TextEncoder().encode(str); let s=''; for(const x of b) s+=String.fromCharCode(x); return btoa(s); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function toast(msg,type=''){ const t=document.getElementById('toast'); t.textContent=msg; t.className='toast on '+type; setTimeout(()=>t.classList.remove('on'),5000); }
+function toast(msg,type=''){ const t=document.getElementById('toast'); t.textContent=msg; t.className='toast on '+type; setTimeout(()=>t.classList.remove('on'),3000); }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderHistory();
