@@ -460,7 +460,7 @@ const WORKER_URL = window.PO_BOT_WORKER_URL || '';
 // ── State ─────────────────────────────────────────────────────────────────────
 let pin = '', selectedFiles = [], docName = '', stdPath = '', backlogData = null;
 let selectedTeams = [], teamsData = null, backlogFilename = '';
-let uploadedFilename = '', stdFilename = '';
+let uploadedFilename = '', stdFilename = '', stdContent = '';
 let pollTimer = null, procMsgInt = null, procTimerInt = null;
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
@@ -497,7 +497,7 @@ function show(id, stepN){
 function reset(){
   stopProc();
   selectedFiles = []; docName = stdPath = ''; backlogData = null;
-  selectedTeams = []; backlogFilename = ''; uploadedFilename = ''; stdFilename = '';
+  selectedTeams = []; backlogFilename = ''; uploadedFilename = ''; stdFilename = ''; stdContent = '';
   document.getElementById('fi-primary').value = '';
   document.getElementById('fi-extra').value = '';
   renderFiles();
@@ -648,6 +648,7 @@ function pollStd(){
 // ── Stage 2: Generate ─────────────────────────────────────────────────────────
 async function doGenerate(){
   const btn = document.getElementById('btn-gen'); btn.disabled=true;
+  stdContent = document.getElementById('std-ta').value;
   show('proc2', 3);
   startProc('p2', ['Thinking like a Product Owner...','Writing user stories...','Finalising sprints...'], 60);
   try {
@@ -843,19 +844,16 @@ async function doLocalSave(){
   if(helperRunning){
     resultEl.textContent='Saving…';
     try {
-      let docContent='';
-      if(stdFilename){
-        try {
-          const dr=await fetch(`${WORKER_URL}/api/get-standard-doc?filename=${encodeURIComponent(stdFilename)}`,
-            {headers:{'X-PIN':pin}});
-          if(dr.ok) docContent=await dr.text();
-        } catch(_){}
-      }
       const files=[
         {filename:`${safeName}_backlog.json`, content:JSON.stringify(backlogData,null,2)},
         {filename:`${safeName}_project_info.txt`, content:info},
       ];
-      if(docContent) files.push({filename:`${safeName}_product_doc.md`, content:docContent});
+      if(stdContent) files.push({filename:`${safeName}_product_doc.md`, content:stdContent});
+      // Original uploaded file — read as base64 so saver handles binary (pdf/docx) correctly
+      if(selectedFiles[0]){
+        const origB64=await toB64(selectedFiles[0]);
+        files.push({filename:selectedFiles[0].name, content:origB64, encoding:'base64', subfolder:'original_docs'});
+      }
       const sr=await fetch('http://localhost:9847/save',{method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({project_name:projectName, files})});
@@ -871,29 +869,32 @@ async function doLocalSave(){
     }
   } else {
     resultEl.style.color='var(--tx2)';
-    resultEl.textContent='Local saver not running — downloading files instead. Run start_saver.bat next time to save directly to your projects folder.';
+    resultEl.textContent=`Files downloading to your default Downloads folder. To auto-save to D:\\Work\\Unity_Applications\\Product Development\\ instead, run scripts\\start_saver.bat and click Save again.`;
     doBrowserDownloads(safeName,info);
   }
 }
 function doBrowserDownloads(safeName,info){
-  const dl=(content,filename)=>{
+  const dlText=(content,filename)=>{
     const a=document.createElement('a');
     a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(content);
     a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a);
   };
-  dl(JSON.stringify(backlogData,null,2),`${safeName}_backlog.json`);
-  setTimeout(()=>dl(info,`${safeName}_project_info.txt`),500);
-  if(stdFilename){
-    setTimeout(async()=>{
-      try {
-        const dr=await fetch(`${WORKER_URL}/api/get-standard-doc?filename=${encodeURIComponent(stdFilename)}`,
-          {headers:{'X-PIN':pin}});
-        if(dr.ok) dl(await dr.text(),`${safeName}_product_doc.md`);
-      } catch(_){}
-    },1000);
+  dlText(JSON.stringify(backlogData,null,2),`${safeName}/${safeName}_backlog.json`);
+  setTimeout(()=>dlText(info,`${safeName}/${safeName}_project_info.txt`),500);
+  if(stdContent){
+    setTimeout(()=>dlText(stdContent,`${safeName}/${safeName}_product_doc.md`),1000);
+  }
+  // Download original file using object URL (handles binary pdf/docx correctly)
+  if(selectedFiles[0]){
+    setTimeout(()=>{
+      const url=URL.createObjectURL(selectedFiles[0]);
+      const a=document.createElement('a');
+      a.href=url; a.download=`${safeName}/original_docs/${selectedFiles[0].name}`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+    },1500);
   }
 }
-
 // ── History ───────────────────────────────────────────────────────────────────
 function getHistory(){ try{ return JSON.parse(localStorage.getItem('po_bot_history')||'[]'); }catch{ return []; } }
 function addHistory(entry){
