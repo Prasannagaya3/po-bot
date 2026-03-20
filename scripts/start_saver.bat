@@ -1,3 +1,4 @@
 @echo off
-python "%~dp0po_bot_saver.py"
-pause
+pythonw "%~dp0start_saver.pyw"
+echo PO Bot Saver started in background.
+timeout /t 2
