@@ -1,0 +1,34 @@
+{
+  "teams": [
+    {
+      "id": "unity3d",
+      "name": "Unity3D Dev Team",
+      "description": "Sound, Playstore deployment",
+      "color": "#4F46E5",
+      "members": [
+        { "name": "Member Name", "email": "member@email.com", "role": "developer" }
+      ]
+    },
+    {
+      "id": "backend",
+      "name": "Backend Team",
+      "description": "API, server, database",
+      "color": "#0EA5E9",
+      "members": []
+    },
+    {
+      "id": "3d",
+      "name": "3D Team",
+      "description": "Texture, Animation",
+      "color": "#10B981",
+      "members": []
+    },
+    {
+      "id": "uiux",
+      "name": "UI/UX Team",
+      "description": "Unity UI developer",
+      "color": "#EC4899",
+      "members": []
+    }
+  ]
+}
