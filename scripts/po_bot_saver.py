@@ -6,7 +6,7 @@ Usage: python scripts/po_bot_saver.py
    or: double-click scripts/start_saver.bat
 """
 
-import http.server, json, os, re
+import http.server, json, os, re, base64
 
 BASE_DIR = r"D:\Work\Unity_Applications\Product Development"
 PORT = 9847
@@ -63,15 +63,25 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return
 
         project_dir = os.path.join(BASE_DIR, safe_name(project_name))
-        orig_docs_dir = os.path.join(project_dir, "original_docs")
 
         try:
             os.makedirs(project_dir, exist_ok=True)
-            os.makedirs(orig_docs_dir, exist_ok=True)
             for f in files:
-                fname = safe_name(f.get("filename") or "file")
-                with open(os.path.join(project_dir, fname), "w", encoding="utf-8") as fp:
-                    fp.write(f.get("content") or "")
+                fname     = safe_name(f.get("filename") or "file")
+                content   = f.get("content") or ""
+                encoding  = f.get("encoding") or ""
+                subfolder = f.get("subfolder") or ""
+                target = project_dir
+                if subfolder:
+                    target = os.path.join(project_dir, safe_name(subfolder))
+                    os.makedirs(target, exist_ok=True)
+                fpath = os.path.join(target, fname)
+                if encoding == "base64":
+                    with open(fpath, "wb") as fp:
+                        fp.write(base64.b64decode(content))
+                else:
+                    with open(fpath, "w", encoding="utf-8") as fp:
+                        fp.write(content)
             print(f"  Saved: {project_dir}")
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
