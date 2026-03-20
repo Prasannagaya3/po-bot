@@ -1,0 +1,212 @@
+{
+  "project_name": "Simple Todo App",
+  "vision": "A focused mobile application that enables individuals to effortlessly capture, track, and complete daily tasks without unnecessary complexity.",
+  "personas": [
+    "Individual User"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "Task Creation and Editing",
+      "description": "Enable users to add new tasks and modify existing task details to maintain an accurate and up-to-date task list.",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Create task with title",
+          "user_story": "As an Individual User, I want to create a new task with a title, so that I can quickly capture items I need to remember.",
+          "acceptance_criteria": [
+            "Given I am on the task list screen When I enter a task title and confirm Then the task appears in my task list",
+            "Given I am creating a task When I submit without a title Then the task is not created and I see a validation message"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Foundation feature for the walking skeleton"
+        },
+        {
+          "id": "US-002",
+          "title": "Add optional due date to task",
+          "user_story": "As an Individual User, I want to add an optional due date when creating a task, so that I can track when tasks need to be completed.",
+          "acceptance_criteria": [
+            "Given I am creating a task When I select a due date Then the task is saved with that due date",
+            "Given I am creating a task When I skip the due date field Then the task is created without a due date"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-003",
+          "title": "Edit task details after creation",
+          "user_story": "As an Individual User, I want to edit task details after creation, so that I can correct mistakes or update due dates as plans change.",
+          "acceptance_criteria": [
+            "Given I have an existing task When I select edit and modify the title Then the updated title is saved and displayed",
+            "Given I have an existing task When I select edit and change the due date Then the updated due date is saved and displayed"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Assumed feature based on document"
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Task Completion and Deletion",
+      "description": "Allow users to mark tasks as complete and remove tasks they no longer need, enabling effective task lifecycle management.",
+      "stories": [
+        {
+          "id": "US-004",
+          "title": "Mark task as complete",
+          "user_story": "As an Individual User, I want to mark a task as complete, so that I can track my progress and see what I have accomplished.",
+          "acceptance_criteria": [
+            "Given I have an incomplete task When I mark it as complete Then the task visually indicates completion status",
+            "Given I have a completed task When I mark it as incomplete Then the task returns to incomplete status"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Foundation feature for the walking skeleton"
+        },
+        {
+          "id": "US-005",
+          "title": "Delete task from list",
+          "user_story": "As an Individual User, I want to delete a task from my list, so that I can remove items that are no longer relevant.",
+          "acceptance_criteria": [
+            "Given I have a task in my list When I delete the task Then it is permanently removed from my task list",
+            "Given I attempt to delete a task When I confirm the deletion Then the task is removed immediately"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Task List Display",
+      "description": "Provide users with a clear view of all their tasks including relevant details like due dates in a scrollable interface.",
+      "stories": [
+        {
+          "id": "US-006",
+          "title": "View all tasks in scrollable list",
+          "user_story": "As an Individual User, I want to view all my tasks in a single scrollable list, so that I can see everything I need to do at a glance.",
+          "acceptance_criteria": [
+            "Given I have multiple tasks When I open the app Then I see all tasks displayed in a scrollable list",
+            "Given I have no tasks When I open the app Then I see an empty state indicating no tasks exist"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Foundation feature for the walking skeleton"
+        },
+        {
+          "id": "US-007",
+          "title": "Display due date alongside task",
+          "user_story": "As an Individual User, I want to see the due date displayed alongside each task, so that I can quickly identify upcoming deadlines.",
+          "acceptance_criteria": [
+            "Given a task has a due date When I view the task list Then the due date is visible next to the task title",
+            "Given a task has no due date When I view the task list Then no due date is displayed for that task"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Assumed feature based on document"
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "name": "Task Filtering",
+      "description": "Enable users to filter their task list by completion status to focus on relevant tasks and reduce visual clutter.",
+      "stories": [
+        {
+          "id": "US-008",
+          "title": "Filter to show incomplete tasks only",
+          "user_story": "As an Individual User, I want to filter my task list to show only incomplete tasks, so that I can focus on what still needs to be done.",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the incomplete filter Then only incomplete tasks are displayed",
+            "Given I have the incomplete filter active When I complete a task Then that task is removed from the filtered view"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        },
+        {
+          "id": "US-009",
+          "title": "Filter to show completed tasks only",
+          "user_story": "As an Individual User, I want to filter my task list to show only completed tasks, so that I can review what I have accomplished.",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the completed filter Then only completed tasks are displayed",
+            "Given I have the completed filter active When I mark a task incomplete Then that task is removed from the filtered view"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "name": "Data Persistence",
+      "description": "Ensure user tasks are reliably saved and available across app sessions and without internet connectivity.",
+      "stories": [
+        {
+          "id": "US-010",
+          "title": "Persist tasks across app restarts",
+          "user_story": "As an Individual User, I want my tasks to persist across app restarts, so that I never lose my task data.",
+          "acceptance_criteria": [
+            "Given I have created tasks When I close and reopen the app Then all my tasks are still visible",
+            "Given I have marked tasks complete When I close and reopen the app Then the completion status is preserved"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Foundation feature - required for walking skeleton to be meaningful"
+        },
+        {
+          "id": "US-011",
+          "title": "Manage tasks offline",
+          "user_story": "As an Individual User, I want to view and manage my tasks without an internet connection, so that I can stay productive regardless of connectivity.",
+          "acceptance_criteria": [
+            "Given I have no internet connection When I open the app Then I can view all my existing tasks",
+            "Given I have no internet connection When I create, complete, or delete tasks Then the changes are saved locally"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Assumed requirement for personal productivity apps"
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "name": "Performance and Responsiveness",
+      "description": "Ensure all task operations feel instantaneous to provide a frictionless user experience.",
+      "stories": [
+        {
+          "id": "US-012",
+          "title": "Instantaneous task action response",
+          "user_story": "As an Individual User, I want task actions to feel instantaneous, so that the app does not slow down my workflow.",
+          "acceptance_criteria": [
+            "Given I create a task When I confirm the creation Then the task appears in under 200ms",
+            "Given I complete or delete a task When I perform the action Then the UI updates in under 200ms"
+          ],
+          "story_points": 5,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Performance requirement - may require optimization pass after core features"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/test-product_20260320_111819.md",
+    "generated_at": "2026-03-20T11:19:35.743808+00:00",
+    "status": "pending_review"
+  }
+}
