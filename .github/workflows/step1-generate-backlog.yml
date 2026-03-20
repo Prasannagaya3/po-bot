@@ -7,8 +7,17 @@ on:
   workflow_dispatch:
     inputs:
       doc_path:
-        description: 'Path to document e.g. docs/my-product.md'
+        description: 'Primary document path (e.g. docs/my-product.md)'
         required: true
+        type: string
+      mode:
+        description: 'Pipeline mode: standardise or generate'
+        required: true
+        default: 'standardise'
+        type: string
+      extra_files:
+        description: 'Comma-separated extra file paths to merge (optional)'
+        required: false
         type: string
 
 jobs:
@@ -29,39 +38,45 @@ jobs:
       - name: Install dependencies
         run: pip install anthropic PyPDF2 python-docx
 
-      - name: Detect changed document
+      - name: Detect document on push
         id: detect
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            FILE="${{ github.event.inputs.doc_path }}"
+            echo "file=${{ github.event.inputs.doc_path }}" >> $GITHUB_OUTPUT
+            echo "mode=${{ github.event.inputs.mode }}" >> $GITHUB_OUTPUT
+            echo "extra=${{ github.event.inputs.extra_files }}" >> $GITHUB_OUTPUT
           else
             if git rev-parse HEAD~1 >/dev/null 2>&1; then
               FILE=$(git diff --name-only HEAD~1 HEAD -- 'docs/' | grep -E '\.(pdf|txt|md|docx)$' | head -1)
             else
               FILE=$(git diff-tree --no-commit-id -r --name-only HEAD -- 'docs/' | grep -E '\.(pdf|txt|md|docx)$' | head -1)
             fi
+            echo "file=$FILE" >> $GITHUB_OUTPUT
+            echo "mode=standardise" >> $GITHUB_OUTPUT
+            echo "extra=" >> $GITHUB_OUTPUT
           fi
-          echo "file=$FILE" >> $GITHUB_OUTPUT
-          FILENAME=$(basename "$FILE" | sed 's/\.[^.]*$//')
+          FILENAME=$(basename "${{ github.event.inputs.doc_path || 'doc' }}" | sed 's/\.[^.]*$//')
           echo "filename=$FILENAME" >> $GITHUB_OUTPUT
-          echo "Detected: $FILE"
+          echo "Detected: $FILE  mode: ${{ github.event.inputs.mode }}"
 
-      - name: Generate backlog JSON
+      - name: Run pipeline stage
         if: steps.detect.outputs.file != ''
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           DOC_FILE: ${{ steps.detect.outputs.file }}
           DOC_NAME: ${{ steps.detect.outputs.filename }}
+          MODE: ${{ steps.detect.outputs.mode }}
+          EXTRA_FILES: ${{ steps.detect.outputs.extra }}
         run: python scripts/generate_backlog.py
 
-      - name: Commit JSON back to repo
+      - name: Commit output back to repo
         if: steps.detect.outputs.file != ''
         run: |
           git config user.name  "PO Bot"
           git config user.email "po-bot@users.noreply.github.com"
-          git add backlog/
-          git diff --staged --quiet || git commit -m "backlog: generated from ${{ steps.detect.outputs.filename }}"
+          git add standardised/ backlog/
+          git diff --staged --quiet || git commit -m "pipeline: ${{ steps.detect.outputs.mode }} from ${{ steps.detect.outputs.filename }}"
           git push
 
       - if: steps.detect.outputs.file == ''
-        run: echo "No document found in docs/ - skipping."
+        run: echo "No document found - skipping."
