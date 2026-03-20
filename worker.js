@@ -168,65 +168,15 @@ async function handleGetTeams(request, env) {
   return jsonResponse(teams);
 }
 
-// Invite team members to a Jira project (best-effort, non-blocking)
-async function inviteTeamToJira(projectKey, teamId, jiraBase, jHeaders, env) {
-  const metaRes = await ghFetch('contents/config/teams.json', env);
-  if (!metaRes.ok) return { invited: 0, skipped: 0, errors: [] };
-
-  const meta = await metaRes.json();
-  const rawRes = await fetch(meta.download_url, { headers: { 'User-Agent': 'PO-Bot-Worker' } });
-  if (!rawRes.ok) return { invited: 0, skipped: 0, errors: [] };
-
-  const teamsConfig = await rawRes.json();
-  const team = (teamsConfig.teams || []).find(t => t.id === teamId);
-  if (!team || !team.members || team.members.length === 0) {
-    return { invited: 0, skipped: 0, errors: [] };
-  }
-
-  // Discover a non-Admin project role to assign members to
-  const rolesRes = await fetch(`${jiraBase}/project/${projectKey}/role`, { headers: jHeaders });
-  let memberRoleId = null;
-  if (rolesRes.ok) {
-    const roles = await rolesRes.json();
-    for (const name of ['Member', 'Developer', 'Service Desk Team']) {
-      if (roles[name]) { memberRoleId = roles[name].split('/').pop(); break; }
-    }
-    if (!memberRoleId) {
-      for (const [name, url] of Object.entries(roles)) {
-        if (name !== 'Administrator') { memberRoleId = url.split('/').pop(); break; }
-      }
-    }
-  }
-  if (!memberRoleId) return { invited: 0, skipped: 0, errors: ['No suitable project role found'] };
-
-  let invited = 0, skipped = 0;
-  const errors = [];
-
-  for (const member of team.members) {
-    // Look up Jira account by email
-    const searchRes = await fetch(
-      `${jiraBase}/user/search?query=${encodeURIComponent(member.email)}`,
-      { headers: jHeaders }
-    );
-    if (!searchRes.ok) {
-      errors.push(`${member.email}: search failed (${searchRes.status})`);
-      skipped++; continue;
-    }
-    const users = await searchRes.json();
-    if (!Array.isArray(users) || users.length === 0) {
-      errors.push(`${member.email}: not found in Jira`);
-      skipped++; continue;
-    }
-
-    const addRes = await fetch(`${jiraBase}/project/${projectKey}/role/${memberRoleId}`, {
-      method: 'POST', headers: jHeaders,
-      body: JSON.stringify({ user: [users[0].accountId] }),
-    });
-    if (addRes.ok) { invited++; }
-    else { const e = await addRes.text(); errors.push(`${member.email}: ${e.slice(0, 80)}`); skipped++; }
-  }
-
-  return { invited, skipped, errors };
+// Assign a team responsibility label based on story summary + epic name
+function teamLabelFor(text) {
+  if (/development|unity|scene|gameplay/i.test(text)) return 'unity_dev';
+  if (/art|3d|model|texture|animation/i.test(text)) return '3d_team';
+  if (/backend|api|server|database/i.test(text)) return 'backend_team';
+  if (/audio|sound/i.test(text)) return '3d_team';
+  if (/deploy|store|build|release/i.test(text)) return 'unity_dev';
+  if (/ui|ux/i.test(text)) return 'unity_dev';
+  return 'unity_dev';
 }
 
 // GET /api/poll?doc_name=xxx — poll backlog/ folder for result
@@ -257,7 +207,7 @@ async function handleApprove(request, env) {
   const body = await request.json().catch(() => null);
   if (!body || !body.backlog) return jsonResponse({ error: 'Missing backlog' }, 400);
 
-  const { backlog, team_id } = body;
+  const { backlog, selected_teams = [] } = body;
   const jiraBase = `https://${env.JIRA_DOMAIN}/rest/api/3`;
   const auth = btoa(`${env.JIRA_EMAIL}:${env.JIRA_TOKEN}`);
   const jHeaders = {
@@ -342,7 +292,7 @@ async function handleApprove(request, env) {
               ],
             },
             issuetype: { name: storyTypeName },
-            labels: [epicLabel, priorityLabel, `Sprint_${story.sprint}`],
+            labels: [epicLabel, priorityLabel, `Sprint_${story.sprint}`, teamLabelFor(`${story.title} ${epic.name}`)],
           },
         }),
       });
@@ -359,19 +309,35 @@ async function handleApprove(request, env) {
     return jsonResponse({ error: `Stories failed: ${errors[0]}` }, 500);
   }
 
-  // Invite team members (best-effort — never fails the whole request)
-  let teamInvite = { invited: 0, skipped: 0, errors: [] };
-  if (team_id) {
-    teamInvite = await inviteTeamToJira(finalKey, team_id, jiraBase, jHeaders, env);
+  // Invite selected teams — best-effort, never fails the whole request
+  let totalInvited = 0;
+  if (selected_teams.length > 0) {
+    const cfgRes = await ghFetch('contents/config/teams.json', env);
+    if (cfgRes.ok) {
+      const cfgMeta = await cfgRes.json();
+      const cfgRaw = await fetch(cfgMeta.download_url, { headers: { 'User-Agent': 'PO-Bot-Worker' } });
+      if (cfgRaw.ok) {
+        const teamsConfig = await cfgRaw.json();
+        for (const teamId of selected_teams) {
+          const team = (teamsConfig.teams || []).find(t => t.id === teamId);
+          if (!team || !team.members || team.members.length === 0) continue;
+          const emails = team.members.map(m => m.email).filter(Boolean);
+          if (emails.length === 0) continue;
+          await fetch(`${jiraBase}/project/${finalKey}/role/10002`, {
+            method: 'POST', headers: jHeaders,
+            body: JSON.stringify({ emailAddress: emails }),
+          });
+          totalInvited += emails.length;
+        }
+      }
+    }
   }
 
   return jsonResponse({
     project_key: finalKey,
     issues_created: issuesCreated,
     jira_url: `https://${env.JIRA_DOMAIN}/jira/software/projects/${finalKey}/board`,
-    team_invited: teamInvite.invited,
-    team_skipped: teamInvite.skipped,
-    team_errors: teamInvite.errors,
+    team_invited: totalInvited,
   });
 }
 
