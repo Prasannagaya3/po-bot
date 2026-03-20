@@ -219,6 +219,17 @@ input[type="file"]{display:none}
 .sr-val.ok{color:var(--ok)}
 .jira-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;text-decoration:none;padding:13px 24px;border-radius:var(--r);font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(79,70,229,.25);transition:all .15s;margin-bottom:12px}
 .jira-btn:hover{background:var(--accent-h);transform:translateY(-1px);box-shadow:0 4px 14px rgba(79,70,229,.35)}
+/* ── Save command box ────────────────────────────────────────────── */
+.save-btn{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--tx2);border:1.5px solid var(--border);border-radius:var(--r);padding:11px 20px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:12px}
+.save-btn:hover{border-color:var(--accent);color:var(--accent-tx);background:var(--accent-lt)}
+.save-panel{display:none;margin-top:14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;text-align:left}
+.save-panel.on{display:block}
+.save-panel-hd{font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.save-cmd-wrap{position:relative}
+.save-cmd{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:12px 44px 12px 14px;font-family:'JetBrains Mono','Fira Code',ui-monospace,monospace;font-size:12px;color:var(--tx);word-break:break-all;line-height:1.6;user-select:all;cursor:text}
+.save-copy{position:absolute;top:8px;right:8px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.save-copy:hover{background:var(--accent-h)}
+.save-note{font-size:11px;color:var(--tx3);margin-top:10px;line-height:1.55}
 /* ── Toast ───────────────────────────────────────────────────────── */
 .toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px 18px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:340px;box-shadow:var(--sh-lg)}
 .toast.on{transform:translateY(0);opacity:1}
@@ -415,6 +426,21 @@ input[type="file"]{display:none}
       </div>
     </div>
     <a class="jira-btn" id="jira-link" href="#" target="_blank">Open in Jira →</a><br>
+    <button class="save-btn" onclick="toggleSavePanel()">💾 Save to local folder</button>
+    <div class="save-panel" id="save-panel">
+      <div class="save-panel-hd">Run this in your terminal</div>
+      <div class="save-cmd-wrap">
+        <div class="save-cmd" id="save-cmd"></div>
+        <button class="save-copy" onclick="copySaveCmd()">Copy</button>
+      </div>
+      <div class="save-note">
+        Saves backlog.json + standardised_doc.md to<br>
+        <code style="font-size:11px">D:\Work\Unity_Applications\Product Development\{project_name}\</code><br><br>
+        Requires: <code style="font-size:11px">GITHUB_TOKEN</code> env var — <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--accent-tx)">create a token</a> with <em>repo</em> scope,
+        then run <code style="font-size:11px">set GITHUB_TOKEN=ghp_...</code> first.
+      </div>
+    </div>
+    <br>
     <button class="btn btn-ghost" onclick="reset()" style="width:auto;margin-top:12px">Start another project</button>
   </div>
 </div>
@@ -427,7 +453,7 @@ const WORKER_URL = 'https://po-bot-worker.prasanna-d75.workers.dev';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let pin = '', selectedFiles = [], docName = '', stdPath = '', backlogData = null;
-let selectedTeamId = null, teamsData = null;
+let selectedTeamId = null, teamsData = null, backlogFilename = '';
 let pollTimer = null, procMsgInt = null, procTimerInt = null;
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
@@ -464,7 +490,7 @@ function show(id, stepN){
 function reset(){
   stopProc();
   selectedFiles = []; docName = stdPath = ''; backlogData = null;
-  selectedTeamId = null;
+  selectedTeamId = null; backlogFilename = '';
   document.getElementById('fi-primary').value = '';
   document.getElementById('fi-extra').value = '';
   renderFiles();
@@ -654,7 +680,7 @@ function pollBacklog(bdName){
       const r = await fetch(`${WORKER_URL}/api/poll?doc_name=${encodeURIComponent(bdName)}`,
         {headers:{'X-PIN':pin}});
       const d = await r.json();
-      if(d.status==='ready'){ stopProc(); backlogData=d.backlog; renderReview(); show('review',4); }
+      if(d.status==='ready'){ stopProc(); backlogData=d.backlog; backlogFilename=d.filename||''; renderReview(); show('review',4); }
     } catch(_){}
   }, 6000);
 }
@@ -756,6 +782,8 @@ async function approve(){
     }
 
     document.getElementById('jira-link').href=d.jira_url;
+    document.getElementById('save-cmd').textContent = buildSaveCmd(backlogData.project_name||'Project', d.project_key);
+    document.getElementById('save-panel').classList.remove('on');
 
     addHistory({project_name:backlogData.project_name||'Project', jira_key:d.project_key,
       jira_url:d.jira_url, date:new Date().toISOString(), stories_count:d.issues_created});
@@ -763,6 +791,28 @@ async function approve(){
   } catch(e){
     toast(e.message,'err'); btn.disabled=false; btn.textContent='✓ Approve & Push to Jira';
   }
+}
+
+// ── Save panel ────────────────────────────────────────────────────────────────
+function buildSaveCmd(projectName, jiraKey){
+  const parts = [`python scripts/save_project.py`, `"${projectName}"`, `"${jiraKey}"`];
+  if(backlogFilename) parts.push(`"backlog/${backlogFilename}"`);
+  if(selectedTeamId && teamsData){
+    const t = teamsData.teams.find(x => x.id === selectedTeamId);
+    if(t) parts.push(`"${t.name}"`);
+  }
+  return parts.join(' ');
+}
+function toggleSavePanel(){
+  document.getElementById('save-panel').classList.toggle('on');
+}
+function copySaveCmd(){
+  const cmd = document.getElementById('save-cmd').textContent;
+  navigator.clipboard.writeText(cmd).then(() => toast('Command copied!','ok')).catch(() => {
+    const el = document.getElementById('save-cmd');
+    const sel = window.getSelection(); const range = document.createRange();
+    range.selectNodeContents(el); sel.removeAllRanges(); sel.addRange(range);
+  });
 }
 
 // ── History ───────────────────────────────────────────────────────────────────
