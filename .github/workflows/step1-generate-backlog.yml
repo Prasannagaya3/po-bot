@@ -75,7 +75,7 @@ jobs:
           git config user.email "po-bot@users.noreply.github.com"
           git add standardised/ backlog/
           git diff --staged --quiet || git commit -m "pipeline: ${{ steps.detect.outputs.mode }} from ${{ steps.detect.outputs.filename }}"
-          git push
+          git pull --rebase origin main && git push
 
       - name: Clean up processed documents
         if: steps.detect.outputs.file != ''
@@ -85,7 +85,7 @@ jobs:
           git rm --ignore-unmatch "${{ steps.detect.outputs.file }}" || true
           for f in standardised/*.md; do git rm --ignore-unmatch "$f" || true; done
           git diff --staged --quiet || git commit -m "cleanup: remove processed documents"
-          git push
+          git pull --rebase origin main && git push
 
       - if: steps.detect.outputs.file == ''
         run: echo "No document found - skipping."
