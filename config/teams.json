@@ -6,7 +6,9 @@
       "primary": "Game development, Unity coding",
       "also_covers": ["UI/UX implementation", "Store deployment"],
       "color": "#4F46E5",
-      "members": []
+      "members": [
+        { "name": "Prasanna", "email": "prasannakuppu@gmail.com" }
+      ]
     },
     {
       "id": "3d_team",
@@ -14,7 +16,9 @@
       "primary": "3D models, Textures, Animation",
       "also_covers": ["Sound engineering"],
       "color": "#10B981",
-      "members": []
+      "members": [
+        { "name": "Gowtham", "email": "gowthamghayth@gmail.com" }
+      ]
     },
     {
       "id": "backend",
@@ -22,8 +26,9 @@
       "primary": "API, server, database",
       "also_covers": [],
       "color": "#0EA5E9",
-      "members": []
+      "members": [
+        { "name": "Gokul", "email": "gokulavarathan5@gmail.com" }
+      ]
     }
-  ],
-  "unassigned_responsibilities": ["Legal", "Sound Engineering", "UX/UI Design"]
+  ]
 }
