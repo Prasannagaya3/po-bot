@@ -1,0 +1,186 @@
+{
+  "project_name": "Simple Todo App",
+  "vision": "A distraction-free mobile application that helps individuals capture and track daily tasks quickly to stay organised and ensure nothing falls through the cracks.",
+  "personas": [
+    "Individual User"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "Task Creation",
+      "description": "Enable users to quickly capture new tasks with essential details to build their to-do list",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Create task with title",
+          "user_story": "As an Individual User, I want to create a new task with a title, so that I can capture something I need to do",
+          "acceptance_criteria": [
+            "Given I am on the task list screen When I tap the add task button and enter a title and confirm Then a new task appears in my task list with the entered title",
+            "Given I am creating a new task When I try to save without entering a title Then I am prevented from saving and shown a validation message"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Foundation for all task management functionality"
+        },
+        {
+          "id": "US-002",
+          "title": "Add optional due date to task",
+          "user_story": "As an Individual User, I want to add an optional due date when creating a task, so that I can track when tasks need to be completed",
+          "acceptance_criteria": [
+            "Given I am creating a new task When I optionally select a due date Then the task is saved with the selected due date displayed",
+            "Given I am creating a new task When I choose not to set a due date Then the task is saved without a due date"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Task Completion",
+      "description": "Allow users to mark tasks as complete to track their progress and accomplishments",
+      "stories": [
+        {
+          "id": "US-003",
+          "title": "Mark task as complete",
+          "user_story": "As an Individual User, I want to mark a task as complete, so that I can track what I have accomplished",
+          "acceptance_criteria": [
+            "Given I have an incomplete task in my list When I tap to mark it complete Then the task is visually indicated as complete",
+            "Given I have a completed task When I tap to mark it incomplete Then the task returns to incomplete status"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Core functionality for task tracking"
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Task Deletion",
+      "description": "Enable users to remove tasks they no longer need from their list",
+      "stories": [
+        {
+          "id": "US-004",
+          "title": "Delete task from list",
+          "user_story": "As an Individual User, I want to delete a task from my list, so that I can remove items I no longer need to track",
+          "acceptance_criteria": [
+            "Given I have a task in my list When I choose to delete it Then the task is removed from my task list",
+            "Given I am deleting a task When I confirm the deletion Then the task is permanently removed and cannot be recovered"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "name": "Task List Viewing",
+      "description": "Provide users with a clear view of all their tasks in a simple list format",
+      "stories": [
+        {
+          "id": "US-005",
+          "title": "View all tasks in list",
+          "user_story": "As an Individual User, I want to view all my tasks in a single list, so that I can see everything I need to do at a glance",
+          "acceptance_criteria": [
+            "Given I have tasks saved When I open the app Then I see all my tasks displayed in a list format",
+            "Given I have no tasks saved When I open the app Then I see an empty state indicating no tasks exist"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Primary interface for the application"
+        },
+        {
+          "id": "US-006",
+          "title": "Filter to show incomplete tasks only",
+          "user_story": "As an Individual User, I want to filter my task list to show only incomplete tasks, so that I can focus on what still needs to be done",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the incomplete filter Then only incomplete tasks are displayed",
+            "Given I have the incomplete filter active When I clear the filter Then all tasks are displayed again"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        },
+        {
+          "id": "US-007",
+          "title": "Filter to show complete tasks only",
+          "user_story": "As an Individual User, I want to filter my task list to show only complete tasks, so that I can review what I have accomplished",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the complete filter Then only completed tasks are displayed",
+            "Given I have the complete filter active When I clear the filter Then all tasks are displayed again"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "name": "Data Persistence",
+      "description": "Ensure user tasks are saved locally and persist across app sessions",
+      "stories": [
+        {
+          "id": "US-008",
+          "title": "Persist tasks locally on device",
+          "user_story": "As an Individual User, I want my tasks to be saved on my device, so that I do not lose them when I close the app",
+          "acceptance_criteria": [
+            "Given I have created tasks When I close and reopen the app Then all my previously saved tasks are still visible",
+            "Given I have marked tasks as complete When I close and reopen the app Then the completion status is preserved"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Essential for basic app functionality"
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "name": "Cross-Platform Support",
+      "description": "Ensure the application works seamlessly on both iOS and Android mobile platforms",
+      "stories": [
+        {
+          "id": "US-009",
+          "title": "Support iOS platform",
+          "user_story": "As an Individual User, I want to use the app on my iOS device, so that I can manage tasks on my preferred mobile platform",
+          "acceptance_criteria": [
+            "Given I am using an iOS device When I install and open the app Then all features function correctly",
+            "Given I am using an iOS device When I perform task operations Then they feel instantaneous with no perceivable delay"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Platform setup and testing"
+        },
+        {
+          "id": "US-010",
+          "title": "Support Android platform",
+          "user_story": "As an Individual User, I want to use the app on my Android device, so that I can manage tasks on my preferred mobile platform",
+          "acceptance_criteria": [
+            "Given I am using an Android device When I install and open the app Then all features function correctly",
+            "Given I am using an Android device When I perform task operations Then they feel instantaneous with no perceivable delay"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Platform setup and testing"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/test-product_20260322_173642.md",
+    "generated_at": "2026-03-22T17:38:06.601253+00:00",
+    "status": "pending_review"
+  }
+}
