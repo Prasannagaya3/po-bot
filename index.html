@@ -306,7 +306,11 @@ input[type="file"]{display:none}
     <div class="step-line" id="sl3"></div>
     <div class="step" id="st4"><div class="step-num">4</div><span class="step-lbl">Review</span></div>
     <div class="step-line" id="sl4"></div>
-    <div class="step" id="st5"><div class="step-num">5</div><span class="step-lbl">Done</span></div>
+    <div class="step" id="st5"><div class="step-num">5</div><span class="step-lbl">Teams</span></div>
+    <div class="step-line" id="sl5"></div>
+    <div class="step" id="st6"><div class="step-num">6</div><span class="step-lbl">Jira</span></div>
+    <div class="step-line" id="sl6"></div>
+    <div class="step" id="st7"><div class="step-num">7</div><span class="step-lbl">Done</span></div>
   </div>
   <div class="step-mob" id="step-mob"></div>
   <div class="hdr-right">
@@ -556,16 +560,19 @@ function updateThemeBtn(){
 // ── Navigation ────────────────────────────────────────────────────────────────
 const MOB_LBL = { upload:'Upload', proc1:'Standardising…', 'review-std':'Review Doc',
                   proc2:'Generating…', review:'Review Backlog', success:'Done' };
+function setStep(stepN){
+  for(let n=1;n<=7;n++){
+    const s=document.getElementById('st'+n), l=document.getElementById('sl'+n);
+    if(s) s.className='step'+(n===stepN?' active':n<stepN?' done':'');
+    if(l) l.className='step-line'+(n<stepN?' done':'');
+  }
+}
 function show(id, stepN){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   document.getElementById('s-' + id).classList.add('on');
-  for(let n=1;n<=5;n++){
-    const s = document.getElementById('st'+n), l = document.getElementById('sl'+n);
-    if(s) s.className = 'step'+(n===stepN?' active':n<stepN?' done':'');
-    if(l) l.className = 'step-line'+(n<stepN?' done':'');
-  }
+  setStep(stepN);
   const mob = document.getElementById('step-mob');
-  mob.textContent = stepN ? `Step ${stepN} of 5 · ${MOB_LBL[id]||''}` : '';
+  mob.textContent = stepN ? `Step ${stepN} of 7 · ${MOB_LBL[id]||''}` : '';
 }
 function reset(){
   stopProc();
@@ -834,6 +841,7 @@ async function approve(){
   }
   stepsEl.style.display='block';
   renderSteps(0,0);
+  setStep(5);
   const stepInt=setInterval(()=>{ cur=Math.min(cur+1,stepNames.length-1); renderSteps(cur,cur); },4000);
   try {
     const r=await fetch(`${WORKER_URL}/api/approve`,{method:'POST',
@@ -843,6 +851,7 @@ async function approve(){
     clearInterval(stepInt);
     if(!r.ok) throw new Error(d.error||'Approve failed');
     renderSteps(stepNames.length,-1);
+    setStep(6);
 
     document.getElementById('s-pname').textContent = backlogData.project_name||'—';
     document.getElementById('s-pkey').textContent  = d.project_key;
@@ -874,7 +883,7 @@ async function approve(){
 
     await new Promise(res=>setTimeout(res,1500));
     stepsEl.style.display='none';
-    show('success',5);
+    show('success',7);
   } catch(e){
     clearInterval(stepInt);
     stepsEl.style.display='none';
