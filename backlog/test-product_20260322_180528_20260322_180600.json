@@ -1,0 +1,219 @@
+{
+  "project_name": "Simple Todo App",
+  "vision": "A lightweight mobile application that helps individuals manage daily tasks efficiently through simple creation, tracking, and completion of personal to-do items.",
+  "personas": [
+    "Individual User"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "Task Creation and Management",
+      "description": "Core functionality allowing users to create, edit, and delete tasks to maintain their personal to-do list",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Create a new task with title",
+          "user_story": "As an Individual User, I want to create a new task with a title, so that I can capture items I need to accomplish",
+          "acceptance_criteria": [
+            "Given I am on the task list screen When I tap the add task button and enter a title and confirm Then a new task appears in my task list with the entered title",
+            "Given I am creating a new task When I leave the title empty and try to confirm Then the task is not created and I see a validation message"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - core task creation"
+        },
+        {
+          "id": "US-002",
+          "title": "Add optional due date to task",
+          "user_story": "As an Individual User, I want to add an optional due date when creating a task, so that I can track when tasks need to be completed",
+          "acceptance_criteria": [
+            "Given I am creating a new task When I select a due date from the date picker Then the task is created with the selected due date displayed",
+            "Given I am creating a new task When I skip the due date field Then the task is created without a due date"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-003",
+          "title": "Edit existing task title or due date",
+          "user_story": "As an Individual User, I want to edit an existing task's title or due date, so that I can correct mistakes or update task details",
+          "acceptance_criteria": [
+            "Given I have an existing task When I tap on the task to edit and change the title and save Then the task displays the updated title",
+            "Given I have an existing task with a due date When I edit and change the due date and save Then the task displays the updated due date",
+            "Given I have an existing task When I edit and remove the due date and save Then the task no longer displays a due date"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-004",
+          "title": "Delete a task from the list",
+          "user_story": "As an Individual User, I want to delete a task from my list, so that I can remove items that are no longer relevant",
+          "acceptance_criteria": [
+            "Given I have an existing task When I select delete on the task and confirm the deletion Then the task is permanently removed from my list",
+            "Given I initiate task deletion When I am prompted to confirm Then I can cancel and the task remains in my list"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Include confirmation to prevent accidental deletion"
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Task Completion",
+      "description": "Functionality enabling users to mark tasks as complete and track their progress",
+      "stories": [
+        {
+          "id": "US-005",
+          "title": "Mark a task as complete",
+          "user_story": "As an Individual User, I want to mark a task as complete, so that I can track my progress and feel a sense of accomplishment",
+          "acceptance_criteria": [
+            "Given I have an incomplete task When I tap the completion checkbox or button Then the task is marked as complete",
+            "Given I have a complete task When I tap the completion checkbox or button Then the task is marked as incomplete"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - core completion functionality"
+        },
+        {
+          "id": "US-006",
+          "title": "Visual distinction for complete tasks",
+          "user_story": "As an Individual User, I want complete tasks to be visually distinct from incomplete tasks, so that I can quickly scan and identify what still needs to be done",
+          "acceptance_criteria": [
+            "Given I am viewing my task list When a task is marked complete Then it displays with strikethrough text or dimmed appearance",
+            "Given I am viewing my task list When a task is incomplete Then it displays with normal text styling clearly distinguishable from complete tasks"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Task List Viewing",
+      "description": "Features for viewing and filtering the task list to help users focus on relevant items",
+      "stories": [
+        {
+          "id": "US-007",
+          "title": "View all tasks in list",
+          "user_story": "As an Individual User, I want to view all my tasks in a single list, so that I can see everything I need to accomplish",
+          "acceptance_criteria": [
+            "Given I have created tasks When I open the app Then I see all my tasks displayed in a scrollable list",
+            "Given I have no tasks When I open the app Then I see an empty state message encouraging me to add a task"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - core list display"
+        },
+        {
+          "id": "US-008",
+          "title": "Filter to show only incomplete tasks",
+          "user_story": "As an Individual User, I want to filter my list to show only incomplete tasks, so that I can focus on what still needs to be done",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the incomplete filter Then only incomplete tasks are displayed",
+            "Given I have the incomplete filter active When I clear the filter Then all tasks are displayed again"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": ""
+        },
+        {
+          "id": "US-009",
+          "title": "Filter to show only complete tasks",
+          "user_story": "As an Individual User, I want to filter my list to show only complete tasks, so that I can review what I have accomplished",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the complete filter Then only complete tasks are displayed",
+            "Given I have the complete filter active When I clear the filter Then all tasks are displayed again"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Leverages filter infrastructure from US-008"
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "name": "Data Persistence",
+      "description": "Ensuring tasks are saved and persist between app sessions for reliable task tracking",
+      "stories": [
+        {
+          "id": "US-010",
+          "title": "Persist tasks between app sessions",
+          "user_story": "As an Individual User, I want my tasks to be saved automatically, so that I don't lose my data when I close and reopen the app",
+          "acceptance_criteria": [
+            "Given I have created tasks When I close the app and reopen it Then all my previously created tasks are displayed",
+            "Given I have marked tasks as complete When I close the app and reopen it Then the completion status is preserved"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - critical for app to be usable; implement local storage"
+        },
+        {
+          "id": "US-011",
+          "title": "Persist task edits automatically",
+          "user_story": "As an Individual User, I want my task edits to be saved automatically, so that my changes are never lost",
+          "acceptance_criteria": [
+            "Given I edit a task's title or due date When I save the edit and close the app Then the edited values persist when I reopen the app",
+            "Given I delete a task When I close the app and reopen it Then the deleted task does not reappear"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Builds on persistence infrastructure from US-010"
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "name": "Performance and User Experience",
+      "description": "Non-functional requirements ensuring the app is responsive and pleasant to use",
+      "stories": [
+        {
+          "id": "US-012",
+          "title": "Load task list within two seconds",
+          "user_story": "As an Individual User, I want the app to load my task list quickly, so that I can access my tasks without frustrating delays",
+          "acceptance_criteria": [
+            "Given I have up to 100 tasks When I launch the app Then the task list is fully displayed within 2 seconds",
+            "Given I am loading the task list When the load takes longer than expected Then a loading indicator is displayed"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Performance optimization pass; may require profiling"
+        },
+        {
+          "id": "US-013",
+          "title": "Responsive touch interactions on mobile",
+          "user_story": "As an Individual User, I want touch interactions to respond immediately, so that the app feels smooth and native",
+          "acceptance_criteria": [
+            "Given I tap any interactive element When the tap is registered Then visual feedback is displayed within 100 milliseconds",
+            "Given I am scrolling the task list When I scroll Then the list scrolls smoothly at 60 frames per second"
+          ],
+          "story_points": 3,
+          "priority": "Could Have",
+          "sprint": 3,
+          "notes": "Polish item for native feel"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/test-product_20260322_180528.md",
+    "generated_at": "2026-03-22T18:06:33.655291+00:00",
+    "status": "pending_review"
+  }
+}
