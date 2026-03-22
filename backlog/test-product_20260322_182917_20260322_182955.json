@@ -1,0 +1,218 @@
+{
+  "project_name": "Simple Todo App",
+  "vision": "A distraction-free mobile application that enables individuals to efficiently capture, track, and complete daily tasks without unnecessary complexity.",
+  "personas": [
+    "Individual User"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "Task Creation & Management",
+      "description": "Core functionality enabling users to create, edit, and delete tasks with optional due dates",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Create a new task with title",
+          "user_story": "As an Individual User, I want to create a new task with a title, so that I can capture things I need to do",
+          "acceptance_criteria": [
+            "Given I am on the task list screen When I tap the add task button and enter a title and confirm Then a new task appears in my task list with the entered title",
+            "Given I am creating a new task When I leave the title field empty and try to confirm Then the task is not created and I see a validation message"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Foundation for all task functionality"
+        },
+        {
+          "id": "US-002",
+          "title": "Add optional due date to task",
+          "user_story": "As an Individual User, I want to set an optional due date when creating a task, so that I can stay accountable to deadlines",
+          "acceptance_criteria": [
+            "Given I am creating a new task When I tap on the due date field Then I can select a date from a date picker",
+            "Given I am creating a new task When I skip the due date field and confirm Then the task is created without a due date"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-003",
+          "title": "Delete a task from the list",
+          "user_story": "As an Individual User, I want to delete a task, so that I can remove items I no longer need to track",
+          "acceptance_criteria": [
+            "Given I have a task in my list When I initiate the delete action on that task Then the task is removed from my list",
+            "Given I initiate a delete action When I am prompted for confirmation and I confirm Then the task is permanently deleted"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton requires ability to remove test data"
+        },
+        {
+          "id": "US-004",
+          "title": "Edit task title and due date",
+          "user_story": "As an Individual User, I want to edit a task's title and due date after creation, so that I can fix typos or adjust deadlines",
+          "acceptance_criteria": [
+            "Given I have an existing task When I tap on the task to edit it Then I can modify the title and save changes",
+            "Given I am editing a task with a due date When I change or remove the due date and save Then the task reflects the updated due date"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Marked as assumed requirement in document"
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Task Completion",
+      "description": "Functionality to mark tasks as complete and track completion status",
+      "stories": [
+        {
+          "id": "US-005",
+          "title": "Mark a task as complete",
+          "user_story": "As an Individual User, I want to mark a task as complete, so that I can track my progress and know what's done",
+          "acceptance_criteria": [
+            "Given I have an incomplete task When I tap the completion control Then the task is marked as complete with visual feedback",
+            "Given I have a completed task When I view it in the list Then it displays with a visual distinction from incomplete tasks"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Core functionality for task tracking"
+        },
+        {
+          "id": "US-006",
+          "title": "Unmark a completed task as incomplete",
+          "user_story": "As an Individual User, I want to unmark a completed task, so that I can restore a task I marked complete by mistake",
+          "acceptance_criteria": [
+            "Given I have a completed task When I tap the completion control again Then the task is marked as incomplete",
+            "Given I unmark a task as incomplete When I view the task list Then the task appears as an active incomplete task"
+          ],
+          "story_points": 1,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Implied by needing to fix mistakes"
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Task List View",
+      "description": "Display and visualization of tasks in a clear, scannable list format",
+      "stories": [
+        {
+          "id": "US-007",
+          "title": "View all tasks in single list",
+          "user_story": "As an Individual User, I want to view all my tasks in a single list, so that I have visibility into everything I need to do",
+          "acceptance_criteria": [
+            "Given I have created tasks When I open the app Then I see all my tasks displayed in a list",
+            "Given I have no tasks When I open the app Then I see an empty state indicating no tasks exist"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Primary screen of the application"
+        },
+        {
+          "id": "US-008",
+          "title": "Visual distinction for task completion status",
+          "user_story": "As an Individual User, I want to see a clear visual difference between complete and incomplete tasks, so that I can quickly scan my list",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I view the task list Then completed tasks display with strikethrough or muted styling",
+            "Given I have both complete and incomplete tasks When I view the task list Then incomplete tasks display with normal prominent styling"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Marked as assumed requirement in document"
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "name": "Task Filtering",
+      "description": "Ability to filter the task list by completion status",
+      "stories": [
+        {
+          "id": "US-009",
+          "title": "Filter to show only incomplete tasks",
+          "user_story": "As an Individual User, I want to filter my list to show only incomplete tasks, so that I can focus on what still needs to be done",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the incomplete filter Then only incomplete tasks are displayed",
+            "Given I have the incomplete filter active When a new task is created Then it appears in the filtered list"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-010",
+          "title": "Filter to show only completed tasks",
+          "user_story": "As an Individual User, I want to filter my list to show only completed tasks, so that I can review what I've accomplished",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the completed filter Then only completed tasks are displayed",
+            "Given I have the completed filter active When I mark a task complete Then it appears in the filtered list"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        },
+        {
+          "id": "US-011",
+          "title": "Clear filter to show all tasks",
+          "user_story": "As an Individual User, I want to clear any active filter, so that I can see all my tasks again",
+          "acceptance_criteria": [
+            "Given I have a filter active When I clear the filter Then all tasks are displayed regardless of completion status",
+            "Given I have cleared the filter When I view the list Then the default all-tasks view is shown"
+          ],
+          "story_points": 1,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "name": "Data Persistence",
+      "description": "Local storage of task data to ensure tasks survive app closure",
+      "stories": [
+        {
+          "id": "US-012",
+          "title": "Persist tasks locally on device",
+          "user_story": "As an Individual User, I want my tasks to be saved on my device, so that I don't lose my data when I close the app",
+          "acceptance_criteria": [
+            "Given I have created tasks When I close and reopen the app Then all my tasks are still present",
+            "Given I have marked tasks complete When I close and reopen the app Then the completion status is preserved"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Essential for walking skeleton to be usable"
+        },
+        {
+          "id": "US-013",
+          "title": "Load task list instantly up to 100 tasks",
+          "user_story": "As an Individual User, I want my task list to load instantly, so that I can quickly capture or check tasks without waiting",
+          "acceptance_criteria": [
+            "Given I have up to 100 tasks stored When I open the app Then the task list displays within 500 milliseconds",
+            "Given I have 100 tasks When I scroll through the list Then there is no perceivable lag or delay"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Performance requirement from NFRs"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/test-product_20260322_182917.md",
+    "generated_at": "2026-03-22T18:30:27.595455+00:00",
+    "status": "pending_review"
+  }
+}
