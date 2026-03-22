@@ -171,12 +171,13 @@ async function handleGetStandardDoc(request, env) {
   });
 }
 
-// GET /api/teams — return teams config from Worker secret (emails stripped)
+// GET /api/teams — return teams config from Worker secret
 async function handleGetTeams(request, env) {
   try {
     const config = JSON.parse(env.TEAMS_CONFIG);
-    const sanitized = {
-      ...config,
+    const withEmails = checkPin(request, env);
+    return jsonResponse({
+      po: withEmails ? config.po : { name: config.po?.name },
       teams: (config.teams || []).map(t => ({
         id: t.id,
         name: t.name,
@@ -184,9 +185,11 @@ async function handleGetTeams(request, env) {
         also_covers: t.also_covers,
         color: t.color,
         member_count: (t.members || []).length,
+        members: (t.members || []).map(m =>
+          withEmails ? m : { name: m.name, title: m.title }
+        ),
       })),
-    };
-    return jsonResponse(sanitized);
+    });
   } catch {
     return jsonResponse({ error: 'Teams config not available' }, 500);
   }
@@ -230,7 +233,7 @@ async function handleApprove(request, env) {
   const body = await request.json().catch(() => null);
   if (!body || !body.backlog) return jsonResponse({ error: 'Missing backlog' }, 400);
 
-  const { backlog, selected_teams = [] } = body;
+  const { backlog, project_members = [] } = body;
   const jiraBase = `https://${env.JIRA_DOMAIN}/rest/api/3`;
   const auth = btoa(`${env.JIRA_EMAIL}:${env.JIRA_TOKEN}`);
   const jHeaders = {
@@ -338,24 +341,23 @@ async function handleApprove(request, env) {
     return jsonResponse({ error: `Stories failed: ${errors[0]}` }, 500);
   }
 
-  // Invite selected teams — best-effort, never fails the whole request
+  // Invite project members — always include PO, best-effort
   let totalInvited = 0;
-  if (selected_teams.length > 0) {
-    try {
-      const teamsConfig = JSON.parse(env.TEAMS_CONFIG);
-      for (const teamId of selected_teams) {
-        const team = (teamsConfig.teams || []).find(t => t.id === teamId);
-        if (!team || !team.members || team.members.length === 0) continue;
-        const emails = team.members.map(m => m.email).filter(Boolean);
-        if (emails.length === 0) continue;
-        await fetch(`${jiraBase}/project/${finalKey}/role/10002`, {
-          method: 'POST', headers: jHeaders,
-          body: JSON.stringify({ emailAddress: emails }),
-        });
-        totalInvited += emails.length;
-      }
-    } catch (_) {}
-  }
+  try {
+    const teamsConfig = JSON.parse(env.TEAMS_CONFIG || '{}');
+    const poEmail = teamsConfig.po?.email;
+    const allEmails = [...new Set([
+      ...(poEmail ? [poEmail] : []),
+      ...project_members.filter(Boolean),
+    ])];
+    if (allEmails.length > 0) {
+      const invRes = await fetch(`${jiraBase}/project/${finalKey}/role/10002`, {
+        method: 'POST', headers: jHeaders,
+        body: JSON.stringify({ emailAddress: allEmails }),
+      });
+      if (invRes.ok) totalInvited = allEmails.length;
+    }
+  } catch (_) {}
 
   // Create agile sprints and assign stories — best-effort, non-blocking
   let sprintsCreated = 0;
@@ -432,6 +434,30 @@ async function handleApprove(request, env) {
   });
 }
 
+// PUT /api/update-teams — update TEAMS_CONFIG Cloudflare secret
+async function handleUpdateTeams(request, env) {
+  const body = await request.json().catch(() => null);
+  if (!body || !body.teams) return jsonResponse({ error: 'Missing teams' }, 400);
+
+  const updated = JSON.stringify({ po: body.po || {}, teams: body.teams });
+  const r = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/workers/scripts/po-bot-worker/secrets`,
+    {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${env.CF_API_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'TEAMS_CONFIG', text: updated, type: 'secret_text' }),
+    }
+  );
+  if (!r.ok) {
+    const err = await r.text();
+    return jsonResponse({ error: 'Failed to update roster: ' + err.slice(0, 200) }, 500);
+  }
+  return jsonResponse({ success: true });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
@@ -458,6 +484,7 @@ export default {
     if (path === '/api/generate'     && request.method === 'POST') return handleGenerate(request, env);
     if (path === '/api/poll'         && request.method === 'GET')  return handlePoll(request, env);
     if (path === '/api/approve'      && request.method === 'POST') return handleApprove(request, env);
+    if (path === '/api/update-teams' && request.method === 'POST') return handleUpdateTeams(request, env);
 
     return jsonResponse({ error: 'Not found' }, 404);
   },
