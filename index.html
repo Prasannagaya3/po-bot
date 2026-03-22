@@ -917,24 +917,24 @@ function toggleEpic(i){ document.getElementById('ep'+i).classList.toggle('open')
 function upd(ei,si,f,v){ backlogData.epics[ei].stories[si][f]=v; }
 
 // ── Members Screen ────────────────────────────────────────────────────────────
-function goToMembers(){
-  renderMemberList();
+async function goToMembers(){
   show('members', 5);
+  if(!teamsData) await loadTeams();
+  renderMemberList();
 }
 
 function renderMemberList(){
   const listEl = document.getElementById('members-list');
   const selEl  = document.getElementById('new-team-sel');
   if(!teamsData || !teamsData.teams || !teamsData.teams.length){
-    listEl.innerHTML = '<p style="color:var(--tx3);font-size:13px">No team members configured. Use ⚙ to add members.</p>';
+    listEl.innerHTML = '<p style="color:var(--tx3);font-size:13px">No teams configured yet. Use ⚙ to set up your roster first.</p>';
     return;
   }
   listEl.innerHTML = teamsData.teams.map(t => {
     const members = (t.members || []);
-    if(!members.length) return '';
     return `<div class="members-team" style="border-left-color:${esc(t.color)}">
       <div class="members-team-hd" style="color:${esc(t.color)}">${esc(t.name)}</div>
-      ${members.map(m => {
+      ${members.length ? members.map(m => {
         const checked = selectedMembers.includes(m.email);
         return `<div class="member-row${checked?' checked':''}" onclick="toggleMember('${esc(m.email)}')">
           <div class="member-chk">${checked?'✓':''}</div>
@@ -943,7 +943,7 @@ function renderMemberList(){
             <div class="member-meta">${esc(m.title||'')}${m.title&&m.email?' · ':''}${esc(m.email||'')}</div>
           </div>
         </div>`;
-      }).join('')}
+      }).join('') : '<div style="padding:10px 16px;font-size:12px;color:var(--tx3)">No members yet — add via ⚙</div>'}
     </div>`;
   }).join('');
   selEl.innerHTML = '<option value="">Select team…</option>' +
@@ -1153,11 +1153,12 @@ function closeHistory(){ document.getElementById('hist-panel').classList.remove(
 const COLOR_SWATCHES = ['#4F46E5','#10B981','#0EA5E9','#F59E0B','#EC4899','#EF4444'];
 let newTeamColor = COLOR_SWATCHES[0];
 
-function openRoster(){
-  rosterData = JSON.parse(JSON.stringify(teamsData || { po: {}, teams: [] }));
-  renderRoster();
+async function openRoster(){
   document.getElementById('roster-panel').classList.add('on');
   document.getElementById('roster-bd').classList.add('on');
+  if(!teamsData) await loadTeams();
+  rosterData = JSON.parse(JSON.stringify(teamsData || { po: {}, teams: [] }));
+  renderRoster();
 }
 function closeRoster(){
   document.getElementById('roster-panel').classList.remove('on');
