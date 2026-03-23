@@ -299,7 +299,31 @@ async function handleStandardise(request, env, ctx) {
     return jsonResponse({ doc_name: docName, status: 'triggered' });
   }
 
-  // TXT / MD: decode and run Claude directly — no GitHub Actions needed
+  // TXT / MD: if ANTHROPIC_API_KEY is set, call Claude directly (fast path)
+  // Otherwise fall back to GitHub Actions
+  const hasAnthropicKey = env.ANTHROPIC_API_KEY && !env.ANTHROPIC_API_KEY.startsWith('placeholder') && env.ANTHROPIC_API_KEY.startsWith('sk-');
+
+  if (!hasAnthropicKey) {
+    // GitHub Actions fallback
+    const primaryPath = `docs/${filename}`;
+    const upRes = await uploadToGitHub(primaryPath, content_base64, env, `docs: upload ${filename}`);
+    if (!upRes.ok) return jsonResponse({ error: `Upload failed (${upRes.status})` }, 500);
+    const extraPaths = [];
+    for (const ef of extra_files) {
+      const p = `docs/${ef.filename}`;
+      const r = await uploadToGitHub(p, ef.content_base64, env, `docs: upload ${ef.filename}`);
+      if (r.ok) extraPaths.push(p);
+    }
+    const wf = await getWorkflow(env);
+    if (!wf) return jsonResponse({ error: 'Workflow not found.' }, 500);
+    const trigRes = await ghFetch(`actions/workflows/${wf.id}/dispatches`, env, {
+      method: 'POST',
+      body: JSON.stringify({ ref: 'main', inputs: { doc_path: primaryPath, mode: 'standardise', extra_files: extraPaths.join(',') } }),
+    });
+    if (!trigRes.ok) return jsonResponse({ error: `Trigger failed (${trigRes.status})` }, 500);
+    return jsonResponse({ doc_name: docName, status: 'triggered' });
+  }
+
   let rawText;
   try {
     const bytes = Uint8Array.from(atob(content_base64), c => c.charCodeAt(0));
@@ -381,6 +405,24 @@ async function handleGenerate(request, env, ctx) {
   }
 
   const docName = std_path.split('/').pop().replace(/\.md$/, '');
+  const hasAnthropicKey = env.ANTHROPIC_API_KEY && !env.ANTHROPIC_API_KEY.startsWith('placeholder') && env.ANTHROPIC_API_KEY.startsWith('sk-');
+
+  if (!hasAnthropicKey) {
+    // GitHub Actions fallback
+    if (std_content_base64) {
+      const upRes = await uploadToGitHub(std_path, std_content_base64, env, `docs: update standardised doc`);
+      if (!upRes.ok) return jsonResponse({ error: `Update failed (${upRes.status})` }, 500);
+    }
+    const wf = await getWorkflow(env);
+    if (!wf) return jsonResponse({ error: 'Workflow not found.' }, 500);
+    const trigRes = await ghFetch(`actions/workflows/${wf.id}/dispatches`, env, {
+      method: 'POST',
+      body: JSON.stringify({ ref: 'main', inputs: { doc_path: std_path, mode: 'generate' } }),
+    });
+    if (!trigRes.ok) return jsonResponse({ error: `Trigger failed (${trigRes.status})` }, 500);
+    return jsonResponse({ doc_name: docName, status: 'triggered' });
+  }
+
   const ts = timestamp();
   const outPath = `backlog/${docName}_${ts}.json`;
 
