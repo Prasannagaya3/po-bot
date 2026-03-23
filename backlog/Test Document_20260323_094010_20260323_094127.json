@@ -1,0 +1,357 @@
+{
+  "project_name": "Dragon Game",
+  "vision": "Deliver an engaging dragon-themed video game that fulfills players' fantasy of interacting with mythical creatures through accessible and entertaining gameplay.",
+  "personas": [
+    "Casual Gamer",
+    "Fantasy Enthusiast"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "Core Dragon Interaction",
+      "description": "Foundational system enabling players to see and interact with dragons in the game world",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "View dragon on screen",
+          "user_story": "As a Casual Gamer, I want to see a dragon displayed on screen, so that I can begin engaging with the dragon-themed content",
+          "acceptance_criteria": [
+            "Given the game is launched When the main game screen loads Then at least one dragon is visibly rendered on screen",
+            "Given a dragon is displayed When the player views the screen Then the dragon has idle animation indicating it is alive"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - establishes core visual element"
+        },
+        {
+          "id": "US-002",
+          "title": "Basic dragon responds to player input",
+          "user_story": "As a Casual Gamer, I want the dragon to respond when I interact with it, so that I feel a sense of connection with the creature",
+          "acceptance_criteria": [
+            "Given a dragon is on screen When the player clicks/taps on the dragon Then the dragon performs a response animation",
+            "Given a dragon is on screen When the player interacts with the dragon Then audio feedback accompanies the response"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - establishes interaction paradigm"
+        },
+        {
+          "id": "US-003",
+          "title": "Dragon displays multiple emotional states",
+          "user_story": "As a Fantasy Enthusiast, I want the dragon to show different emotions, so that it feels like a living creature with personality",
+          "acceptance_criteria": [
+            "Given a dragon exists When game conditions change Then the dragon displays at least 3 distinct emotional states",
+            "Given the dragon's emotional state changes When the player observes Then visual indicators clearly communicate the current state"
+          ],
+          "story_points": 5,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Depends on core interaction being established"
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Game Application Foundation",
+      "description": "Technical infrastructure to launch, run, and exit the game application",
+      "stories": [
+        {
+          "id": "US-004",
+          "title": "Launch game application successfully",
+          "user_story": "As a Casual Gamer, I want to launch the game application, so that I can start playing",
+          "acceptance_criteria": [
+            "Given the game is installed When the player initiates launch Then the application opens within 10 seconds",
+            "Given the application is launching When loading completes Then a start screen or main game view is displayed"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - fundamental requirement"
+        },
+        {
+          "id": "US-005",
+          "title": "Exit game cleanly",
+          "user_story": "As a Casual Gamer, I want to exit the game at any time, so that I can stop playing when I choose",
+          "acceptance_criteria": [
+            "Given the game is running When the player triggers exit Then the application closes without errors",
+            "Given the player exits the game When they relaunch later Then no corruption or crash occurs"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "notes": "Walking skeleton - basic application lifecycle"
+        },
+        {
+          "id": "US-006",
+          "title": "Pause and resume gameplay",
+          "user_story": "As a Casual Gamer, I want to pause the game, so that I can take breaks without losing my place",
+          "acceptance_criteria": [
+            "Given gameplay is active When the player triggers pause Then all game actions halt immediately",
+            "Given the game is paused When the player resumes Then gameplay continues from the exact paused state"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Important for casual accessibility"
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Core Gameplay Loop",
+      "description": "Primary game mechanics that define what players do and how they progress",
+      "stories": [
+        {
+          "id": "US-007",
+          "title": "Perform primary gameplay action",
+          "user_story": "As a Casual Gamer, I want to perform a core gameplay action, so that I have something meaningful to do in the game",
+          "acceptance_criteria": [
+            "Given the player is in the game When they perform the primary action Then visible feedback confirms the action occurred",
+            "Given an action is performed When successful Then the game state changes in a perceivable way"
+          ],
+          "story_points": 8,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "CRITICAL GAP: Core mechanic undefined - placeholder for primary gameplay. Requires clarification."
+        },
+        {
+          "id": "US-008",
+          "title": "Understand current objective",
+          "user_story": "As a Casual Gamer, I want to understand what I should be doing, so that I don't feel lost or confused",
+          "acceptance_criteria": [
+            "Given gameplay has started When the player looks at the screen Then a current goal or objective is visible or implied",
+            "Given an objective exists When the player completes it Then feedback indicates completion"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "CRITICAL GAP: Win/lose conditions undefined - requires clarification"
+        },
+        {
+          "id": "US-009",
+          "title": "Experience consequence of actions",
+          "user_story": "As a Fantasy Enthusiast, I want my actions to have consequences, so that my choices feel meaningful",
+          "acceptance_criteria": [
+            "Given the player performs actions When actions accumulate Then a measurable outcome results",
+            "Given positive actions When evaluated Then the player receives positive reinforcement"
+          ],
+          "story_points": 5,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Adds depth to undefined core loop"
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "name": "Visual Presentation",
+      "description": "Art, graphics, and visual elements that create the dragon fantasy aesthetic",
+      "stories": [
+        {
+          "id": "US-010",
+          "title": "View dragon with appealing visuals",
+          "user_story": "As a Fantasy Enthusiast, I want the dragon to look visually appealing, so that the fantasy feels immersive",
+          "acceptance_criteria": [
+            "Given a dragon is rendered When the player views it Then the dragon has complete visual assets with no placeholder graphics",
+            "Given the dragon is displayed When observed Then it matches an intentional art style consistently"
+          ],
+          "story_points": 8,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "CRITICAL GAP: Art style undefined - requires clarification on 2D/3D/realistic/cartoon"
+        },
+        {
+          "id": "US-011",
+          "title": "View game environment background",
+          "user_story": "As a Fantasy Enthusiast, I want to see an environment around the dragon, so that the world feels complete",
+          "acceptance_criteria": [
+            "Given the game is running When the player views the screen Then a background environment is visible behind the dragon",
+            "Given an environment exists When observed Then it complements the dragon aesthetic"
+          ],
+          "story_points": 5,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Enhances immersion"
+        },
+        {
+          "id": "US-012",
+          "title": "View visual effects for interactions",
+          "user_story": "As a Casual Gamer, I want to see visual effects when things happen, so that the game feels responsive and exciting",
+          "acceptance_criteria": [
+            "Given the player interacts with elements When interaction occurs Then a visual effect accompanies the action",
+            "Given visual effects play When observed Then they do not obscure critical gameplay information"
+          ],
+          "story_points": 5,
+          "priority": "Could Have",
+          "sprint": 4,
+          "notes": "Polish feature for engagement"
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "name": "Audio Experience",
+      "description": "Sound effects and music that enhance the dragon fantasy atmosphere",
+      "stories": [
+        {
+          "id": "US-013",
+          "title": "Hear dragon sounds",
+          "user_story": "As a Fantasy Enthusiast, I want to hear dragon sounds, so that the creature feels real and powerful",
+          "acceptance_criteria": [
+            "Given a dragon is on screen When the dragon performs actions Then appropriate dragon sounds play",
+            "Given dragon sounds exist When played Then audio quality is clear without distortion"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Key immersion element for fantasy enthusiasts"
+        },
+        {
+          "id": "US-014",
+          "title": "Hear background music",
+          "user_story": "As a Casual Gamer, I want to hear background music, so that the game has atmosphere",
+          "acceptance_criteria": [
+            "Given the game is running When gameplay is active Then background music plays",
+            "Given music is playing When the player listens Then it loops seamlessly without jarring transitions"
+          ],
+          "story_points": 3,
+          "priority": "Could Have",
+          "sprint": 4,
+          "notes": "Atmosphere enhancement"
+        },
+        {
+          "id": "US-015",
+          "title": "Control audio volume",
+          "user_story": "As a Casual Gamer, I want to control the volume, so that I can play in different environments",
+          "acceptance_criteria": [
+            "Given audio is playing When the player accesses settings Then volume controls are available",
+            "Given volume is adjusted When the player changes it Then audio levels update immediately"
+          ],
+          "story_points": 2,
+          "priority": "Could Have",
+          "sprint": 4,
+          "notes": "Quality of life feature"
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "name": "Player Progress",
+      "description": "Systems that track and save player advancement and achievements",
+      "stories": [
+        {
+          "id": "US-016",
+          "title": "Save game progress automatically",
+          "user_story": "As a Casual Gamer, I want my progress saved automatically, so that I don't lose my achievements",
+          "acceptance_criteria": [
+            "Given the player has made progress When a save trigger occurs Then progress is persisted locally",
+            "Given progress was saved When the player returns later Then previous state is restored"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Essential for retention - exact save triggers depend on core loop"
+        },
+        {
+          "id": "US-017",
+          "title": "View progress indicator",
+          "user_story": "As a Fantasy Enthusiast, I want to see my progress, so that I feel a sense of accomplishment",
+          "acceptance_criteria": [
+            "Given the player has made progress When they check status Then a progress indicator shows current standing",
+            "Given progress is displayed When viewed Then it accurately reflects saved state"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Motivation and retention feature"
+        }
+      ]
+    },
+    {
+      "id": "E7",
+      "name": "User Interface",
+      "description": "Menus, controls, and interface elements for navigating the game",
+      "stories": [
+        {
+          "id": "US-018",
+          "title": "Navigate main menu",
+          "user_story": "As a Casual Gamer, I want a main menu, so that I can access different game options",
+          "acceptance_criteria": [
+            "Given the game launches When the start screen appears Then a main menu with options is displayed",
+            "Given the main menu is shown When the player selects an option Then the corresponding screen or action loads"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "Standard game structure requirement"
+        },
+        {
+          "id": "US-019",
+          "title": "Understand controls intuitively",
+          "user_story": "As a Casual Gamer, I want controls to be intuitive, so that I can play without reading instructions",
+          "acceptance_criteria": [
+            "Given gameplay begins When the player attempts interaction Then standard platform controls work as expected",
+            "Given controls exist When first used Then visual or contextual hints guide the player"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "CRITICAL GAP: Platform undefined affects control scheme"
+        },
+        {
+          "id": "US-020",
+          "title": "Access help or tutorial",
+          "user_story": "As a Casual Gamer, I want to access help if needed, so that I can learn mechanics I don't understand",
+          "acceptance_criteria": [
+            "Given the player needs guidance When they access help Then instructions for core mechanics are displayed",
+            "Given help is accessed When the player reads it Then they can return to gameplay easily"
+          ],
+          "story_points": 3,
+          "priority": "Could Have",
+          "sprint": 4,
+          "notes": "Supports accessibility for casual audience"
+        }
+      ]
+    },
+    {
+      "id": "E8",
+      "name": "Platform Deployment",
+      "description": "Technical requirements for deploying the game to target platform(s)",
+      "stories": [
+        {
+          "id": "US-021",
+          "title": "Run game on target platform",
+          "user_story": "As a Casual Gamer, I want to play the game on my device, so that I can access the experience",
+          "acceptance_criteria": [
+            "Given the game is built When deployed to target platform Then it installs and launches successfully",
+            "Given the game is running When played Then performance is acceptable without major lag or crashes"
+          ],
+          "story_points": 8,
+          "priority": "Must Have",
+          "sprint": 2,
+          "notes": "CRITICAL GAP: Platform completely undefined - Mobile/PC/Console/Web requires clarification"
+        },
+        {
+          "id": "US-022",
+          "title": "Meet platform technical requirements",
+          "user_story": "As a Casual Gamer, I want the game to run smoothly, so that my experience is not frustrating",
+          "acceptance_criteria": [
+            "Given the game is running When performance is measured Then frame rate meets platform standards",
+            "Given the game is installed When storage is checked Then install size is reasonable for platform"
+          ],
+          "story_points": 5,
+          "priority": "Should Have",
+          "sprint": 3,
+          "notes": "Platform-specific optimization requirements unknown"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/Test Document_20260323_094010.md",
+    "generated_at": "2026-03-23T09:42:20.877827+00:00",
+    "status": "pending_review"
+  }
+}
