@@ -802,7 +802,7 @@ function pollStd(){
   let s=0;
   pollTimer = setInterval(async()=>{
     s+=6; setTimer('p1-timer', s);
-    if(s>360){ stopProc(); toast('Timed out — check GitHub Actions.','err'); show('upload',1); return; }
+    if(s>480){ stopProc(); toast('Timed out — please try again.','err'); show('upload',1); return; }
     try {
       const r = await fetch(`${WORKER_URL}/api/poll-standard?doc_name=${encodeURIComponent(docName)}`,
         {headers:{'X-PIN':pin}});
@@ -821,7 +821,7 @@ async function doGenerate(){
   const btn = document.getElementById('btn-gen'); btn.disabled=true;
   stdContent = document.getElementById('std-ta').value;
   show('proc2', 3);
-  startProc('p2', ['Thinking like a Product Owner...','Writing user stories...','Finalising sprints...'], 60);
+  startProc('p2', ['Thinking like a Product Owner...','Writing user stories...','Finalising sprints...'], 120);
   try {
     const r = await fetch(`${WORKER_URL}/api/generate`,{method:'POST',
       headers:{'Content-Type':'application/json','X-PIN':pin},
@@ -835,7 +835,7 @@ function pollBacklog(bdName){
   let s=0;
   pollTimer = setInterval(async()=>{
     s+=6; setTimer('p2-timer', s);
-    if(s>360){ stopProc(); toast('Timed out — check GitHub Actions.','err'); show('review-std',2); return; }
+    if(s>480){ stopProc(); document.getElementById('btn-gen').disabled=false; toast('Timed out — please try again.','err'); show('review-std',2); return; }
     try {
       const r = await fetch(`${WORKER_URL}/api/poll?doc_name=${encodeURIComponent(bdName)}`,
         {headers:{'X-PIN':pin}});
