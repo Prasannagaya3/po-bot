@@ -31,9 +31,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
       - name: Install dependencies
-        run: pip install anthropic PyPDF2 python-docx
+        run: pip install anthropic PyPDF2 python-docx --quiet
 
       - name: Detect document on push
         id: detect
