@@ -356,6 +356,13 @@ async function handleApprove(request, env) {
         const sn = story.sprint;
         if (!issueKeysBySprint[sn]) issueKeysBySprint[sn] = [];
         issueKeysBySprint[sn].push(created.key);
+        // Add assignee as watcher — triggers Jira email notification to them
+        if (assigneeAccountId) {
+          fetch(`${jiraBase}/issue/${created.key}/watchers`, {
+            method: 'POST', headers: jHeaders,
+            body: JSON.stringify(assigneeAccountId),
+          }).catch(() => {});
+        }
       } else {
         const e = await sRes.text();
         errors.push(`${story.id}: ${e.substring(0, 100)}`);
