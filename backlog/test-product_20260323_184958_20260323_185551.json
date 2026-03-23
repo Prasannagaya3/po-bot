@@ -1,0 +1,243 @@
+{
+  "project_name": "Simple Todo App",
+  "vision": "A distraction-free mobile task management app that helps individuals stay organised by easily capturing, tracking, and completing daily tasks.",
+  "personas": [
+    "Individual User"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "App Foundation & Navigation",
+      "description": "Establish the core application architecture, navigation structure, and local data persistence to enable all subsequent features.",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Set up mobile app project structure",
+          "user_story": "As a Individual User, I want the app to launch quickly and reliably, so that I can access my tasks without delay.",
+          "acceptance_criteria": [
+            "Given the app is installed When the user taps the app icon Then the app launches to the main screen within 2 seconds",
+            "Given the app is launched When the main screen loads Then a consistent navigation structure is displayed"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev",
+          "notes": "Walking skeleton - establish project for iOS and Android builds"
+        },
+        {
+          "id": "US-002",
+          "title": "Implement local data persistence layer",
+          "user_story": "As a Individual User, I want my tasks to be saved locally on my device, so that I don't lose my data when I close the app.",
+          "acceptance_criteria": [
+            "Given tasks have been created When the user closes and reopens the app Then all previously created tasks are still visible",
+            "Given tasks exist in local storage When the app launches Then the task list loads within 2 seconds"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev",
+          "notes": "Use local database or file storage appropriate for mobile platforms"
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Task Creation",
+      "description": "Enable users to create new tasks with essential details including title and due date.",
+      "stories": [
+        {
+          "id": "US-003",
+          "title": "Create new task with title",
+          "user_story": "As a Individual User, I want to create a new task with a title, so that I can capture what I need to do.",
+          "acceptance_criteria": [
+            "Given I am on the task list screen When I tap the add task button Then a task creation form is displayed",
+            "Given I am on the task creation form When I enter a title and save Then the new task appears in my task list",
+            "Given I am creating a task When I try to save without a title Then I am shown a validation error"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev",
+          "notes": "Core MVP functionality"
+        },
+        {
+          "id": "US-004",
+          "title": "Add due date to task",
+          "user_story": "As a Individual User, I want to set a due date when creating a task, so that I know when it needs to be completed.",
+          "acceptance_criteria": [
+            "Given I am creating a new task When I tap the due date field Then a date picker is displayed",
+            "Given I have selected a due date When I save the task Then the due date is displayed with the task in the list",
+            "Given I am creating a task When I choose not to set a due date Then the task is saved without a due date"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": "Due date is optional based on requirements"
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Task Completion",
+      "description": "Allow users to mark tasks as complete to track their progress and achievements.",
+      "stories": [
+        {
+          "id": "US-005",
+          "title": "Mark task as complete",
+          "user_story": "As a Individual User, I want to mark a task as complete, so that I can track what I've accomplished.",
+          "acceptance_criteria": [
+            "Given I am viewing my task list When I tap the completion checkbox on an incomplete task Then the task is marked as complete with visual indication",
+            "Given a task is marked as complete When I view the task list Then the completed task displays differently from incomplete tasks"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": ""
+        },
+        {
+          "id": "US-006",
+          "title": "Unmark task as incomplete",
+          "user_story": "As a Individual User, I want to unmark a completed task, so that I can correct mistakes or revisit tasks.",
+          "acceptance_criteria": [
+            "Given I am viewing a completed task When I tap the completion checkbox Then the task is marked as incomplete",
+            "Given a task was unmarked as incomplete When I view the task list Then it displays as an active incomplete task"
+          ],
+          "story_points": 1,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "unity_dev",
+          "notes": "Toggle behaviour for completion status"
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "name": "Task List Display",
+      "description": "Present tasks in a clear, organised list format for easy viewing and management.",
+      "stories": [
+        {
+          "id": "US-007",
+          "title": "View all tasks in list format",
+          "user_story": "As a Individual User, I want to view all my tasks in a list, so that I can see everything I need to do at a glance.",
+          "acceptance_criteria": [
+            "Given I have created tasks When I open the app Then I see all my tasks displayed in a list format",
+            "Given tasks exist When I view the list Then each task shows its title, due date, and completion status",
+            "Given no tasks exist When I view the task list Then I see an empty state message encouraging me to add tasks"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev",
+          "notes": "Part of walking skeleton"
+        },
+        {
+          "id": "US-008",
+          "title": "Filter tasks by completion status",
+          "user_story": "As a Individual User, I want to filter my tasks by completion status, so that I can focus on incomplete tasks or review completed ones.",
+          "acceptance_criteria": [
+            "Given I am viewing my task list When I select the 'incomplete' filter Then only incomplete tasks are displayed",
+            "Given I am viewing my task list When I select the 'complete' filter Then only completed tasks are displayed",
+            "Given I have applied a filter When I select 'all' Then all tasks are displayed regardless of status"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "name": "Task Deletion",
+      "description": "Enable users to remove tasks they no longer need from their list.",
+      "stories": [
+        {
+          "id": "US-009",
+          "title": "Delete task from list",
+          "user_story": "As a Individual User, I want to delete a task, so that I can remove items I no longer need to track.",
+          "acceptance_criteria": [
+            "Given I am viewing my task list When I initiate delete on a task Then I am asked to confirm the deletion",
+            "Given I confirm task deletion When the deletion completes Then the task is permanently removed from my list",
+            "Given I am asked to confirm deletion When I cancel Then the task remains in my list"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": "Include confirmation to prevent accidental deletion"
+        },
+        {
+          "id": "US-010",
+          "title": "Swipe to delete task",
+          "user_story": "As a Individual User, I want to swipe a task to delete it, so that I can quickly remove tasks with a natural gesture.",
+          "acceptance_criteria": [
+            "Given I am viewing my task list When I swipe left on a task Then a delete option is revealed",
+            "Given the delete option is revealed When I tap delete Then the confirmation dialog appears"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "unity_dev",
+          "notes": "Mobile-native interaction pattern"
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "name": "Visual Design & Polish",
+      "description": "Create a clean, distraction-free visual design that supports efficient task management.",
+      "stories": [
+        {
+          "id": "US-011",
+          "title": "Design app icon and branding",
+          "user_story": "As a Individual User, I want the app to have a recognisable icon, so that I can easily find it on my device.",
+          "acceptance_criteria": [
+            "Given the app is installed When I view my device home screen Then I see a distinctive app icon",
+            "Given the app icon exists When viewed at different sizes Then it remains clear and recognisable"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "3d_team",
+          "notes": "Create icons for both iOS and Android specifications"
+        },
+        {
+          "id": "US-012",
+          "title": "Apply consistent visual styling",
+          "user_story": "As a Individual User, I want the app to have a clean and simple design, so that I can focus on my tasks without distraction.",
+          "acceptance_criteria": [
+            "Given I am using the app When I navigate between screens Then visual styling is consistent throughout",
+            "Given the app is displayed When I view any screen Then the design is clean with appropriate spacing and typography"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "unity_dev",
+          "notes": "Implement design system with consistent colours, fonts, and spacing"
+        },
+        {
+          "id": "US-013",
+          "title": "Add task completion animations",
+          "user_story": "As a Individual User, I want satisfying visual feedback when I complete a task, so that I feel a sense of accomplishment.",
+          "acceptance_criteria": [
+            "Given I mark a task as complete When the status changes Then a subtle completion animation plays",
+            "Given animations are playing When they complete Then the task settles into its completed visual state"
+          ],
+          "story_points": 2,
+          "priority": "Could Have",
+          "sprint": 3,
+          "team": "unity_dev",
+          "notes": "Keep animations subtle and quick to not slow down workflow"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/test-product_20260323_184958.md",
+    "generated_at": "2026-03-23T18:56:32.204501+00:00",
+    "status": "pending_review"
+  }
+}
