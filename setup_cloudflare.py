@@ -3,14 +3,15 @@ PO Bot — Cloudflare + GitHub Setup
 ===================================
 Usage:
   python setup_cloudflare.py CF_ACCOUNT_ID CF_API_TOKEN GH_TOKEN APP_PIN
-         JIRA_TOKEN
+         JIRA_TOKEN ANTHROPIC_API_KEY
 
 Where:
-  CF_ACCOUNT_ID  — from dash.cloudflare.com (in the URL after /accounts/)
-  CF_API_TOKEN   — Cloudflare API token with Workers:Edit permission
-  GH_TOKEN       — Your GitHub classic token (ghp_...)
-  APP_PIN        — A PIN you choose to protect the web app (e.g. 2468)
-  JIRA_TOKEN     — Your Jira API token (ATATT3x...)
+  CF_ACCOUNT_ID     — from dash.cloudflare.com (in the URL after /accounts/)
+  CF_API_TOKEN      — Cloudflare API token with Workers:Edit permission
+  GH_TOKEN          — Your GitHub classic token (ghp_...)
+  APP_PIN           — A PIN you choose to protect the web app (e.g. 2468)
+  JIRA_TOKEN        — Your Jira API token (ATATT3x...)
+  ANTHROPIC_API_KEY — Your Anthropic API key (sk-ant-...)
 """
 
 import sys, time, base64, json, requests, io
@@ -141,17 +142,18 @@ def set_secret(account_id, cf_token, name, value):
 
 
 def main():
-    if len(sys.argv) != 6:
+    if len(sys.argv) != 7:
         print(__doc__)
         print("\nERROR: Wrong number of arguments.")
-        print("Usage: python setup_cloudflare.py CF_ACCOUNT_ID CF_API_TOKEN GH_TOKEN APP_PIN JIRA_TOKEN")
+        print("Usage: python setup_cloudflare.py CF_ACCOUNT_ID CF_API_TOKEN GH_TOKEN APP_PIN JIRA_TOKEN ANTHROPIC_API_KEY")
         sys.exit(1)
 
-    cf_account  = sys.argv[1].strip()
-    cf_token    = sys.argv[2].strip()
-    gh_token    = sys.argv[3].strip()
-    app_pin     = sys.argv[4].strip()
-    jira_token  = sys.argv[5].strip()
+    cf_account    = sys.argv[1].strip()
+    cf_token      = sys.argv[2].strip()
+    gh_token      = sys.argv[3].strip()
+    app_pin       = sys.argv[4].strip()
+    jira_token    = sys.argv[5].strip()
+    anthropic_key = sys.argv[6].strip()
 
     print("\n" + "="*55)
     print("  PO Bot — Cloudflare + GitHub Setup")
@@ -224,16 +226,16 @@ def main():
     # ── 4. Set Worker secrets ─────────────────────────────────────────────────
     print("\n[4/5] Setting Worker secrets...")
     secrets = {
-        "GITHUB_TOKEN":   gh_token,
-        "GITHUB_REPO":    f"{GH_OWNER}/{GH_REPO}",
-        "JIRA_DOMAIN":    JIRA_DOMAIN,
-        "JIRA_EMAIL":     JIRA_EMAIL,
-        "JIRA_TOKEN":     jira_token,
-        "APP_PIN":        app_pin,
-        "TEAMS_CONFIG":   TEAMS_CONFIG,
-        # Used by the worker to self-update TEAMS_CONFIG via /api/update-teams
-        "CF_ACCOUNT_ID":  cf_account,
-        "CF_API_TOKEN":   cf_token,
+        "GITHUB_TOKEN":      gh_token,
+        "GITHUB_REPO":       f"{GH_OWNER}/{GH_REPO}",
+        "JIRA_DOMAIN":       JIRA_DOMAIN,
+        "JIRA_EMAIL":        JIRA_EMAIL,
+        "JIRA_TOKEN":        jira_token,
+        "APP_PIN":           app_pin,
+        "TEAMS_CONFIG":      TEAMS_CONFIG,
+        "CF_ACCOUNT_ID":     cf_account,
+        "CF_API_TOKEN":      cf_token,
+        "ANTHROPIC_API_KEY": anthropic_key,
     }
     for name, value in secrets.items():
         set_secret(cf_account, cf_token, name, value)
@@ -291,7 +293,7 @@ def main():
 
   Secrets set : GITHUB_TOKEN, GITHUB_REPO, JIRA_DOMAIN,
                 JIRA_EMAIL, JIRA_TOKEN, APP_PIN, TEAMS_CONFIG,
-                CF_ACCOUNT_ID, CF_API_TOKEN
+                CF_ACCOUNT_ID, CF_API_TOKEN, ANTHROPIC_API_KEY
 
   Security:
   - config/teams.json deleted from repo
