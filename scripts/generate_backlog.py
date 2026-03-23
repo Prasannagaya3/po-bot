@@ -120,7 +120,12 @@ PROCESS:
 7. MoSCoW: Must Have=MVP, Should Have=important, Could Have=nice-to-have, Wont Have=out of scope
 8. Sprint 1=walking skeleton, Sprint 2=all Must Haves, Sprint 3+=Should/Could Haves
 RULES: Base only on document content. Story IDs: US-001... Epic IDs: E1...
-OUTPUT: valid JSON only - no markdown, start with { end with }"""
+OUTPUT: valid JSON only - no markdown, start with { end with }
+
+TEAM ASSIGNMENT — assign each story to exactly one team based on the work involved:
+- "unity_dev" → Unity3D coding, gameplay mechanics, UI/UX implementation, scenes, builds, store deployment, any programming
+- "3d_team"   → 3D models, textures, rigging, animation, VFX, particle effects, art assets, sound, audio engineering
+- "backend"   → APIs, server logic, databases, authentication, cloud services, data pipelines, analytics backend"""
 
 BACKLOG_PROMPT = """Return a complete product backlog as JSON:
 {{
@@ -133,10 +138,14 @@ BACKLOG_PROMPT = """Return a complete product backlog as JSON:
       "id": "US-001", "title": "max 8 words",
       "user_story": "As a [persona], I want [action], so that [benefit]",
       "acceptance_criteria": ["Given X When Y Then Z", "Given X When Y Then Z"],
-      "story_points": 3, "priority": "Must Have", "sprint": 1, "notes": ""
+      "story_points": 3, "priority": "Must Have", "sprint": 1,
+      "team": "unity_dev",
+      "notes": ""
     }}]
   }}]
 }}
+IMPORTANT: Every story MUST have a "team" field set to exactly one of: "unity_dev", "3d_team", "backend".
+Choose based on what the story actually requires to implement — not the epic name.
 DOCUMENT:
 ---
 {doc_text}
