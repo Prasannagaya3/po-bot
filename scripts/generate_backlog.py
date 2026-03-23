@@ -148,7 +148,7 @@ def stage1_standardise(raw_text, doc_name):
     print("  Stage 1: Standardising document...")
 
     msg = client.messages.create(
-        model="claude-opus-4-5",
+        model="claude-sonnet-4-6",
         max_tokens=3000,
         system=STANDARDISE_SYSTEM,
         messages=[{"role": "user", "content": STANDARDISE_PROMPT.format(raw_text=raw_text[:10000])}]
@@ -242,7 +242,7 @@ def stage2_generate(doc_text, doc_name):
     print("  Stage 2: Generating backlog...")
 
     msg = client.messages.create(
-        model="claude-opus-4-5",
+        model="claude-sonnet-4-6",
         max_tokens=4096,
         system=BACKLOG_SYSTEM,
         messages=[{"role": "user", "content": BACKLOG_PROMPT.format(doc_text=doc_text[:12000])}]
