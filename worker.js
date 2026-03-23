@@ -48,7 +48,7 @@ async function uploadToGitHub(path, content_base64, env, message) {
   });
 }
 
-// Find the step1/generate workflow
+// Find the step1/generate workflow (only needed for PDF/DOCX fallback)
 async function getWorkflow(env) {
   const wfRes = await ghFetch('actions/workflows', env);
   if (!wfRes.ok) return null;
@@ -58,44 +58,277 @@ async function getWorkflow(env) {
   ) || null;
 }
 
-// POST /api/standardise — upload files and trigger standardise workflow
-async function handleStandardise(request, env) {
+function timestamp() {
+  const d = new Date();
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}${p(d.getUTCMonth()+1)}${p(d.getUTCDate())}_${p(d.getUTCHours())}${p(d.getUTCMinutes())}${p(d.getUTCSeconds())}`;
+}
+
+function encodeBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+
+async function callClaude(system, user, env, maxTokens) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: 'user', content: user }],
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Claude API error ${res.status}: ${err.slice(0, 200)}`);
+  }
+  const data = await res.json();
+  return data.content[0].text.trim();
+}
+
+const STANDARDISE_SYSTEM = `You are a senior game product manager and technical producer at a Unity game studio.
+Your job is to take ANY raw input — rough notes, Slack messages, voice memo transcripts, bullet points,
+or partial specs — and convert it into a clean, complete game product document ready for sprint planning.
+
+RULES:
+- Extract and organise ALL information given — nothing is too small to capture
+- Fill gaps intelligently using game development common sense
+- If you make an assumption, mark it clearly: [Assumed: ...]
+- Be SPECIFIC — "add enemies" is useless. "Add 3 enemy types: melee grunt, ranged archer, boss" is useful
+- Think in terms of what each team needs to actually build this:
+    Unity Dev: scenes, scripts, physics, animation controllers, UI, builds, store
+    3D Team: models, textures, rigs, animations, VFX, audio, sound effects
+    Backend: APIs, databases, cloud saves, leaderboards, analytics, auth
+- Surface ALL technical constraints, platform targets, and performance goals
+- Output ONLY the structured document — no preamble, no explanation`;
+
+const STANDARDISE_PROMPT_TPL = `Convert the following raw input into a clean, structured game product document.
+
+Use EXACTLY this format:
+
+# [Game Title]
+
+## Game Overview
+[2-3 sentences: genre, core loop, platform, and what makes it fun/unique]
+
+## Problem / Opportunity
+[Why does this game need to exist? What gap does it fill? Who is the target player?]
+
+## Target Players
+- **[Player Type 1]**: [age, gaming experience, what they want from this game]
+- **[Player Type 2]**: [age, gaming experience, what they want from this game]
+
+## Game Design
+
+### Core Gameplay Loop
+[Step-by-step description of the main gameplay cycle — what the player does every session]
+
+### Game Mechanics
+- [Specific mechanic with enough detail to implement — e.g. "Double-jump with 0.3s coyote time"]
+
+### Progression System
+- [How the player advances — levels, XP, unlocks, difficulty curve]
+
+### Win / Lose Conditions
+- [Clear win state]
+- [Clear fail state and consequences]
+
+## Visual & Audio Direction
+
+### Art Style
+[Describe the look — reference games or styles, colour palette, perspective (2D/3D/isometric), tone]
+
+### 3D / 2D Assets Required
+- Characters: [list with description]
+- Environments: [list with description]
+- UI elements: [list with description]
+- VFX: [list — particles, shaders, effects]
+
+### Audio
+- Music: [style, number of tracks, when they play]
+- SFX: [key sound effects needed]
+
+## Technical Specifications
+- Engine: Unity [version if specified]
+- Platform: [iOS / Android / PC / Console / WebGL]
+- Target frame rate: [e.g. 60fps mobile, 120fps PC]
+- Orientation: [Portrait / Landscape / Both]
+- Min device spec: [e.g. iPhone X, Android 8.0]
+- Multiplayer: [Yes/No — if yes, real-time or turn-based]
+- Backend services: [cloud saves / leaderboards / analytics / auth / none]
+
+## Monetisation (if applicable)
+- Model: [Premium / Free-to-play / Ads / IAP]
+
+## Features by Area
+
+### Core Gameplay
+- [Specific implementable feature]
+
+### UI / UX
+- [Specific screen or flow]
+
+### Backend & Services
+- [Specific backend feature]
+
+### Store & Deployment
+- [Platform-specific requirement]
+
+## Out of Scope (v1)
+- [Feature explicitly excluded from this version]
+
+## Open Questions
+- [Anything unclear that needs a decision before work starts]
+
+---
+RAW INPUT:
+{raw_text}
+---`;
+
+const BACKLOG_SYSTEM = `You are a Principal Product Owner embedded in a Unity game studio with 15 years of Agile/Scrum experience.
+You understand exactly how game development works and how to write stories that engineers and artists can act on immediately.
+
+PROCESS:
+1. Read the full game document — understand the genre, loop, platforms, art style
+2. Write a one-sentence vision that captures what makes this game worth building
+3. Create 5-8 Epics that cover the full game — use these as your guide:
+   - Core Gameplay Mechanics (physics, controls, game loop)
+   - Characters & Animation (player, NPCs, enemies, rigs)
+   - Environments & Level Design (scenes, layouts, props)
+   - UI / UX (menus, HUD, screens, flows)
+   - Audio & Visual FX (SFX, music, particles, shaders)
+   - Backend & Services (cloud saves, leaderboards, auth, analytics)
+   - Store & Release (build pipeline, platform submission, certificates)
+   - QA & Polish (bug fixes, performance, playtesting)
+   Only include epics that are relevant to the document.
+4. Write 2-6 stories per epic — make each story a single deliverable unit of work
+5. Write 2-3 Acceptance Criteria per story using Given/When/Then — be specific and testable
+6. Story points: 1=trivial 2=small 3=medium 5=large 8=complex 13=very complex
+7. MoSCoW priorities: Must Have=MVP launch blocker, Should Have=important but not blocking, Could Have=nice-to-have, Wont Have=explicitly out of scope
+8. Sprint planning:
+   - Sprint 1: Walking skeleton — one playable scene, basic movement, placeholder art, project builds and runs on target platform
+   - Sprint 2-3: All Must Have stories complete — core loop is fun and testable
+   - Sprint 4+: Should Have and Could Have stories
+
+RULES:
+- Story titles must be action-oriented and specific: "Implement double-jump with coyote time" not "Add jumping"
+- Acceptance criteria must be testable by a QA person or playtester
+- Every story belongs to exactly ONE team — assign based on the actual implementation work
+- Never write a story that two teams need to implement together — split it into two stories
+- Base ONLY on the document content. Story IDs: US-001... Epic IDs: E1...
+- OUTPUT: valid JSON only — no markdown, no explanation, start with { end with }
+
+TEAM ASSIGNMENT RULES (assign "team" field to every story):
+- "unity_dev"  → C# scripting, MonoBehaviours, Unity scenes, Prefabs, Physics (Rigidbody/Colliders), Animation Controllers (Animator), UI Canvas/uGUI, TextMeshPro, NavMesh, Cinemachine, Input System, Build pipeline, iOS/Android deployment, Unity Store integration, any programming task
+- "3d_team"    → Blender/Maya models, UV unwrapping, PBR textures, skeletal rigs, keyframe animations, blend shapes, particle systems, VFX Graph, Shader Graph materials, environmental art, character design, sound effects files, music composition, audio mixing
+- "backend"    → REST APIs, Firebase/PlayFab/custom server, SQL/NoSQL databases, cloud save systems, leaderboard APIs, matchmaking, authentication, push notifications, analytics events, webhook handlers, server-side game logic`;
+
+const BACKLOG_PROMPT_TPL = `Return a complete sprint-ready product backlog as JSON.
+Every field is mandatory. Every story must have a "team" field.
+
+{
+  "project_name": "string — the game title",
+  "vision": "string — one sentence: what game this is, for whom, and why it is compelling",
+  "personas": ["string — player type with brief description"],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "string — epic name (e.g. Core Gameplay Mechanics)",
+      "description": "string — what this epic covers and why it matters for the game",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "string — specific action verb + object, max 8 words",
+          "user_story": "As a [persona], I want [specific feature], so that [clear player benefit]",
+          "acceptance_criteria": [
+            "Given [context] When [player action] Then [specific measurable outcome]",
+            "Given [context] When [edge case] Then [expected behaviour]"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev",
+          "notes": "string — technical notes, dependencies, or open questions (empty string if none)"
+        }
+      ]
+    }
+  ]
+}
+
+GAME DOCUMENT:
+---
+{doc_text}
+---`;
+
+// POST /api/standardise — decode text and call Claude directly in background
+async function handleStandardise(request, env, ctx) {
   const body = await request.json().catch(() => null);
   if (!body || !body.filename || !body.content_base64)
     return jsonResponse({ error: 'Missing filename or content_base64' }, 400);
 
   const { filename, content_base64, extra_files = [] } = body;
-  const primaryPath = `docs/${filename}`;
+  const docName = filename.replace(/\.[^.]+$/, '');
+  const ext = filename.split('.').pop().toLowerCase();
 
-  const upRes = await uploadToGitHub(primaryPath, content_base64, env, `docs: upload ${filename}`);
-  if (!upRes.ok) return jsonResponse({ error: `Upload failed (${upRes.status})` }, 500);
-
-  // Upload any extra files for merging
-  const extraPaths = [];
-  for (const ef of extra_files) {
-    const p = `docs/${ef.filename}`;
-    const r = await uploadToGitHub(p, ef.content_base64, env, `docs: upload ${ef.filename}`);
-    if (r.ok) extraPaths.push(p);
+  // PDF / DOCX: still need GitHub Actions for text extraction
+  if (ext === 'pdf' || ext === 'docx') {
+    const primaryPath = `docs/${filename}`;
+    const upRes = await uploadToGitHub(primaryPath, content_base64, env, `docs: upload ${filename}`);
+    if (!upRes.ok) return jsonResponse({ error: `Upload failed (${upRes.status})` }, 500);
+    const extraPaths = [];
+    for (const ef of extra_files) {
+      const p = `docs/${ef.filename}`;
+      const r = await uploadToGitHub(p, ef.content_base64, env, `docs: upload ${ef.filename}`);
+      if (r.ok) extraPaths.push(p);
+    }
+    const wf = await getWorkflow(env);
+    if (!wf) return jsonResponse({ error: 'Workflow not found.' }, 500);
+    const trigRes = await ghFetch(`actions/workflows/${wf.id}/dispatches`, env, {
+      method: 'POST',
+      body: JSON.stringify({ ref: 'main', inputs: { doc_path: primaryPath, mode: 'standardise', extra_files: extraPaths.join(',') } }),
+    });
+    if (!trigRes.ok) return jsonResponse({ error: `Trigger failed (${trigRes.status})` }, 500);
+    return jsonResponse({ doc_name: docName, status: 'triggered' });
   }
 
-  const wf = await getWorkflow(env);
-  if (!wf) return jsonResponse({ error: 'Workflow not found in GitHub Actions.' }, 500);
+  // TXT / MD: decode and run Claude directly — no GitHub Actions needed
+  let rawText;
+  try {
+    const bytes = Uint8Array.from(atob(content_base64), c => c.charCodeAt(0));
+    rawText = new TextDecoder('utf-8').decode(bytes);
+  } catch (_) {
+    return jsonResponse({ error: 'Could not decode file content' }, 400);
+  }
+  for (const ef of extra_files) {
+    try {
+      const bytes = Uint8Array.from(atob(ef.content_base64), c => c.charCodeAt(0));
+      rawText += '\n\n---\n\n' + new TextDecoder('utf-8').decode(bytes);
+    } catch (_) {}
+  }
 
-  const trigRes = await ghFetch(`actions/workflows/${wf.id}/dispatches`, env, {
-    method: 'POST',
-    body: JSON.stringify({
-      ref: 'main',
-      inputs: {
-        doc_path: primaryPath,
-        mode: 'standardise',
-        extra_files: extraPaths.join(','),
-      },
-    }),
-  });
-  if (!trigRes.ok) return jsonResponse({ error: `Trigger failed (${trigRes.status})` }, 500);
+  const ts = timestamp();
+  const outPath = `standardised/${docName}_${ts}.md`;
 
-  const docName = filename.replace(/\.[^.]+$/, '');
-  return jsonResponse({ doc_name: docName, status: 'triggered' });
+  ctx.waitUntil((async () => {
+    try {
+      const cleanDoc = await callClaude(
+        STANDARDISE_SYSTEM,
+        STANDARDISE_PROMPT_TPL.replace('{raw_text}', rawText.slice(0, 10000)),
+        env, 3000
+      );
+      await uploadToGitHub(outPath, encodeBase64(cleanDoc), env, `pipeline: standardise ${docName}`);
+    } catch (_) {}
+  })());
+
+  return jsonResponse({ doc_name: docName, status: 'started' });
 }
 
 // GET /api/poll-standard?doc_name=xxx — poll standardised/ folder for result
@@ -122,37 +355,53 @@ async function handlePollStandard(request, env) {
   return jsonResponse({ status: 'ready', std_path: match.path, std_name: stdName, content });
 }
 
-// POST /api/generate — trigger generate workflow using standardised doc
-async function handleGenerate(request, env) {
+// POST /api/generate — call Claude directly in background, no GitHub Actions
+async function handleGenerate(request, env, ctx) {
   const body = await request.json().catch(() => null);
   if (!body || !body.std_path)
     return jsonResponse({ error: 'Missing std_path' }, 400);
 
   const { std_path, std_content_base64 } = body;
 
-  // If user edited the standardised document, save the edits first
+  // Decode the (possibly user-edited) standardised doc
+  let docText;
   if (std_content_base64) {
-    const upRes = await uploadToGitHub(
-      std_path, std_content_base64, env, `docs: update standardised doc`
-    );
-    if (!upRes.ok) return jsonResponse({ error: `Update failed (${upRes.status})` }, 500);
+    try {
+      const bytes = Uint8Array.from(atob(std_content_base64), c => c.charCodeAt(0));
+      docText = new TextDecoder('utf-8').decode(bytes);
+    } catch (_) {}
+  }
+  if (!docText) {
+    // Fall back to reading from GitHub
+    const res = await ghFetch(`contents/${std_path}`, env);
+    if (!res.ok) return jsonResponse({ error: 'Could not read standardised doc' }, 500);
+    const data = await res.json();
+    const bytes = Uint8Array.from(atob((data.content || '').replace(/\n/g, '')), c => c.charCodeAt(0));
+    docText = new TextDecoder('utf-8').decode(bytes);
   }
 
-  const wf = await getWorkflow(env);
-  if (!wf) return jsonResponse({ error: 'Workflow not found in GitHub Actions.' }, 500);
-
-  const trigRes = await ghFetch(`actions/workflows/${wf.id}/dispatches`, env, {
-    method: 'POST',
-    body: JSON.stringify({
-      ref: 'main',
-      inputs: { doc_path: std_path, mode: 'generate' },
-    }),
-  });
-  if (!trigRes.ok) return jsonResponse({ error: `Trigger failed (${trigRes.status})` }, 500);
-
-  // doc_name for polling = std filename without .md
   const docName = std_path.split('/').pop().replace(/\.md$/, '');
-  return jsonResponse({ doc_name: docName, status: 'triggered' });
+  const ts = timestamp();
+  const outPath = `backlog/${docName}_${ts}.json`;
+
+  ctx.waitUntil((async () => {
+    try {
+      let raw = await callClaude(
+        BACKLOG_SYSTEM,
+        BACKLOG_PROMPT_TPL.replace('{doc_text}', docText.slice(0, 12000)),
+        env, 4096
+      );
+      if (raw.startsWith('```')) {
+        const parts = raw.split('```');
+        raw = parts[1].startsWith('json') ? parts[1].slice(4) : parts[1];
+      }
+      const backlog = JSON.parse(raw.trim());
+      backlog._meta = { source_document: std_path, generated_at: new Date().toISOString(), status: 'pending_review' };
+      await uploadToGitHub(outPath, encodeBase64(JSON.stringify(backlog, null, 2)), env, `pipeline: generate backlog ${docName}`);
+    } catch (_) {}
+  })());
+
+  return jsonResponse({ doc_name: docName, status: 'started' });
 }
 
 // GET /api/get-standard-doc?filename={filename} — fetch standardised doc and return as plain text
@@ -492,7 +741,7 @@ async function handleUpdateTeams(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
@@ -512,9 +761,9 @@ export default {
 
     if (path === '/api/get-standard-doc' && request.method === 'GET') return handleGetStandardDoc(request, env);
     if (path === '/api/teams'        && request.method === 'GET')  return handleGetTeams(request, env);
-    if (path === '/api/standardise'  && request.method === 'POST') return handleStandardise(request, env);
+    if (path === '/api/standardise'  && request.method === 'POST') return handleStandardise(request, env, ctx);
     if (path === '/api/poll-standard'&& request.method === 'GET')  return handlePollStandard(request, env);
-    if (path === '/api/generate'     && request.method === 'POST') return handleGenerate(request, env);
+    if (path === '/api/generate'     && request.method === 'POST') return handleGenerate(request, env, ctx);
     if (path === '/api/poll'         && request.method === 'GET')  return handlePoll(request, env);
     if (path === '/api/approve'      && request.method === 'POST') return handleApprove(request, env);
     if (path === '/api/update-teams' && request.method === 'POST') return handleUpdateTeams(request, env);
