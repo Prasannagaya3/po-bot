@@ -1,0 +1,320 @@
+{
+  "project_name": "Simple Todo App",
+  "vision": "A lightweight, distraction-free mobile task management tool that helps individuals efficiently organize and complete their daily tasks.",
+  "personas": [
+    "Individual User"
+  ],
+  "epics": [
+    {
+      "id": "E1",
+      "name": "Project Foundation",
+      "description": "Establish the core application architecture, project setup, and basic navigation structure to enable all subsequent feature development.",
+      "stories": [
+        {
+          "id": "US-001",
+          "title": "Set up mobile project structure",
+          "user_story": "As a Individual User, I want the app to be available on my mobile device, so that I can manage tasks on the go.",
+          "acceptance_criteria": [
+            "Given the development team starts work When the project is initialized Then a cross-platform mobile project structure exists for iOS and Android",
+            "Given the project is set up When the app is built Then it compiles successfully for both iOS and Android platforms"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev",
+          "notes": "Walking skeleton foundation - Unity project setup with basic scene structure"
+        },
+        {
+          "id": "US-002",
+          "title": "Implement basic app navigation shell",
+          "user_story": "As a Individual User, I want to see a clean main screen when I open the app, so that I can immediately access my tasks.",
+          "acceptance_criteria": [
+            "Given the user launches the app When the app loads Then a main task list screen is displayed",
+            "Given the main screen is displayed When the user views it Then basic UI elements are visible and responsive"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev",
+          "notes": "Walking skeleton - basic UI shell implementation"
+        },
+        {
+          "id": "US-003",
+          "title": "Design core UI visual assets",
+          "user_story": "As a Individual User, I want the app to have a clean visual design, so that using it feels pleasant and distraction-free.",
+          "acceptance_criteria": [
+            "Given the UI needs visual assets When assets are created Then icons, buttons, and UI elements follow a consistent visual style",
+            "Given the visual assets are complete When integrated into the app Then the interface appears polished and cohesive"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "3d_team",
+          "notes": "UI/UX visual design, icons, color scheme, typography assets"
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "name": "Local Data Persistence",
+      "description": "Implement local storage capabilities to ensure task data persists on the device and is available offline.",
+      "stories": [
+        {
+          "id": "US-004",
+          "title": "Implement local data storage system",
+          "user_story": "As a Individual User, I want my tasks to be saved on my device, so that I don't lose them when I close the app.",
+          "acceptance_criteria": [
+            "Given the user creates a task When the app is closed and reopened Then the task is still visible in the list",
+            "Given the user has existing tasks When the device is restarted Then all tasks are restored from local storage"
+          ],
+          "story_points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev",
+          "notes": "Walking skeleton - local persistence using PlayerPrefs or local database"
+        },
+        {
+          "id": "US-005",
+          "title": "Enable offline task operations",
+          "user_story": "As a Individual User, I want to manage my tasks without internet connection, so that I can stay productive anywhere.",
+          "acceptance_criteria": [
+            "Given the device has no internet connection When the user creates, completes, or deletes a task Then the operation succeeds locally",
+            "Given the user is offline When viewing the task list Then all locally stored tasks are displayed"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": "Ensure all core operations work without network dependency"
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "name": "Task Creation",
+      "description": "Enable users to create new tasks with essential details including title and due date.",
+      "stories": [
+        {
+          "id": "US-006",
+          "title": "Create task with title input",
+          "user_story": "As a Individual User, I want to create a new task with a title, so that I can capture what needs to be done.",
+          "acceptance_criteria": [
+            "Given I am on the main screen When I tap the add task button Then a task creation form appears",
+            "Given I am on the task creation form When I enter a title and submit Then the new task appears in my task list",
+            "Given I am creating a task When I leave the title empty Then the form prevents submission with an error message"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": "Core MVP feature"
+        },
+        {
+          "id": "US-007",
+          "title": "Add due date to task",
+          "user_story": "As a Individual User, I want to set a due date when creating a task, so that I know when it needs to be completed.",
+          "acceptance_criteria": [
+            "Given I am creating a new task When I tap the due date field Then a date picker is displayed",
+            "Given I select a date from the picker When I save the task Then the due date is stored and displayed with the task",
+            "Given I am creating a task When I don't select a due date Then the task is created without a due date"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": "Due date is optional based on acceptance criteria"
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "name": "Task Completion",
+      "description": "Allow users to mark tasks as complete to track their progress and feel accomplishment.",
+      "stories": [
+        {
+          "id": "US-008",
+          "title": "Mark task as complete",
+          "user_story": "As a Individual User, I want to mark a task as complete, so that I can track my progress and feel accomplished.",
+          "acceptance_criteria": [
+            "Given I have an incomplete task When I tap the completion checkbox or button Then the task is marked as complete",
+            "Given a task is marked complete When I view the task list Then the task displays a visual indicator showing it is complete",
+            "Given a task is complete When I tap the completion control again Then the task is marked as incomplete"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": "Toggle behavior allows correction of accidental completions"
+        },
+        {
+          "id": "US-009",
+          "title": "Create completion visual feedback",
+          "user_story": "As a Individual User, I want clear visual feedback when completing a task, so that I feel rewarded for my progress.",
+          "acceptance_criteria": [
+            "Given I complete a task When the completion is registered Then a satisfying visual animation plays",
+            "Given a task is complete When viewing the list Then completed tasks have distinct visual styling"
+          ],
+          "story_points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "3d_team",
+          "notes": "Animation and visual effects for completion feedback"
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "name": "Task Deletion",
+      "description": "Provide ability to remove tasks from the list when they are no longer needed.",
+      "stories": [
+        {
+          "id": "US-010",
+          "title": "Delete task from list",
+          "user_story": "As a Individual User, I want to delete a task, so that I can remove items that are no longer relevant.",
+          "acceptance_criteria": [
+            "Given I have a task in my list When I initiate the delete action Then the task is removed from the list",
+            "Given I delete a task When I view the task list Then the deleted task no longer appears",
+            "Given I initiate delete When prompted to confirm Then I can cancel to keep the task"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": "Include confirmation to prevent accidental deletion"
+        },
+        {
+          "id": "US-011",
+          "title": "Implement swipe-to-delete gesture",
+          "user_story": "As a Individual User, I want to swipe a task to delete it, so that I can quickly remove tasks with a natural gesture.",
+          "acceptance_criteria": [
+            "Given I am viewing my task list When I swipe left on a task Then a delete option is revealed",
+            "Given the delete option is revealed When I tap delete or complete the swipe Then the task is deleted"
+          ],
+          "story_points": 3,
+          "priority": "Could Have",
+          "sprint": 3,
+          "team": "unity_dev",
+          "notes": "Enhanced UX feature - mobile-native interaction pattern"
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "name": "Task List Viewing",
+      "description": "Display tasks in an organized list format with filtering capabilities to help users focus on relevant tasks.",
+      "stories": [
+        {
+          "id": "US-012",
+          "title": "Display all tasks in list",
+          "user_story": "As a Individual User, I want to see all my tasks in a list, so that I have an overview of everything I need to do.",
+          "acceptance_criteria": [
+            "Given I have created multiple tasks When I view the main screen Then all tasks are displayed in a scrollable list",
+            "Given each task in the list When displayed Then it shows the task title and due date if set",
+            "Given I have no tasks When I view the main screen Then an empty state message is displayed"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": "Core viewing functionality"
+        },
+        {
+          "id": "US-013",
+          "title": "Filter to show incomplete tasks only",
+          "user_story": "As a Individual User, I want to filter my list to show only incomplete tasks, so that I can focus on what still needs to be done.",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the incomplete filter Then only incomplete tasks are shown",
+            "Given the incomplete filter is active When I view the list Then complete tasks are hidden"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": "Essential filter for daily task management"
+        },
+        {
+          "id": "US-014",
+          "title": "Filter to show complete tasks only",
+          "user_story": "As a Individual User, I want to filter my list to show only complete tasks, so that I can review what I have accomplished.",
+          "acceptance_criteria": [
+            "Given I have both complete and incomplete tasks When I apply the complete filter Then only complete tasks are shown",
+            "Given the complete filter is active When I view the list Then incomplete tasks are hidden"
+          ],
+          "story_points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": "Supports sense of accomplishment per user needs"
+        },
+        {
+          "id": "US-015",
+          "title": "Clear all filters view option",
+          "user_story": "As a Individual User, I want to clear filters and see all tasks, so that I can return to the full task overview.",
+          "acceptance_criteria": [
+            "Given a filter is currently active When I select show all or clear filter Then all tasks are displayed regardless of completion status",
+            "Given no filter is active When I view the list Then both complete and incomplete tasks are visible"
+          ],
+          "story_points": 1,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev",
+          "notes": "Completes the filter functionality set"
+        }
+      ]
+    },
+    {
+      "id": "E7",
+      "name": "Platform Deployment",
+      "description": "Prepare and deploy the application to iOS and Android app stores.",
+      "stories": [
+        {
+          "id": "US-016",
+          "title": "Build and deploy iOS app",
+          "user_story": "As a Individual User, I want to download the app from the iOS App Store, so that I can use it on my iPhone or iPad.",
+          "acceptance_criteria": [
+            "Given the app is complete When submitted to Apple Then it passes App Store review requirements",
+            "Given the app is approved When a user searches the App Store Then the app is discoverable and downloadable"
+          ],
+          "story_points": 5,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "unity_dev",
+          "notes": "iOS build configuration, signing, and store submission"
+        },
+        {
+          "id": "US-017",
+          "title": "Build and deploy Android app",
+          "user_story": "As a Individual User, I want to download the app from the Google Play Store, so that I can use it on my Android device.",
+          "acceptance_criteria": [
+            "Given the app is complete When submitted to Google Then it passes Play Store review requirements",
+            "Given the app is approved When a user searches the Play Store Then the app is discoverable and downloadable"
+          ],
+          "story_points": 5,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "unity_dev",
+          "notes": "Android build configuration, signing, and store submission"
+        },
+        {
+          "id": "US-018",
+          "title": "Create app store visual assets",
+          "user_story": "As a Individual User, I want to see appealing screenshots and icon in the app store, so that I understand what the app does before downloading.",
+          "acceptance_criteria": [
+            "Given the app is ready for submission When preparing store listings Then app icon, screenshots, and promotional graphics are created",
+            "Given store assets are created When viewed on store pages Then they accurately represent the app functionality and design"
+          ],
+          "story_points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "3d_team",
+          "notes": "App icons, store screenshots, feature graphics"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/test-product_20260323_183939.md",
+    "generated_at": "2026-03-23T18:41:38.908107+00:00",
+    "status": "pending_review"
+  }
+}
