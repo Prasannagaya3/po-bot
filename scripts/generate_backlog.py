@@ -40,52 +40,101 @@ def extract_text(filepath):
 # STAGE 1 — STANDARDISE
 # ---------------------------------------------------------------------------
 
-STANDARDISE_SYSTEM = """You are a senior product documentation specialist.
-Your job is to take ANY raw input — rough notes, bullet points, chat messages,
-partial specs, spreadsheets, or well-written documents — and convert it into
-a clean, structured product document.
+STANDARDISE_SYSTEM = """You are a senior game product manager and technical producer at a Unity game studio.
+Your job is to take ANY raw input — rough notes, Slack messages, voice memo transcripts, bullet points,
+or partial specs — and convert it into a clean, complete game product document ready for sprint planning.
 
 RULES:
-- Extract and organise all information that was given
-- Fill gaps intelligently based on context and common sense
-- Do NOT invent features that were not mentioned or clearly implied
-- If you make an assumption, add a note like: [Assumed: users need login]
-- Group features logically by functional area
-- Be specific — vague features make weak user stories
+- Extract and organise ALL information given — nothing is too small to capture
+- Fill gaps intelligently using game development common sense
+- If you make an assumption, mark it clearly: [Assumed: ...]
+- Be SPECIFIC — "add enemies" is useless. "Add 3 enemy types: melee grunt, ranged archer, boss" is useful
+- Think in terms of what each team needs to actually build this:
+    Unity Dev: scenes, scripts, physics, animation controllers, UI, builds, store
+    3D Team: models, textures, rigs, animations, VFX, audio, sound effects
+    Backend: APIs, databases, cloud saves, leaderboards, analytics, auth
+- Surface ALL technical constraints, platform targets, and performance goals
 - Output ONLY the structured document — no preamble, no explanation"""
 
-STANDARDISE_PROMPT = """Convert the following raw input into a clean, structured product document.
+STANDARDISE_PROMPT = """Convert the following raw input into a clean, structured game product document.
 
 Use EXACTLY this format:
 
-# [Product Name]
+# [Game Title]
 
-## Product Overview
-[2-3 sentences: what it is, what problem it solves, who it is for]
+## Game Overview
+[2-3 sentences: genre, core loop, platform, and what makes it fun/unique]
 
-## Problem Statement
-[What specific problem does this solve and why does it need to exist?]
+## Problem / Opportunity
+[Why does this game need to exist? What gap does it fill? Who is the target player?]
 
-## Target Users
-- **[Persona Name]**: [what they need and why they use the product]
-- **[Persona Name]**: [what they need and why they use the product]
+## Target Players
+- **[Player Type 1]**: [age, gaming experience, what they want from this game]
+- **[Player Type 2]**: [age, gaming experience, what they want from this game]
 
-## Core Features
+## Game Design
 
-### [Feature Area 1]
-- [Specific feature with enough detail to write a user story]
-- [Specific feature]
+### Core Gameplay Loop
+[Step-by-step description of the main gameplay cycle — what the player does every session]
 
-### [Feature Area 2]
-- [Specific feature]
+### Game Mechanics
+- [Specific mechanic with enough detail to implement — e.g. "Double-jump with 0.3s coyote time"]
+- [Specific mechanic]
 
-## Non-Functional Requirements
-- Platform: [iOS / Android / Web / etc.]
-- [Performance requirements]
-- [Technical constraints]
+### Progression System
+- [How the player advances — levels, XP, unlocks, difficulty curve]
 
-## Out of Scope
-- [Feature explicitly not in this version]
+### Win / Lose Conditions
+- [Clear win state]
+- [Clear fail state and consequences]
+
+## Visual & Audio Direction
+
+### Art Style
+[Describe the look — reference games or styles, colour palette, perspective (2D/3D/isometric), tone]
+
+### 3D / 2D Assets Required
+- Characters: [list with description]
+- Environments: [list with description]
+- UI elements: [list with description]
+- VFX: [list — particles, shaders, effects]
+
+### Audio
+- Music: [style, number of tracks, when they play]
+- SFX: [key sound effects needed]
+
+## Technical Specifications
+- Engine: Unity [version if specified]
+- Platform: [iOS / Android / PC / Console / WebGL]
+- Target frame rate: [e.g. 60fps mobile, 120fps PC]
+- Orientation: [Portrait / Landscape / Both]
+- Min device spec: [e.g. iPhone X, Android 8.0]
+- Multiplayer: [Yes/No — if yes, real-time or turn-based]
+- Backend services: [cloud saves / leaderboards / analytics / auth / none]
+
+## Monetisation (if applicable)
+- Model: [Premium / Free-to-play / Ads / IAP]
+- [Specific monetisation mechanic]
+
+## Features by Area
+
+### Core Gameplay
+- [Specific implementable feature]
+
+### UI / UX
+- [Specific screen or flow]
+
+### Backend & Services
+- [Specific backend feature]
+
+### Store & Deployment
+- [Platform-specific requirement]
+
+## Out of Scope (v1)
+- [Feature explicitly excluded from this version]
+
+## Open Questions
+- [Anything unclear that needs a decision before work starts]
 
 ---
 RAW INPUT:
@@ -111,42 +160,77 @@ def stage1_standardise(raw_text, doc_name):
 # STAGE 2 — GENERATE BACKLOG
 # ---------------------------------------------------------------------------
 
-BACKLOG_SYSTEM = """You are a Principal Product Owner with 15 years of Agile/Scrum experience.
-Read a product document and produce a complete sprint-ready product backlog.
+BACKLOG_SYSTEM = """You are a Principal Product Owner embedded in a Unity game studio with 15 years of Agile/Scrum experience.
+You understand exactly how game development works and how to write stories that engineers and artists can act on immediately.
+
 PROCESS:
-1. Identify personas  2. Extract vision  3. Group into 4-8 Epics
-4. Write 2-6 User Stories per Epic  5. 2-3 Acceptance Criteria per story (Given/When/Then)
+1. Read the full game document — understand the genre, loop, platforms, art style
+2. Write a one-sentence vision that captures what makes this game worth building
+3. Create 5-8 Epics that cover the full game — use these as your guide:
+   - Core Gameplay Mechanics (physics, controls, game loop)
+   - Characters & Animation (player, NPCs, enemies, rigs)
+   - Environments & Level Design (scenes, layouts, props)
+   - UI / UX (menus, HUD, screens, flows)
+   - Audio & Visual FX (SFX, music, particles, shaders)
+   - Backend & Services (cloud saves, leaderboards, auth, analytics)
+   - Store & Release (build pipeline, platform submission, certificates)
+   - QA & Polish (bug fixes, performance, playtesting)
+   Only include epics that are relevant to the document.
+4. Write 2-6 stories per epic — make each story a single deliverable unit of work
+5. Write 2-3 Acceptance Criteria per story using Given/When/Then — be specific and testable
 6. Story points: 1=trivial 2=small 3=medium 5=large 8=complex 13=very complex
-7. MoSCoW: Must Have=MVP, Should Have=important, Could Have=nice-to-have, Wont Have=out of scope
-8. Sprint 1=walking skeleton, Sprint 2=all Must Haves, Sprint 3+=Should/Could Haves
-RULES: Base only on document content. Story IDs: US-001... Epic IDs: E1...
-OUTPUT: valid JSON only - no markdown, start with { end with }
+7. MoSCoW priorities: Must Have=MVP launch blocker, Should Have=important but not blocking, Could Have=nice-to-have, Wont Have=explicitly out of scope
+8. Sprint planning:
+   - Sprint 1: Walking skeleton — one playable scene, basic movement, placeholder art, project builds and runs on target platform
+   - Sprint 2-3: All Must Have stories complete — core loop is fun and testable
+   - Sprint 4+: Should Have and Could Have stories
 
-TEAM ASSIGNMENT — assign each story to exactly one team based on the work involved:
-- "unity_dev" → Unity3D coding, gameplay mechanics, UI/UX implementation, scenes, builds, store deployment, any programming
-- "3d_team"   → 3D models, textures, rigging, animation, VFX, particle effects, art assets, sound, audio engineering
-- "backend"   → APIs, server logic, databases, authentication, cloud services, data pipelines, analytics backend"""
+RULES:
+- Story titles must be action-oriented and specific: "Implement double-jump with coyote time" not "Add jumping"
+- Acceptance criteria must be testable by a QA person or playtester
+- Every story belongs to exactly ONE team — assign based on the actual implementation work
+- Never write a story that two teams need to implement together — split it into two stories
+- Base ONLY on the document content. Story IDs: US-001... Epic IDs: E1...
+- OUTPUT: valid JSON only — no markdown, no explanation, start with {{ end with }}
 
-BACKLOG_PROMPT = """Return a complete product backlog as JSON:
+TEAM ASSIGNMENT RULES (assign "team" field to every story):
+- "unity_dev"  → C# scripting, MonoBehaviours, Unity scenes, Prefabs, Physics (Rigidbody/Colliders), Animation Controllers (Animator), UI Canvas/uGUI, TextMeshPro, NavMesh, Cinemachine, Input System, Build pipeline, iOS/Android deployment, Unity Store integration, any programming task
+- "3d_team"    → Blender/Maya models, UV unwrapping, PBR textures, skeletal rigs, keyframe animations, blend shapes, particle systems, VFX Graph, Shader Graph materials, environmental art, character design, sound effects files, music composition, audio mixing
+- "backend"    → REST APIs, Firebase/PlayFab/custom server, SQL/NoSQL databases, cloud save systems, leaderboard APIs, matchmaking, authentication, push notifications, analytics events, webhook handlers, server-side game logic"""
+
+BACKLOG_PROMPT = """Return a complete sprint-ready product backlog as JSON.
+Every field is mandatory. Every story must have a "team" field.
+
 {{
-  "project_name": "string",
-  "vision": "one sentence",
-  "personas": ["persona 1"],
-  "epics": [{{
-    "id": "E1", "name": "string", "description": "string",
-    "stories": [{{
-      "id": "US-001", "title": "max 8 words",
-      "user_story": "As a [persona], I want [action], so that [benefit]",
-      "acceptance_criteria": ["Given X When Y Then Z", "Given X When Y Then Z"],
-      "story_points": 3, "priority": "Must Have", "sprint": 1,
-      "team": "unity_dev",
-      "notes": ""
-    }}]
-  }}]
+  "project_name": "string — the game title",
+  "vision": "string — one sentence: what game this is, for whom, and why it is compelling",
+  "personas": ["string — player type with brief description"],
+  "epics": [
+    {{
+      "id": "E1",
+      "name": "string — epic name (e.g. Core Gameplay Mechanics)",
+      "description": "string — what this epic covers and why it matters for the game",
+      "stories": [
+        {{
+          "id": "US-001",
+          "title": "string — specific action verb + object, max 8 words",
+          "user_story": "As a [persona], I want [specific feature], so that [clear player benefit]",
+          "acceptance_criteria": [
+            "Given [context] When [player action] Then [specific measurable outcome]",
+            "Given [context] When [edge case] Then [expected behaviour]"
+          ],
+          "story_points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev",
+          "notes": "string — technical notes, dependencies, or open questions (empty string if none)"
+        }}
+      ]
+    }}
+  ]
 }}
-IMPORTANT: Every story MUST have a "team" field set to exactly one of: "unity_dev", "3d_team", "backend".
-Choose based on what the story actually requires to implement — not the epic name.
-DOCUMENT:
+
+GAME DOCUMENT:
 ---
 {doc_text}
 ---"""
