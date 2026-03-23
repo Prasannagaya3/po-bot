@@ -293,6 +293,26 @@ async function handleApprove(request, env) {
     }
   }
 
+  // Build team → Jira accountId map from TEAMS_CONFIG
+  // For each team member email, look up their Jira account ID once upfront
+  const teamAccountIds = {}; // teamId → accountId
+  try {
+    const teamsConfig = JSON.parse(env.TEAMS_CONFIG || '{}');
+    const allTeams = teamsConfig.teams || [];
+    for (const team of allTeams) {
+      const member = (team.members || [])[0]; // primary member per team
+      if (!member?.email) continue;
+      const searchRes = await fetch(
+        `${jiraBase}/user/search?query=${encodeURIComponent(member.email)}&maxResults=1`,
+        { headers: jHeaders }
+      );
+      if (searchRes.ok) {
+        const users = await searchRes.json();
+        if (users.length > 0) teamAccountIds[team.id] = users[0].accountId;
+      }
+    }
+  } catch (_) {}
+
   // Create stories — track issue keys by sprint number for sprint assignment
   let issuesCreated = 0;
   const errors = [];
@@ -304,25 +324,31 @@ async function handleApprove(request, env) {
       const epicLabel = epic.name.replace(/[^a-zA-Z0-9]/g, '_');
       const priorityLabel = (story.priority || 'Could_Have').replace(/ /g, '_');
 
+      // Team: use AI-assigned field first, fall back to keyword guess
+      const teamId = story.team || teamLabelFor(`${story.title} ${epic.name}`);
+      const teamLabel = teamId;
+      const assigneeAccountId = teamAccountIds[teamId] || null;
+
+      const issueFields = {
+        project: { key: finalKey },
+        summary: `[${story.id}] ${story.title}`,
+        description: {
+          type: 'doc', version: 1,
+          content: [
+            { type: 'paragraph', content: [{ type: 'text', text: `Epic: ${epic.name}`, marks: [{ type: 'strong' }] }] },
+            { type: 'paragraph', content: [{ type: 'text', text: story.user_story || '', marks: [{ type: 'em' }] }] },
+            { type: 'paragraph', content: [{ type: 'text', text: `Acceptance Criteria:\n${acLines}` }] },
+            { type: 'paragraph', content: [{ type: 'text', text: `Sprint: ${story.sprint} | Points: ${story.story_points} | Priority: ${story.priority} | Team: ${teamId}` }] },
+          ],
+        },
+        issuetype: { name: storyTypeName },
+        labels: [epicLabel, priorityLabel, `Sprint_${story.sprint}`, teamLabel],
+      };
+      if (assigneeAccountId) issueFields.assignee = { accountId: assigneeAccountId };
+
       const sRes = await fetch(`${jiraBase}/issue`, {
         method: 'POST', headers: jHeaders,
-        body: JSON.stringify({
-          fields: {
-            project: { key: finalKey },
-            summary: `[${story.id}] ${story.title}`,
-            description: {
-              type: 'doc', version: 1,
-              content: [
-                { type: 'paragraph', content: [{ type: 'text', text: `Epic: ${epic.name}`, marks: [{ type: 'strong' }] }] },
-                { type: 'paragraph', content: [{ type: 'text', text: story.user_story || '', marks: [{ type: 'em' }] }] },
-                { type: 'paragraph', content: [{ type: 'text', text: `Acceptance Criteria:\n${acLines}` }] },
-                { type: 'paragraph', content: [{ type: 'text', text: `Sprint: ${story.sprint} | Points: ${story.story_points} | Priority: ${story.priority}` }] },
-              ],
-            },
-            issuetype: { name: storyTypeName },
-            labels: [epicLabel, priorityLabel, `Sprint_${story.sprint}`, teamLabelFor(`${story.title} ${epic.name}`)],
-          },
-        }),
+        body: JSON.stringify({ fields: issueFields }),
       });
       if (sRes.ok) {
         issuesCreated++;
