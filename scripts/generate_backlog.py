@@ -243,7 +243,7 @@ def stage2_generate(doc_text, doc_name):
 
     msg = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=4096,
+        max_tokens=8192,
         system=BACKLOG_SYSTEM,
         messages=[{"role": "user", "content": BACKLOG_PROMPT.format(doc_text=doc_text[:12000])}]
     )
