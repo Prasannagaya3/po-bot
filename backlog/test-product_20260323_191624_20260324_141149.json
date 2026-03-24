@@ -1,0 +1,249 @@
+{
+  "project_name": "Simple Todo App",
+  "epics": [
+    {
+      "name": "Core Gameplay Mechanics",
+      "stories": [
+        {
+          "title": "Implement quick-add task creation flow",
+          "criteria": [
+            "Given the app is open When the user taps the quick-add field and types a title and presses confirm Then the task appears in the list within 3 seconds with correct title and creation timestamp",
+            "Given a task has been created When the list is reloaded or the app is restarted Then the task persists and displays in due-date-then-creation-date sort order"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Build swipe-to-complete and swipe-to-delete",
+          "criteria": [
+            "Given a task row is visible When the user swipes right Then the task is marked complete with checkbox animation and moves to the Completed section",
+            "Given a task row is visible When the user swipes left and confirms Then the task is deleted and an undo snackbar appears for exactly 5 seconds allowing restoration"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement optional due date picker modal",
+          "criteria": [
+            "Given a user is creating or editing a task When they open the date picker Then they see Today, Tomorrow, This Week, and Custom options and selecting one sets the due date badge on the task row",
+            "Given a task has a due date set When the due date is in the past Then the due date badge renders in red and the task sorts correctly within the list"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Add filter toggle persisting between sessions",
+          "criteria": [
+            "Given the main screen is displayed When the user taps All, Active, or Completed on the segmented control Then the task list immediately filters to show only matching tasks",
+            "Given a filter has been selected When the user closes and relaunches the app Then the previously selected filter state is restored from local storage"
+          ],
+          "points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        }
+      ]
+    },
+    {
+      "name": "UI / UX",
+      "stories": [
+        {
+          "title": "Build main task list screen layout",
+          "criteria": [
+            "Given the app launches When the main screen loads Then the quick-add field, filter segmented control, and task list are all visible with no splash screen or login gate",
+            "Given a task has a long title When it renders in the task row Then the title truncates with an ellipsis at the end of a single line and the due date badge remains visible"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement empty states and completion celebration",
+          "criteria": [
+            "Given the task list is empty When the main screen renders Then the message 'No tasks yet—add one!' and the empty state illustration are displayed centrally",
+            "Given all active tasks are completed When the last task is checked off Then the 'All done! 🎉' celebration message replaces the task list area"
+          ],
+          "points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Create settings screen with toggles",
+          "criteria": [
+            "Given the settings screen is open When the user toggles the sound setting Then task completion sounds are enabled or disabled immediately and the preference persists on relaunch",
+            "Given the settings screen is open When the user toggles dark mode Then the entire app UI switches to the dark theme immediately without requiring a restart"
+          ],
+          "points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement first-launch swipe-action tooltip",
+          "criteria": [
+            "Given the app is launched for the very first time When the main task list screen appears Then a tooltip overlay highlighting swipe-right to complete and swipe-left to delete is shown once and dismissed on tap",
+            "Given the first-launch tooltip has been dismissed When the app is relaunched Then the tooltip does not appear again on subsequent sessions"
+          ],
+          "points": 2,
+          "priority": "Could Have",
+          "sprint": 4,
+          "team": "unity_dev"
+        }
+      ]
+    },
+    {
+      "name": "Audio & Visual FX",
+      "stories": [
+        {
+          "title": "Create checkbox completion micro-animation",
+          "criteria": [
+            "Given a task is active When the user taps its checkbox Then a radial-wipe or scale-in checkmark animation plays over exactly 0.2 seconds followed by a task fade or strikethrough",
+            "Given the completion animation plays When it finishes Then the task row reflects the completed visual state with no animation glitches at 60fps on minimum spec devices"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "3d_team"
+        },
+        {
+          "title": "Produce and integrate task interaction SFX",
+          "criteria": [
+            "Given sound is enabled in settings When the user completes a task Then a soft pop or ding sound of 0.1 to 0.2 seconds duration plays in sync with the checkbox animation",
+            "Given sound is enabled in settings When the user deletes a task via swipe Then a distinct subtle swoosh sound plays and when sound is toggled off neither SFX is audible"
+          ],
+          "points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "3d_team"
+        },
+        {
+          "title": "Design and deliver all UI asset artwork",
+          "criteria": [
+            "Given the UI asset package is imported into Unity When the main screen is built Then checkbox states (unchecked, checked, animating), add button, swipe icons, and filter control all render at correct resolution on both iOS and Android",
+            "Given the empty state illustration and app icon are delivered When reviewed against the design spec Then they follow the clean minimal line-art style with the accent colour and pass asset review"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "3d_team"
+        }
+      ]
+    },
+    {
+      "name": "Backend & Services",
+      "stories": [
+        {
+          "title": "Implement local SQLite task data persistence",
+          "criteria": [
+            "Given the app is installed fresh When a user creates, edits, or deletes a task Then the change is written to the local SQLite database and the correct state is read back on next app launch",
+            "Given the data model includes id, title, dueDate, isCompleted, createdAt, and completedAt When a task is saved Then all nullable fields store null correctly and non-null fields are never empty"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Integrate analytics event tracking",
+          "criteria": [
+            "Given analytics is initialised on app open When the user performs app_open, task_created, task_completed, task_deleted, or filter_changed actions Then each corresponding event fires with correct parameters visible in the analytics dashboard",
+            "Given the analytics integration is active When the app is run on a device with no internet connection Then no crash or error occurs and events are queued or silently dropped without affecting app functionality"
+          ],
+          "points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "backend"
+        },
+        {
+          "title": "Build streak and completion counter logic",
+          "criteria": [
+            "Given a user completes at least one task in a day When they open the app the following day Then the streak counter increments by one and the lifetime and today task completion counts are updated correctly",
+            "Given a user skips a day with no completions When they open the app the next day Then the daily streak resets to zero while the lifetime counter retains its previous value"
+          ],
+          "points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        }
+      ]
+    },
+    {
+      "name": "Store & Release",
+      "stories": [
+        {
+          "title": "Prepare iOS App Store listing assets",
+          "criteria": [
+            "Given the App Store submission package is assembled When reviewed against Apple guidelines Then five screenshots for both 5.5-inch and 6.5-inch devices, the app icon at required resolutions, a privacy policy URL, and app metadata are all present and valid",
+            "Given the iOS build is submitted for review When Apple processes it Then the binary passes automated checks with no missing entitlements, invalid privacy strings, or rejected assets"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 4,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Prepare Google Play Store listing assets",
+          "criteria": [
+            "Given the Play Store submission package is assembled When reviewed against Google Play policy Then the feature graphic, phone screenshots, app icon, privacy policy link, and store description are all present and comply with content policy",
+            "Given the Android build is uploaded to Play Console When the pre-launch report completes Then no crashes or critical accessibility failures are flagged on the tested device matrix"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 4,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement non-intrusive app rating prompt",
+          "criteria": [
+            "Given a user has completed their 10th lifetime task When the completion animation finishes Then the native OS rating dialog (SKStoreReviewRequest on iOS, Review API on Android) is presented once and never shown again if already actioned",
+            "Given the rating prompt has been triggered When the user dismisses it without rating Then the prompt does not reappear in the same session or on subsequent launches"
+          ],
+          "points": 2,
+          "priority": "Could Have",
+          "sprint": 4,
+          "team": "unity_dev"
+        }
+      ]
+    },
+    {
+      "name": "QA & Polish",
+      "stories": [
+        {
+          "title": "Validate 60fps performance on minimum spec devices",
+          "criteria": [
+            "Given the app runs on an iPhone 8 (iOS 14) and an Android 8.0 device with 3GB RAM When the user scrolls a list of 50 tasks and triggers completion animations Then the frame rate remains at or above 60fps with no visible hitches measured via Unity Profiler",
+            "Given the app transitions between screens or filter states When timed with a stopwatch Then all UI transitions complete within 300 milliseconds on minimum spec hardware"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Execute full regression pass before store submission",
+          "criteria": [
+            "Given the release candidate build is installed on iOS and Android test devices When all core flows (create, complete, delete, undo, filter, settings, empty state) are executed against the test plan Then zero P1 bugs and fewer than three P2 bugs are logged",
+            "Given the app is tested across light mode and dark mode on both platforms When all screens are reviewed Then no text, icon, or background colour contrast fails WCAG AA minimum contrast ratio"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 4,
+          "team": "unity_dev"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/test-product_20260323_191624.md",
+    "generated_at": "2026-03-24T14:12:44.470232+00:00",
+    "status": "pending_review"
+  }
+}
