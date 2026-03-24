@@ -292,7 +292,7 @@ def main():
         print(f"\n  Sprint summary:")
         for n in range(1, sprints + 1):
             ss = [s for e in backlog["epics"] for s in e["stories"] if s["sprint"] == n]
-            pts = sum(s["story_points"] for s in ss)
+            pts = sum(s.get("points", s.get("story_points", 0)) for s in ss)
             must = sum(1 for s in ss if s["priority"] == "Must Have")
             print(f"    Sprint {n}: {len(ss)} stories ({pts} pts) - {must} Must Have")
 
