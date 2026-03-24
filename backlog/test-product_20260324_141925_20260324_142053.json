@@ -1,0 +1,227 @@
+{
+  "project_name": "Simple Todo App",
+  "epics": [
+    {
+      "name": "Core Gameplay Mechanics",
+      "stories": [
+        {
+          "title": "Implement create task with title and due date",
+          "criteria": [
+            "Given the user taps the Add Task button, When they enter a title and optional due date and confirm, Then the task appears in the list sorted by due date ascending",
+            "Given the user submits the Add Task form with an empty title, When they tap Save, Then an inline validation error is shown and no task is created"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement mark task complete and incomplete toggle",
+          "criteria": [
+            "Given an incomplete task is visible, When the user taps its checkbox, Then the task title renders with strikethrough and muted colour and the task moves to the Completed filter view",
+            "Given a completed task is visible, When the user taps its checkbox again, Then the task is restored to incomplete state and returns to the Incomplete filter view"
+          ],
+          "points": 2,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement swipe-to-delete task with confirmation",
+          "criteria": [
+            "Given a task row is displayed, When the user performs a swipe-left gesture, Then a red Delete button is revealed and tapping it prompts a confirmation dialog",
+            "Given the confirmation dialog is shown, When the user confirms deletion, Then the task is permanently removed from the list and local storage"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement filter toggle for incomplete and complete tasks",
+          "criteria": [
+            "Given the task list screen is open, When the user taps the Incomplete filter tab, Then only tasks with is_complete equal to false are displayed in the list",
+            "Given the user switches to the Complete filter tab, When the toggle state changes, Then only tasks with is_complete equal to true are displayed without any navigation change"
+          ],
+          "points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        }
+      ]
+    },
+    {
+      "name": "UI / UX",
+      "stories": [
+        {
+          "title": "Build main task list screen layout",
+          "criteria": [
+            "Given the app launches, When the main screen renders, Then the full-screen scrollable task list, filter toggle at top, and FAB Add button are all visible without horizontal overflow",
+            "Given no tasks exist or none match the active filter, When the list area renders, Then a contextually appropriate empty-state message and illustration are displayed"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Build Add Task bottom sheet modal",
+          "criteria": [
+            "Given the user taps the Add Task FAB, When the bottom sheet animates up, Then a title text input, date picker, and Save and Cancel buttons are visible and interactive",
+            "Given the Add Task sheet is open, When the user taps Cancel or swipes down to dismiss, Then the sheet closes and no task is created"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Design and deliver all UI component assets",
+          "criteria": [
+            "Given the UI spec is finalized, When the 3d_team delivers assets, Then task row, filter toggle, empty-state illustration, and app icon assets are provided in correct sizes for iOS and Android",
+            "Given assets are imported into the project, When QA reviews on a physical device, Then no assets appear blurry, misaligned, or clipped on iPhone 8 and a mid-range Android device"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "3d_team"
+        },
+        {
+          "title": "Implement checkbox completion micro-animation",
+          "criteria": [
+            "Given a task is marked complete, When the checkbox state changes, Then a checkmark draw animation or brief colour pulse plays within 300 milliseconds",
+            "Given a low-performance device, When the animation plays, Then UI frame rate does not drop below 60fps during the completion animation"
+          ],
+          "points": 2,
+          "priority": "Could Have",
+          "sprint": 4,
+          "team": "3d_team"
+        }
+      ]
+    },
+    {
+      "name": "Backend & Services",
+      "stories": [
+        {
+          "title": "Implement local SQLite database for task persistence",
+          "criteria": [
+            "Given a task is created, When the user closes and reopens the app, Then all tasks including title, due date, completion state, and created timestamp are restored exactly as left",
+            "Given the task schema requires id, title, due_date, is_complete, and created_at fields, When the database is initialized on first launch, Then the schema is created correctly and a migration path exists for future versions"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "backend"
+        },
+        {
+          "title": "Implement full CRUD operations on task data layer",
+          "criteria": [
+            "Given the data layer is implemented, When create, read, update, and delete operations are called programmatically, Then each operation completes without error and the in-memory list reflects the updated database state",
+            "Given rapid successive task operations such as create then immediately delete, When the operations are executed, Then no data corruption, duplicate records, or crash occurs in the local database"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "backend"
+        }
+      ]
+    },
+    {
+      "name": "Audio & Visual FX",
+      "stories": [
+        {
+          "title": "Produce optional SFX for task completion and delete",
+          "criteria": [
+            "Given the app includes SFX assets, When a task is marked complete, Then a soft tap sound plays if SFX is enabled and no sound plays if SFX is disabled",
+            "Given a task is deleted, When the deletion is confirmed, Then a subtle swipe or dismiss sound plays only when SFX is toggled on in settings"
+          ],
+          "points": 2,
+          "priority": "Could Have",
+          "sprint": 4,
+          "team": "3d_team"
+        },
+        {
+          "title": "Implement SFX settings toggle in app",
+          "criteria": [
+            "Given the settings screen or control exists, When the user toggles SFX off, Then no sounds play for any subsequent task interaction until toggled back on",
+            "Given the user sets SFX preference, When the app is closed and reopened, Then the SFX toggle state is persisted and restored correctly"
+          ],
+          "points": 2,
+          "priority": "Could Have",
+          "sprint": 4,
+          "team": "unity_dev"
+        }
+      ]
+    },
+    {
+      "name": "Store & Release",
+      "stories": [
+        {
+          "title": "Prepare and submit iOS App Store build",
+          "criteria": [
+            "Given a release build is ready, When it is submitted via App Store Connect, Then the app passes automated review checks including privacy declaration, app icon sizing, and minimum iOS 15 compatibility",
+            "Given the app is approved, When a QA tester installs it on an iPhone 8 running iOS 15, Then all core task functions work correctly with no crashes on first launch"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Prepare and submit Android Google Play build",
+          "criteria": [
+            "Given a release APK or AAB is generated, When it is submitted to Google Play Console, Then the build passes the content rating questionnaire and privacy policy URL requirement without policy violations",
+            "Given the app is approved, When a QA tester installs it on an Android 8.0 device, Then all core task functions work correctly and the app does not request any unnecessary permissions"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Create store listing assets and privacy policy",
+          "criteria": [
+            "Given store submission requirements, When the 3d_team delivers the app icon, Then icons are provided in all required sizes for both iOS and Android platform guidelines with no transparency violations on iOS",
+            "Given both storefronts require a privacy policy URL, When the policy page is published, Then it accurately states no personal data is collected and the URL resolves correctly on both store listing pages"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "3d_team"
+        }
+      ]
+    },
+    {
+      "name": "QA & Polish",
+      "stories": [
+        {
+          "title": "Validate data persistence and edge case handling",
+          "criteria": [
+            "Given the app has tasks stored, When the device is restarted and the app is reopened, Then all task data is fully intact with no missing or corrupted records",
+            "Given the user enters a task title at the maximum 120-character limit, When the task is saved and displayed, Then the title is stored completely and the row layout does not overflow or truncate incorrectly"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Perform cross-device UI and regression testing",
+          "criteria": [
+            "Given the release candidate build, When tested on iPhone SE 3rd gen, iPhone 14 Pro Max, a mid-range Android phone, and a large Android tablet in portrait mode, Then all screens render without layout overflow, text clipping, or broken components",
+            "Given all Must Have stories are complete, When a full regression test pass is executed against all acceptance criteria, Then zero critical or high severity defects remain unresolved before submission"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/test-product_20260324_141925.md",
+    "generated_at": "2026-03-24T14:21:39.548030+00:00",
+    "status": "pending_review"
+  }
+}
