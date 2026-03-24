@@ -869,9 +869,9 @@ function stopProc(){ clearInterval(pollTimer); clearInterval(procMsgInt); clearI
 function renderReview(){
   const d=backlogData;
   document.getElementById('proj-name').textContent = d.project_name||'Product Backlog';
-  document.getElementById('proj-vision').textContent = d.vision||'';
+  document.getElementById('proj-vision').textContent = '';
   const all=d.epics.flatMap(e=>e.stories);
-  const pts=all.reduce((a,s)=>a+s.story_points,0), sp=Math.max(...all.map(s=>s.sprint));
+  const pts=all.reduce((a,s)=>a+(s.points||0),0), sp=Math.max(...all.map(s=>s.sprint||1));
   document.getElementById('stats').innerHTML=`
     <div class="stat-card"><div class="stat-n">${d.epics.length}</div><div class="stat-l">Epics</div></div>
     <div class="stat-card"><div class="stat-n">${all.length}</div><div class="stat-l">Stories</div></div>
@@ -880,10 +880,8 @@ function renderReview(){
   document.getElementById('epics').innerHTML=d.epics.map((ep,ei)=>`
     <div class="epic-card${ei===0?' open':''}" id="ep${ei}">
       <div class="epic-hd" onclick="toggleEpic(${ei})">
-        <span class="epic-id">${ep.id}</span>
         <div class="epic-info">
           <div class="epic-name">${esc(ep.name)}</div>
-          <div class="epic-desc">${esc(ep.description||'')}</div>
         </div>
         <span class="epic-ct">${ep.stories.length} stories</span>
         <span class="epic-chev">▼</span>
@@ -895,22 +893,20 @@ function storyHtml(s,ei,si){
   const pm={'Must Have':'p-must','Should Have':'p-should','Could Have':'p-could','Wont Have':'p-wont'};
   return `<div class="story-card">
     <div class="story-hd">
-      <span class="story-id">${s.id}</span>
       <input class="story-ti" type="text" value="${esc(s.title)}" onchange="upd(${ei},${si},'title',this.value)">
     </div>
-    <div class="story-narr">${esc(s.user_story)}</div>
     <div class="story-meta">
       <select class="meta-sel ${pm[s.priority]||'p-wont'}" onchange="upd(${ei},${si},'priority',this.value);this.className='meta-sel '+({'Must Have':'p-must','Should Have':'p-should','Could Have':'p-could','Wont Have':'p-wont'}[this.value]||'p-wont')">
         ${['Must Have','Should Have','Could Have','Wont Have'].map(p=>`<option${p===s.priority?' selected':''}>${p}</option>`).join('')}
       </select>
-      <select class="meta-sel" onchange="upd(${ei},${si},'story_points',+this.value)">
-        ${[1,2,3,5,8,13].map(n=>`<option value="${n}"${n===s.story_points?' selected':''}>${n} pts</option>`).join('')}
+      <select class="meta-sel" onchange="upd(${ei},${si},'points',+this.value)">
+        ${[1,2,3,5,8,13].map(n=>`<option value="${n}"${n===s.points?' selected':''}>${n} pts</option>`).join('')}
       </select>
       <select class="meta-sel" onchange="upd(${ei},${si},'sprint',+this.value)">
         ${[1,2,3,4,5].map(n=>`<option value="${n}"${n===s.sprint?' selected':''}>Sprint ${n}</option>`).join('')}
       </select>
     </div>
-    <div class="story-acs">${(s.acceptance_criteria||[]).map(ac=>`<div class="ac"><span class="ac-chk">✓</span><span>${esc(ac)}</span></div>`).join('')}</div>
+    <div class="story-acs">${(s.criteria||[]).map(ac=>`<div class="ac"><span class="ac-chk">✓</span><span>${esc(ac)}</span></div>`).join('')}</div>
   </div>`;
 }
 function toggleEpic(i){ document.getElementById('ep'+i).classList.toggle('open'); }
