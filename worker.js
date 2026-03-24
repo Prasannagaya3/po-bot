@@ -193,70 +193,44 @@ RAW INPUT:
 {raw_text}
 ---`;
 
-const BACKLOG_SYSTEM = `You are a Principal Product Owner embedded in a Unity game studio with 15 years of Agile/Scrum experience.
-You understand exactly how game development works and how to write stories that engineers and artists can act on immediately.
+const BACKLOG_SYSTEM = `You are a Principal Product Owner at a Unity game studio.
+Create a sprint-ready backlog from the game document.
 
-PROCESS:
-1. Read the full game document — understand the genre, loop, platforms, art style
-2. Write a one-sentence vision that captures what makes this game worth building
-3. Create 5-8 Epics that cover the full game — use these as your guide:
-   - Core Gameplay Mechanics (physics, controls, game loop)
-   - Characters & Animation (player, NPCs, enemies, rigs)
-   - Environments & Level Design (scenes, layouts, props)
-   - UI / UX (menus, HUD, screens, flows)
-   - Audio & Visual FX (SFX, music, particles, shaders)
-   - Backend & Services (cloud saves, leaderboards, auth, analytics)
-   - Store & Release (build pipeline, platform submission, certificates)
-   - QA & Polish (bug fixes, performance, playtesting)
-   Only include epics that are relevant to the document.
-4. Write 2-6 stories per epic — make each story a single deliverable unit of work
-5. Write 2-3 Acceptance Criteria per story using Given/When/Then — be specific and testable
-6. Story points: 1=trivial 2=small 3=medium 5=large 8=complex 13=very complex
-7. MoSCoW priorities: Must Have=MVP launch blocker, Should Have=important but not blocking, Could Have=nice-to-have, Wont Have=explicitly out of scope
-8. Sprint planning:
-   - Sprint 1: Walking skeleton — one playable scene, basic movement, placeholder art, project builds and runs on target platform
-   - Sprint 2-3: All Must Have stories complete — core loop is fun and testable
-   - Sprint 4+: Should Have and Could Have stories
+EPICS: Pick 4-6 from this list (only what the document supports):
+Core Gameplay Mechanics | Characters & Animation | Environments & Level Design |
+UI / UX | Audio & Visual FX | Backend & Services | Store & Release | QA & Polish
 
-RULES:
-- Story titles must be action-oriented and specific: "Implement double-jump with coyote time" not "Add jumping"
-- Acceptance criteria must be testable by a QA person or playtester
-- Every story belongs to exactly ONE team — assign based on the actual implementation work
-- Never write a story that two teams need to implement together — split it into two stories
-- Base ONLY on the document content. Story IDs: US-001... Epic IDs: E1...
-- OUTPUT: valid JSON only — no markdown, no explanation, start with { end with }
+STORIES: 2-4 per epic. Each story = one deliverable unit of work.
+CRITERIA: exactly 2 per story, Given/When/Then format, testable by QA.
+POINTS: 1=trivial 2=small 3=medium 5=large 8=complex
+PRIORITY: Must Have=MVP blocker | Should Have=important | Could Have=nice-to-have
+SPRINTS: Sprint 1=walking skeleton, Sprint 2-3=all Must Haves, Sprint 4+=rest
 
-TEAM ASSIGNMENT RULES (assign "team" field to every story):
-- "unity_dev"  → C# scripting, MonoBehaviours, Unity scenes, Prefabs, Physics (Rigidbody/Colliders), Animation Controllers (Animator), UI Canvas/uGUI, TextMeshPro, NavMesh, Cinemachine, Input System, Build pipeline, iOS/Android deployment, Unity Store integration, any programming task
-- "3d_team"    → Blender/Maya models, UV unwrapping, PBR textures, skeletal rigs, keyframe animations, blend shapes, particle systems, VFX Graph, Shader Graph materials, environmental art, character design, sound effects files, music composition, audio mixing
-- "backend"    → REST APIs, Firebase/PlayFab/custom server, SQL/NoSQL databases, cloud save systems, leaderboard APIs, matchmaking, authentication, push notifications, analytics events, webhook handlers, server-side game logic`;
+TEAM (every story must have one):
+"unity_dev"  = C# scripts, Unity scenes, physics, UI canvas, build pipeline, store deployment
+"3d_team"    = 3D models, textures, rigs, animations, VFX, shader graph, SFX, music
+"backend"    = APIs, Firebase/PlayFab, databases, cloud saves, leaderboards, auth, analytics
 
-const BACKLOG_PROMPT_TPL = `Return a complete sprint-ready product backlog as JSON.
-Every field is mandatory. Every story must have a "team" field.
+OUTPUT: valid JSON only — no markdown, no explanation.`;
+
+const BACKLOG_PROMPT_TPL = `Return the backlog as JSON using EXACTLY this schema:
 
 {
-  "project_name": "string — the game title",
-  "vision": "string — one sentence: what game this is, for whom, and why it is compelling",
-  "personas": ["string — player type with brief description"],
+  "project_name": "string",
   "epics": [
     {
-      "id": "E1",
-      "name": "string — epic name (e.g. Core Gameplay Mechanics)",
-      "description": "string — what this epic covers and why it matters for the game",
+      "name": "string",
       "stories": [
         {
-          "id": "US-001",
-          "title": "string — specific action verb + object, max 8 words",
-          "user_story": "As a [persona], I want [specific feature], so that [clear player benefit]",
-          "acceptance_criteria": [
-            "Given [context] When [player action] Then [specific measurable outcome]",
-            "Given [context] When [edge case] Then [expected behaviour]"
+          "title": "string — action verb + object, max 8 words",
+          "criteria": [
+            "Given ... When ... Then ...",
+            "Given ... When ... Then ..."
           ],
-          "story_points": 3,
+          "points": 3,
           "priority": "Must Have",
           "sprint": 1,
-          "team": "unity_dev",
-          "notes": "string — technical notes, dependencies, or open questions (empty string if none)"
+          "team": "unity_dev"
         }
       ]
     }
@@ -611,29 +585,26 @@ async function handleApprove(request, env) {
 
   for (const epic of backlog.epics) {
     for (const story of epic.stories) {
-      const acLines = (story.acceptance_criteria || []).map(ac => `• ${ac}`).join('\n');
+      const acLines = (story.criteria || []).map(ac => `• ${ac}`).join('\n');
       const epicLabel = epic.name.replace(/[^a-zA-Z0-9]/g, '_');
       const priorityLabel = (story.priority || 'Could_Have').replace(/ /g, '_');
 
-      // Team: use AI-assigned field first, fall back to keyword guess
       const teamId = story.team || teamLabelFor(`${story.title} ${epic.name}`);
-      const teamLabel = teamId;
       const assigneeAccountId = teamAccountIds[teamId] || null;
 
       const issueFields = {
         project: { key: finalKey },
-        summary: `[${story.id}] ${story.title}`,
+        summary: story.title,
         description: {
           type: 'doc', version: 1,
           content: [
             { type: 'paragraph', content: [{ type: 'text', text: `Epic: ${epic.name}`, marks: [{ type: 'strong' }] }] },
-            { type: 'paragraph', content: [{ type: 'text', text: story.user_story || '', marks: [{ type: 'em' }] }] },
             { type: 'paragraph', content: [{ type: 'text', text: `Acceptance Criteria:\n${acLines}` }] },
-            { type: 'paragraph', content: [{ type: 'text', text: `Sprint: ${story.sprint} | Points: ${story.story_points} | Priority: ${story.priority} | Team: ${teamId}` }] },
+            { type: 'paragraph', content: [{ type: 'text', text: `Sprint: ${story.sprint} | Points: ${story.points} | Priority: ${story.priority} | Team: ${teamId}` }] },
           ],
         },
         issuetype: { name: storyTypeName },
-        labels: [epicLabel, priorityLabel, `Sprint_${story.sprint}`, teamLabel],
+        labels: [epicLabel, priorityLabel, `Sprint_${story.sprint}`, teamId],
       };
       if (assigneeAccountId) issueFields.assignee = { accountId: assigneeAccountId };
 
@@ -698,7 +669,7 @@ async function handleApprove(request, env) {
 
         // Unique sprint numbers from the backlog, sorted ascending
         const sprintNums = [...new Set(
-          backlog.epics.flatMap(e => e.stories.map(s => Number(s.sprint)))
+          backlog.epics.flatMap(e => (e.stories||[]).map(s => Number(s.sprint)))
         )].filter(n => !isNaN(n) && n > 0).sort((a, b) => a - b);
 
         // Base date: today at 09:00 UTC
