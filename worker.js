@@ -558,17 +558,16 @@ async function handleApprove(request, env) {
     }
   }
 
-  // Build team → Jira accountId map from TEAMS_CONFIG
-  // For each team member email, look up their Jira account ID once upfront
+  // Build team → Jira accountId map — only for selected members
   const teamAccountIds = {}; // teamId → accountId
   try {
     const teamsConfig = JSON.parse(env.TEAMS_CONFIG || '{}');
-    const allTeams = teamsConfig.teams || [];
-    for (const team of allTeams) {
-      const member = (team.members || [])[0]; // primary member per team
-      if (!member?.email) continue;
+    for (const team of (teamsConfig.teams || [])) {
+      // Find first member of this team whose email was selected in the Members screen
+      const selectedMember = (team.members || []).find(m => project_members.includes(m.email));
+      if (!selectedMember?.email) continue;
       const searchRes = await fetch(
-        `${jiraBase}/user/search?query=${encodeURIComponent(member.email)}&maxResults=1`,
+        `${jiraBase}/user/search?query=${encodeURIComponent(selectedMember.email)}&maxResults=1`,
         { headers: jHeaders }
       );
       if (searchRes.ok) {
@@ -636,21 +635,16 @@ async function handleApprove(request, env) {
     return jsonResponse({ error: `Stories failed: ${errors[0]}` }, 500);
   }
 
-  // Invite project members — always include PO, best-effort
+  // Invite only the selected project members
   let totalInvited = 0;
   try {
-    const teamsConfig = JSON.parse(env.TEAMS_CONFIG || '{}');
-    const poEmail = teamsConfig.po?.email;
-    const allEmails = [...new Set([
-      ...(poEmail ? [poEmail] : []),
-      ...project_members.filter(Boolean),
-    ])];
-    if (allEmails.length > 0) {
+    const emails = project_members.filter(Boolean);
+    if (emails.length > 0) {
       const invRes = await fetch(`${jiraBase}/project/${finalKey}/role/10002`, {
         method: 'POST', headers: jHeaders,
-        body: JSON.stringify({ emailAddress: allEmails }),
+        body: JSON.stringify({ emailAddress: emails }),
       });
-      if (invRes.ok) totalInvited = allEmails.length;
+      if (invRes.ok) totalInvited = emails.length;
     }
   } catch (_) {}
 
