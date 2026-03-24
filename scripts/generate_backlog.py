@@ -166,7 +166,7 @@ You understand exactly how game development works and how to write stories that 
 PROCESS:
 1. Read the full game document — understand the genre, loop, platforms, art style
 2. Write a one-sentence vision that captures what makes this game worth building
-3. Create 5-8 Epics that cover the full game — use these as your guide:
+3. Create 4-6 Epics — only ones directly supported by the document:
    - Core Gameplay Mechanics (physics, controls, game loop)
    - Characters & Animation (player, NPCs, enemies, rigs)
    - Environments & Level Design (scenes, layouts, props)
@@ -175,9 +175,8 @@ PROCESS:
    - Backend & Services (cloud saves, leaderboards, auth, analytics)
    - Store & Release (build pipeline, platform submission, certificates)
    - QA & Polish (bug fixes, performance, playtesting)
-   Only include epics that are relevant to the document.
-4. Write 2-6 stories per epic — make each story a single deliverable unit of work
-5. Write 2-3 Acceptance Criteria per story using Given/When/Then — be specific and testable
+4. Write 2-4 stories per epic — each story is ONE deliverable unit
+5. Write exactly 2 Acceptance Criteria per story using Given/When/Then
 6. Story points: 1=trivial 2=small 3=medium 5=large 8=complex 13=very complex
 7. MoSCoW priorities: Must Have=MVP launch blocker, Should Have=important but not blocking, Could Have=nice-to-have, Wont Have=explicitly out of scope
 8. Sprint planning:
@@ -243,7 +242,7 @@ def stage2_generate(doc_text, doc_name):
 
     msg = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=8192,
+        max_tokens=16000,
         system=BACKLOG_SYSTEM,
         messages=[{"role": "user", "content": BACKLOG_PROMPT.format(doc_text=doc_text[:12000])}]
     )
