@@ -58,7 +58,13 @@ TEAMS_CONFIG = json.dumps({
                     "name": "Gowtham",
                     "email": "gowthamghayth@gmail.com",
                     "role": "developer",
-                    "title": "3D Modeller"
+                    "title": "3D Modeller & Animator"
+                },
+                {
+                    "name": "Rajesh",
+                    "email": "rajeshdaivala292@gmail.com",
+                    "role": "developer",
+                    "title": "3D Modeller & Sound Artist"
                 }
             ]
         },
