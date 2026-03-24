@@ -605,7 +605,8 @@ async function handleApprove(request, env) {
         issuetype: { name: storyTypeName },
         labels: [epicLabel, priorityLabel, `Sprint_${story.sprint}`, teamId],
       };
-      if (assigneeAccountId) issueFields.assignee = { accountId: assigneeAccountId };
+      // Explicitly set assignee — null forces Jira to leave it unassigned instead of defaulting to project lead
+      issueFields.assignee = assigneeAccountId ? { accountId: assigneeAccountId } : null;
 
       const sRes = await fetch(`${jiraBase}/issue`, {
         method: 'POST', headers: jHeaders,
