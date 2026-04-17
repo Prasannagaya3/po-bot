@@ -1,0 +1,260 @@
+{
+  "project_name": "VR EduSpace — Interactive Learning Platform",
+  "epics": [
+    {
+      "name": "Core Gameplay Mechanics",
+      "stories": [
+        {
+          "title": "Implement XRI controller and hand-tracking input",
+          "criteria": [
+            "Given the app is running on Meta Quest 2 or Quest 3, When the user performs a grip button press or pinch-and-hold gesture, Then the target 3D object is grabbed and follows hand/controller movement with no more than 1 frame of lag.",
+            "Given hand tracking is not detected, When the app initialises input, Then it automatically falls back to 6DOF controller input without crashing or displaying errors."
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Build physics-based object snap confirmation system",
+          "criteria": [
+            "Given a grabbable 3D object is being manipulated in a lesson, When the object is released within 5cm of the correct target position, Then the object snaps into place, a haptic pulse fires, and the confirmation VFX plays within the same rendered frame.",
+            "Given the object is released outside the 5cm snap threshold, When the physics simulation resolves, Then the object remains at its released position and no confirmation feedback is triggered."
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement variable simulation slider controls",
+          "criteria": [
+            "Given a Physics or Chemistry lesson is active with a simulation stage, When the user drags a slider or dial control to adjust a variable such as velocity or temperature, Then the scene reacts with updated particle or object behaviour within the same rendered frame with no observable delay.",
+            "Given a slider is being dragged continuously, When the interaction is in progress, Then the subtle slider scrub SFX plays in a continuous loop and stops immediately on release."
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Build real-time 3D graph interaction for Math",
+          "criteria": [
+            "Given a Math episode with a Cartesian graph is active, When the user grabs and moves a control point to adjust slope or intercept, Then the equation overlay text updates within 0.05 seconds and the graph line redraws in real time using the animated draw shader.",
+            "Given a control point is grabbed and moved to an extreme graph boundary, When the position is applied, Then the equation overlay clamps to a valid displayable value and does not throw a null reference exception."
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        }
+      ]
+    },
+    {
+      "name": "UI / UX",
+      "stories": [
+        {
+          "title": "Build Home Environment gaze-and-tap navigation shell",
+          "criteria": [
+            "Given the app launches and the Home Environment loads, When the user gazes at a subject tile for 1.5 seconds without input, Then the tile enters a hover state displaying a tooltip panel with subject name and episode count.",
+            "Given a tile is in hover state, When the user presses the controller trigger or performs a hand pinch, Then the subject is selected and the app transitions to the Subject Episode list within 0.4 seconds via the spatial fade overlay."
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement wrist UI overlay with quick-access panels",
+          "criteria": [
+            "Given the user is in any scene, When the user flips their left wrist upward, Then the wrist UI panel scales up from the wrist origin with a 0.15-second ease-out animation and displays Profile, Progress, Settings, and Jump Menu icons.",
+            "Given the wrist UI is open, When the user re-flips their wrist downward or presses the trigger away from the panel, Then the wrist UI closes with a reverse scale animation and the soft spatial pop SFX plays."
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Build MCQ checkpoint question panel with feedback states",
+          "criteria": [
+            "Given a micro-assessment fires during an episode, When the user selects a wrong answer via gaze-and-trigger or hand-point, Then the selected panel plays a red shake animation, desaturates briefly, the wrong answer tone plays, and a hint panel appears.",
+            "Given a micro-assessment is active, When the user selects the correct answer, Then the panel displays a green pulse with radial ring expand VFX, the correct answer chime plays, and the lesson advances to the next concept chunk."
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Build Progress Dashboard with proficiency gauges",
+          "criteria": [
+            "Given a user has completed at least one episode, When the user opens the Progress Dashboard, Then per-subject proficiency scores are displayed as radial fill gauges (0–100) calculated as the weighted average of checkpoint accuracy across completed episodes.",
+            "Given an episode is completed and the user navigates to the Progress Dashboard, When the dashboard renders, Then the episode node-graph map reflects the updated completion ring state and the weak-area heatmap grid highlights flagged concept areas from the most recent session."
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        }
+      ]
+    },
+    {
+      "name": "Environments & Level Design",
+      "stories": [
+        {
+          "title": "Build Home Environment master scene in Unity",
+          "criteria": [
+            "Given the app launches on Meta Quest 2, When the Home Environment scene loads, Then it renders at a minimum of 72fps with single-pass instanced stereo rendering enabled, the smooth floor plane and ambient lighting are visible, and no z-fighting or shader errors appear.",
+            "Given the Home Environment is loaded, When the user looks around the full 360-degree space, Then floating UI panel anchors are positioned within comfortable reach radius for both seated and standing mode calibrations."
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "3d_team"
+        },
+        {
+          "title": "Create three subject environment colour variants and props",
+          "criteria": [
+            "Given the user selects the Math subject, When the subject environment loads, Then the environment applies the blue accent colour scheme and floating equation props appear layered over the shared base environment without a full scene reload.",
+            "Given the user switches between Math, Physics, and Chemistry subjects in a single session, When each subject environment activates, Then the correct accent colour (blue, orange, green) and thematic prop set load within the 0.4-second fade transition with no texture flickering."
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "3d_team"
+        },
+        {
+          "title": "Build episode learning space interactive 3D stages",
+          "criteria": [
+            "Given a Math episode is started, When the learning space loads, Then a Cartesian graph grid stage is present with grabbable control points correctly positioned and labelled, and the stage renders at target frame rate on Quest 2.",
+            "Given a Chemistry episode is started, When the learning space loads, Then a lab bench stage is present with molecule model components that are individually grabbable and compatible with the physics-based snap system."
+          ],
+          "points": 8,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "3d_team"
+        }
+      ]
+    },
+    {
+      "name": "Characters & Animation",
+      "stories": [
+        {
+          "title": "Produce all UI VFX shaders and particle systems",
+          "criteria": [
+            "Given a correct answer is selected in a checkpoint, When the confirmation event fires, Then the green pulse with radial ring expand VFX plays in full within 0.5 seconds and auto-despawns without leaving orphaned particle objects in the scene hierarchy.",
+            "Given the Episode Completion screen triggers, When the completion event fires, Then the confetti particle burst emits 500–800 particles, runs for 3 seconds, and all particles are despawned automatically without a measurable frame rate drop on Quest 2."
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "3d_team"
+        },
+        {
+          "title": "Produce all UI SFX and background music assets",
+          "criteria": [
+            "Given any UI interaction event occurs such as tile hover, tile select, object grab, snap, or wrist UI open, When the event fires, Then the corresponding SFX defined in the audio specification plays within one frame and no two UI SFX events clip or overlap destructively.",
+            "Given a learning session is active and a checkpoint question panel appears, When the checkpoint panel becomes visible, Then the subject BGM fades down to near-silence via Unity Audio Mixer snapshot within 0.5 seconds and restores on panel dismissal."
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "3d_team"
+        },
+        {
+          "title": "Create all subject UI tile and panel 2D/3D art assets",
+          "criteria": [
+            "Given the Subject Selection carousel is rendered, When the three subject tiles are displayed, Then each tile shows the correct subject-coded accent colour, completion bar, episode count label, and last-accessed label at a resolution that is legible at 0.6 metres viewing distance in VR.",
+            "Given the Episode Detail View panel is opened, When the panel renders, Then objectives list, prerequisites, time estimate, progress bar, and Start/Resume/Bookmark CTA buttons are all present, correctly laid out, and match the frosted-glass dark panel style specification."
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "3d_team"
+        }
+      ]
+    },
+    {
+      "name": "Backend & Services",
+      "stories": [
+        {
+          "title": "Implement cloud save for user progress and state",
+          "criteria": [
+            "Given a user completes an episode on one session, When the episode completion screen is shown, Then progress data including episode completion state, checkpoint accuracy, and skill proficiency score is written to cloud save within 5 seconds and a success confirmation is logged.",
+            "Given a user launches the app after a previously saved session, When the Home Environment loads, Then all episode completion states, progress dashboard data, and bookmarks are restored from cloud save and match the last recorded state."
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "backend"
+        },
+        {
+          "title": "Implement user authentication and profile management",
+          "criteria": [
+            "Given a new user launches the app for the first time, When the authentication flow runs, Then a unique user profile is created in the backend, a local profile record is stored, and the user lands on the Home Environment within 10 seconds on a stable connection.",
+            "Given an existing user launches the app, When authentication completes, Then the correct user profile including display name and progress ring values are loaded into the wrist UI profile panel without displaying another user's data."
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "backend"
+        },
+        {
+          "title": "Implement analytics event tracking for learning sessions",
+          "criteria": [
+            "Given a user starts an episode, When the episode progresses through Concept Explanation, Guided Interaction, Practice Task, and Checkpoint stages, Then discrete analytics events with episode ID, subject, stage name, and timestamp are sent to the backend for each stage transition.",
+            "Given a checkpoint is completed, When the result is submitted, Then an analytics event capturing score, number of attempts, and any hint panel triggers is logged to the backend and queryable within 60 seconds of the event firing."
+          ],
+          "points": 3,
+          "priority": "Should Have",
+          "sprint": 4,
+          "team": "backend"
+        }
+      ]
+    },
+    {
+      "name": "QA & Polish",
+      "stories": [
+        {
+          "title": "Validate 72fps performance baseline on Quest 2",
+          "criteria": [
+            "Given the app is running on a Meta Quest 2 device with Fixed Foveated Rendering enabled, When any scene including the most asset-heavy episode learning space is active and the user performs all standard interactions, Then the frame rate never drops below 72fps as measured by OVR Metrics Tool over a 10-minute session.",
+            "Given a scene transition between Home and any Episode learning space is triggered, When the 0.4-second spatial fade overlay plays, Then no frame rate spike or stutter lasting more than 100ms is recorded and no visual artefacts are present on either eye."
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement and validate motion comfort options",
+          "criteria": [
+            "Given snap-turn is enabled as the default setting, When the user activates a turn input on the thumbstick, Then the view rotates in exactly 30-degree increments with no intermediate animation frames between snap positions.",
+            "Given the vignetting toggle is enabled in Settings, When any locomotion or spatial transition occurs, Then a vignette effect activates at the onset of movement and deactivates within 0.2 seconds of movement stopping, with no vignette present during stationary interaction."
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement episode lock, unlock, and completion state system",
+          "criteria": [
+            "Given a user has not yet completed the prerequisite episode at 60% or above checkpoint accuracy, When the episode tile for the locked episode is rendered, Then the tile displays a Locked state with a lock icon and the Start CTA is non-interactive.",
+            "Given a user completes an episode with a checkpoint accuracy score of 80% or above, When the episode completion screen is shown, Then the episode tile updates to a Completed state with a Mastered badge, the next episode in sequence unlocks, and the episode unlock sound plays."
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/Template_20260417_171003.md",
+    "generated_at": "2026-04-17T17:13:26.333708+00:00",
+    "status": "pending_review"
+  }
+}
