@@ -1,0 +1,282 @@
+{
+  "project_name": "VR EduSpace — Immersive Learning Platform",
+  "epics": [
+    {
+      "name": "Core Gameplay Mechanics",
+      "stories": [
+        {
+          "title": "Implement gaze-plus-tap selection input system",
+          "criteria": [
+            "Given the user gazes at a UI tile for 1.5 seconds, When the dwell timer completes, Then the tile is highlighted and awaits trigger or hand-tap confirmation without requiring additional input",
+            "Given the app runs on a 3DOF controller headset, When the user selects any interactive UI element, Then gaze-based dwell selection functions identically to 6DOF ray-cast selection with no code path errors"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Build object grab-rotate-place interaction system",
+          "criteria": [
+            "Given a learner is inside a 6DOF lesson, When they grip a GrabInteractable object such as a graph point or molecular model, Then the object follows controller position and rotation with no visible lag exceeding one frame at 72fps",
+            "Given a learner releases a grabbed object, When the object is within a valid placement zone, Then it snaps to the target position and the corresponding simulation state updates in real time"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement variable simulation slider control",
+          "criteria": [
+            "Given a lesson exposes a slider or dial UI element, When the learner adjusts the value, Then the 3D scene updates the corresponding simulation output within one rendered frame at the current target frame rate",
+            "Given the slider value is changed to any point in its defined range, When the scene re-renders, Then no frame rate drop below 72fps occurs on a Meta Quest 2 baseline device"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement checkpoint hint system with answer reveal",
+          "criteria": [
+            "Given a learner submits an incorrect answer, When a first or second wrong attempt is recorded, Then a contextual hint panel appears and no correct answer is shown until the third failed attempt",
+            "Given a learner fails a question three times, When the third incorrect attempt is submitted, Then the correct answer is revealed alongside a text explanation and the question is marked complete without blocking progression"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        }
+      ]
+    },
+    {
+      "name": "Environments & Level Design",
+      "stories": [
+        {
+          "title": "Build minimal home environment with panel mounts",
+          "criteria": [
+            "Given the app launches, When the home environment loads, Then the neutral room with soft ambient lighting, floating panel mount points, and wrist UI anchor renders at 72fps minimum on Quest 2 with no missing assets",
+            "Given the home environment is active, When the learner looks at the centre panel, Then the Subject Tile cards for Math, Physics, and Chemistry are visible, correctly positioned, and selectable via gaze-plus-tap"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "3d_team"
+        },
+        {
+          "title": "Create shared subject learning stage with modular spawn points",
+          "criteria": [
+            "Given any lesson is started, When the learning stage scene loads, Then the clean white-void stage renders with all modular object spawn points correctly placed and no visual clutter or stray geometry present",
+            "Given the learning stage is loaded for different subjects, When subject-specific lesson props are instantiated at spawn points, Then props appear at correct positions with correct scale and no z-fighting or overlap with stage geometry"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "3d_team"
+        },
+        {
+          "title": "Build subject-specific lesson prop asset sets",
+          "criteria": [
+            "Given a Math lesson is active, When the coordinate graph plane and moveable point handles are spawned, Then learners can drag graph points and observe the associated equation surface update in real time",
+            "Given a Chemistry lesson is active, When atom sphere and bond cylinder prefabs are spawned, Then each atom is colour-coded by element type and bond formation triggers the cylinder scale-in glow animation without frame rate drops on Quest 2"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "3d_team"
+        },
+        {
+          "title": "Implement smooth spatial scene transitions",
+          "criteria": [
+            "Given a learner initiates any scene change, When the transition begins, Then a 0.5-second fade-to-black or spatial zoom-out plays with no hard cut and no frame rate drop below 72fps during the transition",
+            "Given the transition overlay is active, When an optional loading text string is provided by the scene data, Then the 'What you will learn' text renders centred on the fade overlay in the currently selected text size setting"
+          ],
+          "points": 2,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        }
+      ]
+    },
+    {
+      "name": "UI / UX",
+      "stories": [
+        {
+          "title": "Build episode browser and detail panel UI",
+          "criteria": [
+            "Given a learner selects a subject, When the episode browser opens, Then all episodes are grouped by chapter with correct lock or unlock state, difficulty tag, duration badge, and completion status indicator displayed on each tile",
+            "Given a learner selects an episode tile, When the Episode Detail Panel opens, Then objectives list, prerequisites, estimated time, and Start or Resume and Bookmark buttons are all present and each button triggers the correct action"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Implement wrist UI with profile and settings access",
+          "criteria": [
+            "Given the learner raises their wrist in any scene, When the wrist gesture is detected, Then the compact wrist strip scales up from the wrist anchor with Profile, Progress, Settings, Bookmark, and Home icons all functional",
+            "Given the learner taps the Settings icon on the wrist UI, When the settings panel opens, Then Seated or Standing mode toggle, text size selector, snap-turn angle selector, and vignette toggle are all present and changes persist to the user profile immediately"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Build MCQ and numeric answer input panels",
+          "criteria": [
+            "Given a checkpoint MCQ question fires, When the floating answer panel renders, Then two to four option tiles are displayed and gaze or ray-cast selection followed by trigger confirm registers the answer without double-input errors",
+            "Given a checkpoint requires a numeric answer, When the world-space number pad renders, Then the learner can enter digits and confirm with the submit button, and the submitted value is correctly passed to the answer evaluation logic"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "unity_dev"
+        },
+        {
+          "title": "Build episode completion screen UI",
+          "criteria": [
+            "Given a learner reaches the end of all lesson checkpoints, When the completion screen renders, Then score percentage, mastered concepts list, weak areas list, time spent, and Retry or Next Episode action buttons are all visible and accurate",
+            "Given the learner scores below 70 percent, When the completion screen renders, Then the episode is marked Needs Review in amber and a Retry recommended prompt is displayed without blocking the Next Episode button"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "unity_dev"
+        }
+      ]
+    },
+    {
+      "name": "Characters & Animation",
+      "stories": [
+        {
+          "title": "Animate wrist UI appear and disappear transitions",
+          "criteria": [
+            "Given the wrist UI is triggered to open, When the animation plays, Then the strip scales up from the wrist anchor point over no more than 200 milliseconds with no visible pop or stutter at 72fps",
+            "Given the wrist UI is triggered to close, When the animation plays, Then the strip scales down to zero at the wrist anchor and all colliders are disabled before the animation completes to prevent ghost interactions"
+          ],
+          "points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "3d_team"
+        },
+        {
+          "title": "Implement hover glow and selection ripple VFX on UI tiles",
+          "criteria": [
+            "Given the learner gazes at or ray-casts over an interactive tile, When hover state activates, Then the emission pulse shader plays on the tile border with no shader compile stall causing a frame drop on first display",
+            "Given the learner confirms a tile selection, When the confirm input registers, Then the selection ripple effect plays on the tile surface and completes within 300 milliseconds before the next scene action executes"
+          ],
+          "points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "3d_team"
+        },
+        {
+          "title": "Create correct and incorrect answer feedback VFX",
+          "criteria": [
+            "Given a learner submits a correct answer, When the answer is evaluated as correct, Then a subtle green sparkle particle burst plays at the answer panel position with a total particle count low enough to maintain 72fps on Quest 2",
+            "Given a learner submits an incorrect answer, When the answer is evaluated as incorrect, Then the answer panel plays a shake animation and a red flash overlay lasting no more than 500 milliseconds before returning to idle state"
+          ],
+          "points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "3d_team"
+        }
+      ]
+    },
+    {
+      "name": "Audio & Visual FX",
+      "stories": [
+        {
+          "title": "Integrate home ambient and learning focus music tracks",
+          "criteria": [
+            "Given the learner is on the Home or Subject Selection screen, When the scene loads, Then the calm lo-fi ambient track plays in a seamless loop with no audible click at the loop point",
+            "Given the learner enters a Learning Experience scene, When the scene transition completes, Then the home ambient track cross-fades to the learning focus track within one second and the home track audio source is fully stopped"
+          ],
+          "points": 2,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "3d_team"
+        },
+        {
+          "title": "Implement full UI and interaction SFX library",
+          "criteria": [
+            "Given any interactive UI tile is gazed at or hovered, When hover state activates, Then the soft click or chime SFX plays at the correct spatial position without overlapping with simultaneous SFX events",
+            "Given the learner grabs a lesson object, When the grab is confirmed by XRI, Then haptic feedback fires on the controller and the soft grab audio clip plays within the same frame; on release the appropriate thud or click SFX plays"
+          ],
+          "points": 3,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "3d_team"
+        },
+        {
+          "title": "Integrate episode completion fanfare sting",
+          "criteria": [
+            "Given a learner reaches the episode completion screen, When the screen renders, Then the three-to-five second completion fanfare sting plays exactly once and does not loop",
+            "Given the learner navigates away from the completion screen before the fanfare finishes, When the scene transition starts, Then the fanfare audio source is stopped cleanly within the fade duration with no audio bleed into the next scene"
+          ],
+          "points": 1,
+          "priority": "Should Have",
+          "sprint": 4,
+          "team": "3d_team"
+        }
+      ]
+    },
+    {
+      "name": "Backend & Services",
+      "stories": [
+        {
+          "title": "Implement cloud save for episode progress and bookmarks",
+          "criteria": [
+            "Given a learner completes a checkpoint or toggles a bookmark, When the session ends or the app is suspended, Then episode completion percentage, checkpoint accuracy, and bookmark state are written to cloud save and retrievable on any device linked to the same account",
+            "Given a learner launches the app on a new device, When authentication completes, Then the Continue Learning panel surfaces the correct last-accessed episode with accurate completion percentage pulled from cloud save within three seconds"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 2,
+          "team": "backend"
+        },
+        {
+          "title": "Build rule-based adaptive episode recommendation engine",
+          "criteria": [
+            "Given a learner completes an episode, When the completion screen renders, Then the system evaluates completion order and weak-area skill tags to surface one recommended next episode using rule-based logic with no ML dependency",
+            "Given a learner has one or more episodes marked Needs Review in the weak-area heatmap, When the recommendation logic runs, Then those episodes are ranked higher in the recommendation output than unstarted higher-difficulty episodes of the same subject"
+          ],
+          "points": 5,
+          "priority": "Should Have",
+          "sprint": 3,
+          "team": "backend"
+        },
+        {
+          "title": "Implement progress dashboard data aggregation and reporting",
+          "criteria": [
+            "Given a learner opens the Progress Dashboard, When the panel renders, Then subject mastery scores as 0 to 100 percent, episode node-map completion states, and skill proficiency heatmap data are all populated from backend within two seconds",
+            "Given a learner completes additional checkpoints after viewing the dashboard, When they reopen the dashboard in the same session, Then all three data views reflect the updated accuracy values without requiring a full app restart"
+          ],
+          "points": 5,
+          "priority": "Must Have",
+          "sprint": 3,
+          "team": "backend"
+        },
+        {
+          "title": "Set up user authentication and profile management",
+          "criteria": [
+            "Given a new user launches the app for the first time, When they complete the onboarding sign-up flow, Then a user profile is created in the backend with a unique ID, preferred text size defaults to Medium, and mode defaults to Seated",
+            "Given an existing user launches the app, When authentication succeeds, Then their stored profile settings including text size and mode preference are applied before the home environment finishes loading"
+          ],
+          "points": 3,
+          "priority": "Must Have",
+          "sprint": 1,
+          "team": "backend"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "source_document": "standardised/VR Educational App.docx_20260422_172131.md",
+    "generated_at": "2026-04-22T17:25:46.141245+00:00",
+    "status": "pending_review"
+  }
+}
